@@ -14,6 +14,8 @@ disassembler/bnl_dis.pl - rozebírá BNL soubor na mp3 soubory a bnl.yaml.
 
 firmware_cutter/fw_cutter.pl - identifikuje a rozřezává obsah firmware souboru update.chp
 
+firmware_disasm - v současné chvíli obsahuje jen polo-automaticky vytvořené disasembly jednoho z prvních firmware
+
 oid_generator/oid_png_generator - generuje vytisknutelný png soubor s jedním OID kódem. Nebo více ze vstupního souboru
 
 oid_rawtable/oid_table_extract - extrahuje konverzní tabulku OID 2.0 raw kódů na interní kódy z nástroje OidCreator

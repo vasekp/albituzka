@@ -24,8 +24,8 @@
 - https://www.sonix.com.tw/article-en-4260-29173
 
 ### Albi soubory
-- CZ https://www.kouzelnecteni.cz/stahnout-audio-soubor/
-- SK https://www.kuzelnecitanie.sk/prevziat-audiosubor/
+- CZ https://www.kouzelnecteni.cz/soubory-ke-stazeni
+- SK https://www.kuzelnecitanie.sk/sk/subory-na-stiahnutie
 - PL https://www.czytajzalbikiem.pl/pl/ksiazki/pobieranie-plikow
 - HU https://tolki.hu/hangfajlok/
 - RO https://www.raspundelistetel.ro/ro/fisiere-pentru-descarcare

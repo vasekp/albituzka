@@ -1,0 +1,3473 @@
+#disassembly mapping description
+#this is for oldest known Albi firmware SNC7003 from 2015 and most probably WON't work on other firmware files
+#firmware is loaded as block from 0x400000. On 0x400080 is module description which then copies part of the flash to PRAM.
+#the PRAM, in disassembly starting from 0x4000, starts with interrupt vectors, first of them being started after reset
+#it calls SysMain routine and then... magic. Don't forget that all addresses are WORD based.
+#unfortunately, contents of 0x0-0x3FFF ROM and 0x280000 ROM is unknown, only function headers are documented.
+
+
+[MAPPING]
+
+infile update_old.chp
+outfile firmware_old.asm
+
+org 0x400000
+
+wstr 0x18
+wstr 0x38
+wstr 0x38
+
+dword 12x
+wstr 0x16
+asm 2
+dword 3x
+asm 0x24
+
+str 8	comment:chip name, reversed
+
+word 1x	comment:number of modules
+word 1x	comment:project ID
+word 1x	comment:PRAM length in words
+dword 1x	comment:start of PRAM/interrupt table
+word 4x
+
+asm 1254
+
+
+#version
+wstr 0x34	comment:version	sym:ascii_version
+#pointer to next table
+dword 1x
+#string table and strings
+skip 0xde2e
+
+#from here is PRAM
+org 0x4000
+
+asm 0x57e8
+
+word 12x
+word 13x
+
+word 10x
+dword 9x
+word 10x
+word 10x
+word 10x
+word 10x
+word 10x
+word 10x
+word 10x
+word 10x
+word 10x
+
+
+asm 0x23FC
+
+skip 120
+
+wstr 0x6
+wstr 0x22
+#end of PRAM is here
+
+org 0x40b104
+
+asm 0xb5b6
+jumptable 4x
+
+asm 0x15d8
+jumptable 21x
+
+asm 0x5026
+jumptable 4x
+
+asm 0x3ac8
+jumptable 14x
+
+asm 0xa6
+jumptable 14x
+
+asm 0xa6
+jumptable 14x
+
+asm 0x16ee
+jumptable 48x
+
+asm 0x3c
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7a
+jumptable 22x
+
+#beg of gen
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0x11B0
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x296A
+jumptable 9x
+
+asm 0xF8
+jumptable 12x
+
+asm 0xB10
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x416
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0xDFA
+jumptable 73x
+
+asm 0x698
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0xD74
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x82A
+jumptable 73x
+
+asm 0x868
+jumptable 35x
+
+asm 0x3A
+jumptable 5x
+
+asm 0x3A
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x66C
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0x1150
+jumptable 73x
+
+asm 0x638
+jumptable 39x
+
+asm 0x4BA4
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x438
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0xDFA
+jumptable 73x
+
+asm 0x8CA
+jumptable 5x
+
+asm 0xF0
+jumptable 39x
+
+asm 0x71C
+jumptable 38x
+
+asm 0x2480
+jumptable 8x
+
+asm 0xF24
+jumptable 13x
+
+asm 0xE8
+jumptable 5x
+
+asm 0x30A
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x416
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0x1032
+jumptable 73x
+
+asm 0x60A
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x4CA
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0x42
+jumptable 4x
+
+asm 0x1038
+jumptable 73x
+
+asm 0x1698
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x7F0
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0x1A76
+jumptable 73x
+
+asm 0x11EE
+jumptable 73x
+
+asm 0x46C
+jumptable 5x
+
+asm 0x31A
+jumptable 8x
+
+asm 0x1BA0
+jumptable 34x
+
+asm 0x3C
+jumptable 4x
+
+asm 0x3C
+jumptable 22x
+
+asm 0x4C
+jumptable 13x
+
+asm 0x416
+jumptable 48x
+
+asm 0x3C
+jumptable 34x
+
+asm 0x70
+jumptable 22x
+
+asm 0x7A
+jumptable 22x
+
+asm 0x42
+jumptable 9x
+
+asm 0x42
+jumptable 5x
+
+asm 0xFB6
+jumptable 73x
+
+asm 0x10E2
+jumptable 8x
+
+asm 0x99C
+
+#end of gen
+
+wstr 0x12
+wstr 4
+wstr 4
+wstr 6
+wstr 4
+wstr 30
+wstr 4
+wstr 0x2a
+
+word 16x
+word 16x
+
+#0x4285b8
+word 55x	sym:Indices_to_3bin_2nd_mp3_table
+word 3x
+word 38x
+word 9x
+dword 3x
+str 0x38
+
+wstr 4
+wstr 6
+wstr 0x2c
+wstr 4
+wstr 4
+wstr 6
+wstr 0x24
+wstr 4
+wstr 6
+wstr 0x18
+wstr 0x22
+wstr 0x18
+wstr 0x10
+wstr 0x12
+wstr 0x4
+wstr 0x22
+wstr 0xa
+wstr 0x4
+wstr 0x4
+
+word 4225x
+
+str 16
+wstr 4
+wstr 6
+wstr 4
+wstr 0x14
+wstr 0x30
+wstr 4
+wstr 0x22
+
+
+word 256x	sym:TblUnk1
+word 256x	sym:TblUnk2
+word 256x	sym:TblUnk3
+word 256x	sym:TblUnk4
+
+skip 1410
+
+#0x429e58
+word 17x	sym:Tbl_Volume_Levels
+
+#0x429e69
+word 60x
+
+#0x429ea5
+word 17x
+
+#0x429eb6
+word 448x
+
+#0x42a076
+word 256x
+
+#0x42a176
+word 256x
+
+#0x42a276
+word 50x
+
+#42a2a8
+word 128x	sym:Tbl_mp3_encryption_offsets
+
+#42a328
+word 12x	sym:Tbl_fwcode_to_bookmode
+
+skip 0x2b998
+
+
+
+#end of mapping area
+
+
+[SYMBOLS]
+
+0x41fec5	SetupAllPorts
+0x41fe87	SetPort4Bit8
+0x41fe8d	ClearPort4Bit8
+0x41fe6c	ClearPort3Bit15
+0x41fe6f	ClearPort3Bit15_
+0x42854d	ClearPort3Bit14
+0x428553	ClearPort3Bit14AndSetWDTBit14
+0x41514e	Init_3c79_to_3c71
+0x400076	Init_3433_to_3438
+0x415d66	Init_3df1_3df2
+0x417dd2	Init_3dd0_and_following
+0x418a4e	Init_ManyVars
+0x41782d	Init_3ee7_and_following
+0x428511	Init_OID_module_variables
+0x41ce1f	Init_3dd9_and_following
+0x41cd8b	Init_3c72_and_following
+0x40ade3	DACplayer
+0x40b642	WAVcreation
+0x40b629	PrepareWAVcreation
+0x41e1f6	SysMain
+
+0x0007b1	Limit_dword_DM(Ix1)_with_Y1Y0
+0x00079c	And_dword_DM(Ix1)_to_DM(Ix0)&_Y1Y0
+0x00082d	Is_DM(Ix0)_ge_Y1_Y0
+0x00085c	Is_DM(Ix1)_le_Y1_Y0
+0x000184	Sub_Y0_from_DM(Ix1)
+0x003f02	Get_word_from_R1R0_to_X0
+0x0007a2	Maybe_16bit_DM(Ix0)_to_R0R1_for_jz
+0x0006e8	Write_char_Y0_to_Y1
+0x0009a4	Multiply_Ix1_to_Ix0_by_X0
+0x0069d2	Fill_0a_words_on_3df6_with_value_from_6c00
+0x0069e0	CopyValue_from_6bf4[stack2]_to_3df6+stack1
+0x40ba2b	Fill_0a_words_on_3df6_with_value_from_429e69+stack1
+0x006a0a	Set_3e14_to_stack1
+0x288ae2	MP3_GetStatus_rom
+0x0048d9	Call_rom_2885b1_and_return_R0_1or0
+0x0048e1	MP3_GetStatus_probably2
+0x428530	Check_P4_and_possibly_get_MP3_status
+
+0x00089a	FunctionPrologue0
+0x0008a7	FunctionPrologue1
+0x0008aa	FunctionPrologue2
+0x0008ab	FunctionPrologue2b
+0x0008ac	FunctionPrologue3b
+0x0008a5	FunctionPrologue3
+
+0x0008d3	FunctionEpilogue0
+0x0008d6	FunctionEpilogue1
+0x0008d8	FunctionEpilogue2
+0x0008d9	FunctionEpilogue3
+
+
+0x28a0a4	SD_ADC_Turn_On_probably
+0x286c10	strcmp_stack1_2_vs_stack_3_4_length_stack5_words
+0x286c62	strlen_to_R0
+0x288668	SD_DAC_Volume_Control
+
+0x004915	MP3_PlayProcess_Ext_probably
+0x0048ef	MP3_GetStatus_probably
+0x007854	lib_seek_stack1_handle_stack2_3_ptr_stack4_whence
+0x007821	fgetdw_stack1_handle_stack2_buffer
+0x007732	fgetw_stack1_handle_stack2_buffer
+
+0x288f9e	SD_AD_ISR
+0x007cca	Usr_T0_ISR
+0x007c55	Usr_P00_ISR
+0x007c8c	Usr_T1_ISR
+0x007c5a	Usr_P01_ISR
+0x007c17	Usr_T2_ISR
+0x007c5f	Usr_P02_ISR
+0x007b7f	SD_DA_ISR
+0x007c64	Usr_SPI_ISR
+0x007c6a	Usr_MSP_ISR
+0x007c70	Usr_I2S_ISR
+0x282569	USB_ISR_Function
+0x006c83	Usr_RTC_ISR
+0x007c76	Usr_NF_ISR
+0x007c7c	Usr_DMA_SD_RW_ISR
+0x007d08	Usr_SAR_AD_ISR
+0x007c82	Usr_DMA_SD2_RW_ISR
+0x007c87	Usr_DMA_DEV_RW_ISR
+0x0060b3	Something_with_update_Chp
+
+
+0x4157ab	InternalOID_Processing_To_FWcode_stack1stack2_as_oid_return_fwcode_in_R0
+0x415b41	Maybe_also_OID_to_FWcode
+
+0x4187c7	Switch_over_FWcodes_short_stack1_as_fwcode
+0x41cc5d	Maybe_some_FWcodes_shorthandler_stack1_as_bool_stack2_as_fwcode?
+0x41cc70	shorthandler_filter1
+0x41cce0	shorthandler_next
+0x41ccd6	shorthandler_exits
+0x41cd69	shorthandler_exit
+0x41cd63	shorthandler_exit2
+0x41cd61	shorthandler_exit3
+
+
+0x41687e	Switch_over_FWcodes_large_on_c0|a
+0x4190e7	Switch_over_FWcodes_large_on_c0|c
+0x419cda	Switch_over_FWcodes_large_on_c0|d
+0x41b212	Switch_over_FWcodes_large_on_c0|e
+0x41e841	Switch_over_FWcodes_large_on_c0|f
+0x421840	Switch_over_FWcodes_large_on_c0|g
+0x422810	Switch_over_FWcodes_large_on_c0|b
+0x4241f1	Switch_over_FWcodes_large_on_c0|h
+0x426e6d	Switch_over_FWcodes_large_on_c0|i
+
+0x41727a	Switch_over_FWcodes_on_60|m
+0x418df3	Switch_over_FWcodes_on_60|n
+0x41a4b7	Switch_over_FWcodes_on_60|o
+0x41adf3	Switch_over_FWcodes_on_60|p
+0x41e53c	Switch_over_FWcodes_on_60|q
+0x42154c	Switch_over_FWcodes_on_60|r
+0x4224c2	Switch_over_FWcodes_on_60|s
+0x423d10	Switch_over_FWcodes_on_60|t
+0x426b79	Switch_over_FWcodes_on_60|u
+
+###short 60-62
+0x417419	handler_fwcode_60_unk|m
+0x417421	handler_fwcode_61_unk|m
+0x417425	handler_fwcode_62_unk|m
+0x417301	Switch_on_fwcode_c0_to_c3|m
+
+0x418f92	handler_fwcode_60_unk|n
+0x418f9a	handler_fwcode_61_unk|n
+0x418f9e	handler_fwcode_62_unk|n
+0x418e7a	Switch_on_fwcode_c0_to_c3|n
+
+0x41a656	handler_fwcode_60_unk|o
+0x41a65e	handler_fwcode_61_unk|o
+0x41a662	handler_fwcode_62_unk|o
+0x41a53e	Switch_on_fwcode_c0_to_c3|o
+
+0x41b0aa	handler_fwcode_60_unk|p
+0x41b0b2	handler_fwcode_61_unk|p
+0x41b0b6	handler_fwcode_62_unk|p
+
+0x41e6db	handler_fwcode_60_unk|q
+0x41e6e3	handler_fwcode_61_unk|q
+0x41e6f8	handler_fwcode_62_unk|q
+
+0x4216eb	handler_fwcode_60_unk|r
+0x4216f3	handler_fwcode_61_unk|r
+0x4216f7	handler_fwcode_62_unk|r
+
+0x422675	handler_fwcode_60_unk|s
+0x42267f	handler_fwcode_61_unk|s
+0x422683	handler_fwcode_62_unk|s
+
+0x424083	handler_fwcode_60_unk|t
+0x42408b	handler_fwcode_61_unk|t
+0x42408f	handler_fwcode_62_unk|t
+
+0x426d18	handler_fwcode_60_unk|u
+0x426d20	handler_fwcode_61_unk|u
+0x426d24	handler_fwcode_62_unk|u
+
+###short 00-11
+0x41739e	handler_fwcode_10_bookid|m
+0x417392	handler_fwcode_11_unk|m
+0x41739a	handler_fwcode_00_unk|m
+0x4172ad	switch_on_fwcode_over_11|m
+
+0x418f17	handler_fwcode_10_bookid|n
+0x418f0b	handler_fwcode_11_unk|n
+0x418f13	handler_fwcode_00_unk|n
+0x418e2e	switch_on_fwcode_over_11|n
+
+0x41a5db	handler_fwcode_10_bookid|o
+0x41a5cf	handler_fwcode_11_unk|o
+0x41a5d7	handler_fwcode_00_unk|o
+0x41a4f2	switch_on_fwcode_over_11|o
+
+0x41af18	handler_fwcode_10_bookid|p
+0x41af0c	handler_fwcode_11_unk|p
+0x41af14	handler_fwcode_00_unk|p
+
+0x41e660	handler_fwcode_10_bookid|q
+0x41e654	handler_fwcode_11_unk|q
+0x41e65c	handler_fwcode_00_unk|q
+
+0x421670	handler_fwcode_10_bookid|r
+0x421664	handler_fwcode_11_unk|r
+0x42166c	handler_fwcode_00_unk|r
+
+0x4225f0	handler_fwcode_10_bookid|s
+0x4225e2	handler_fwcode_11_unk|s
+0x4225ec	handler_fwcode_00_unk|s   
+
+0x423e35	handler_fwcode_10_bookid|t
+0x423e29	handler_fwcode_11_unk|t
+0x423e31	handler_fwcode_00_unk|t   
+
+0x426c9d	handler_fwcode_10_bookid|u
+0x426c91	handler_fwcode_11_unk|u
+0x426c99	handler_fwcode_00_unk|u  
+
+0x417587	end_of_fwcode_handling|m
+0x4190d1	end_of_fwcode_handling|n
+0x41a795	end_of_fwcode_handling|o
+0x41a777	Switch_on_fwcode_90_to_af|o
+0x417571	switch_handler_fwcode_unk_MULTI|m
+
+###short 30-51
+0x4172cd	Switch_on_fwcode_30_to_51|m
+0x4173a9	switch_handler_fwcode_30_unk|m
+0x4173b7	switch_handler_fwcode_31_unk|m
+0x4173c5	switch_handler_fwcode_32_unk|m
+0x4173cb	switch_handler_fwcode_33_unk|m
+0x4173d1	switch_handler_fwcode_40_unk|m
+0x4173d9	switch_handler_fwcode_41_unk|m
+0x4173dd	switch_handler_fwcode_42_unk|m
+0x4173e1	switch_handler_fwcode_43_unk|m
+0x4173e5	switch_handler_fwcode_44_unk|m
+0x4173e9	switch_handler_fwcode_45_unk|m
+0x4173ed	switch_handler_fwcode_46_unk|m
+0x4173f1	switch_handler_fwcode_47_unk|m
+0x4173f9	switch_handler_fwcode_48_unk|m
+0x4173fd	switch_handler_fwcode_49_unk|m
+0x417401	switch_handler_fwcode_4a_unk|m
+0x417405	switch_handler_fwcode_4b_unk|m
+0x417409	switch_handler_fwcode_50_unk|m
+0x417411	switch_handler_fwcode_51_unk|m
+
+0x418e3a	Switch_on_fwcode_30_to_51|n
+0x418f22	switch_handler_fwcode_30_unk|n
+0x418f30	switch_handler_fwcode_31_unk|n
+0x418f3e	switch_handler_fwcode_32_unk|n
+0x418f44	switch_handler_fwcode_33_unk|n
+0x418f4a	switch_handler_fwcode_40_unk|n
+0x418f52	switch_handler_fwcode_41_unk|n
+0x418f56	switch_handler_fwcode_42_unk|n
+0x418f5a	switch_handler_fwcode_43_unk|n
+0x418f5e	switch_handler_fwcode_44_unk|n
+0x418f62	switch_handler_fwcode_45_unk|n
+0x418f66	switch_handler_fwcode_46_unk|n
+0x418f6a	switch_handler_fwcode_47_unk|n
+0x418f72	switch_handler_fwcode_48_unk|n
+0x418f76	switch_handler_fwcode_49_unk|n
+0x418f7a	switch_handler_fwcode_4a_unk|n
+0x418f7e	switch_handler_fwcode_4b_unk|n
+0x418f82	switch_handler_fwcode_50_unk|n
+0x418f8a	switch_handler_fwcode_51_unk|n
+
+0x41a4fe	Switch_on_fwcode_30_to_51|o
+0x41a5e6	switch_handler_fwcode_30_unk|o
+0x41a5f4	switch_handler_fwcode_31_unk|o
+0x41a602	switch_handler_fwcode_32_unk|o
+0x41a608	switch_handler_fwcode_33_unk|o
+0x41a60e	switch_handler_fwcode_40_unk|o
+0x41a616	switch_handler_fwcode_41_unk|o
+0x41a61a	switch_handler_fwcode_42_unk|o
+0x41a61e	switch_handler_fwcode_43_unk|o
+0x41a622	switch_handler_fwcode_44_unk|o
+0x41a626	switch_handler_fwcode_45_unk|o
+0x41a62a	switch_handler_fwcode_46_unk|o
+0x41a62e	switch_handler_fwcode_47_unk|o
+0x41a636	switch_handler_fwcode_48_unk|o
+0x41a63a	switch_handler_fwcode_49_unk|o
+0x41a63e	switch_handler_fwcode_4a_unk|o
+0x41a642	switch_handler_fwcode_4b_unk|o
+0x41a646	switch_handler_fwcode_50_unk|o
+0x41a64e	switch_handler_fwcode_51_unk|o
+
+0x41af23	switch_handler_fwcode_30_unk|p
+0x41af31	switch_handler_fwcode_31_unk|p
+0x41af3f	switch_handler_fwcode_32_unk|p
+0x41af45	switch_handler_fwcode_33_unk|p
+0x41af4b	switch_handler_fwcode_3f_unk|p
+0x41af53	switch_handler_fwcode_40_unk|p
+0x41afa2	switch_handler_fwcode_41_unk|p
+0x41afac	switch_handler_fwcode_42_unk|p
+0x41affd	switch_handler_fwcode_43_unk|p
+0x41b001	switch_handler_fwcode_44_unk|p
+0x41b03e	switch_handler_fwcode_45_unk|p
+0x41b07b	switch_handler_fwcode_46_unk|p
+0x41b083	switch_handler_fwcode_47_unk|p
+0x41b089	switch_handler_fwcode_48_unk|p
+0x41b08f	switch_handler_fwcode_49_unk|p
+0x41b094	switch_handler_fwcode_4a_unk|p
+0x41b09a	switch_handler_fwcode_4f_unk|p
+0x41b0a2	switch_handler_fwcode_50_unk|p
+0x41b017	switch_handler_fwcode_51_unk|p
+
+0x41e66b	switch_handler_fwcode_30_unk|q
+0x41e679	switch_handler_fwcode_31_unk|q
+0x41e687	switch_handler_fwcode_32_unk|q
+0x41e68d	switch_handler_fwcode_33_unk|q
+0x41e693	switch_handler_fwcode_40_unk|q
+0x41e69b	switch_handler_fwcode_41_unk|q
+0x41e69f	switch_handler_fwcode_42_unk|q
+0x41e6a3	switch_handler_fwcode_43_unk|q
+0x41e6a7	switch_handler_fwcode_44_unk|q
+0x41e6ab	switch_handler_fwcode_45_unk|q
+0x41e6af	switch_handler_fwcode_46_unk|q
+0x41e6b3	switch_handler_fwcode_47_unk|q
+0x41e6bb	switch_handler_fwcode_48_unk|q
+0x41e6bf	switch_handler_fwcode_49_unk|q
+0x41e6c3	switch_handler_fwcode_4a_unk|q
+0x41e6c7	switch_handler_fwcode_4b_unk|q
+0x41e6cb	switch_handler_fwcode_50_unk|q
+0x41e6d3	switch_handler_fwcode_51_unk|q
+
+0x42167b	switch_handler_fwcode_30_unk|r
+0x421689	switch_handler_fwcode_31_unk|r
+0x421697	switch_handler_fwcode_32_unk|r
+0x42169d	switch_handler_fwcode_33_unk|r
+0x4216a3	switch_handler_fwcode_40_unk|r
+0x4216ab	switch_handler_fwcode_41_unk|r
+0x4216af	switch_handler_fwcode_42_unk|r
+0x4216b3	switch_handler_fwcode_43_unk|r
+0x4216b7	switch_handler_fwcode_44_unk|r
+0x4216bb	switch_handler_fwcode_45_unk|r
+0x4216bf	switch_handler_fwcode_46_unk|r
+0x4216c3	switch_handler_fwcode_47_unk|r
+0x4216cb	switch_handler_fwcode_48_unk|r
+0x4216cf	switch_handler_fwcode_49_unk|r
+0x4216d3	switch_handler_fwcode_4a_unk|r
+0x4216d7	switch_handler_fwcode_4b_unk|r
+0x4216db	switch_handler_fwcode_50_unk|r
+0x4216e3	switch_handler_fwcode_51_unk|r
+
+0x4225fd	switch_handler_fwcode_30_unk|s
+0x42260b	switch_handler_fwcode_31_unk|s
+0x422619	switch_handler_fwcode_32_unk|s
+0x42261f	switch_handler_fwcode_33_unk|s
+0x422625	switch_handler_fwcode_40_unk|s
+0x42262f	switch_handler_fwcode_41_unk|s
+0x422633	switch_handler_fwcode_42_unk|s
+0x422637	switch_handler_fwcode_43_unk|s
+0x42263b	switch_handler_fwcode_44_unk|s
+0x42263f	switch_handler_fwcode_45_unk|s
+0x422643	switch_handler_fwcode_46_unk|s
+0x422647	switch_handler_fwcode_47_unk|s
+0x422651	switch_handler_fwcode_48_unk|s
+0x422655	switch_handler_fwcode_49_unk|s
+0x422659	switch_handler_fwcode_4a_unk|s
+0x42265d	switch_handler_fwcode_4b_unk|s
+0x422661	switch_handler_fwcode_50_unk|s
+0x42266b	switch_handler_fwcode_51_unk|s
+
+0x423e40	switch_handler_fwcode_30_unk|t
+0x423e4e	switch_handler_fwcode_31_unk|t
+0x423e5c	switch_handler_fwcode_32_unk|t
+0x423e62	switch_handler_fwcode_33_unk|t
+0x423e68	switch_handler_fwcode_40_unk|t
+0x423e70	switch_handler_fwcode_41_unk|t
+0x423eee	switch_handler_fwcode_42_unk|t
+0x423ef8	switch_handler_fwcode_43_unk|t
+0x423f78	switch_handler_fwcode_44_unk|t
+0x423f7c	switch_handler_fwcode_45_unk|t
+0x423fe8	switch_handler_fwcode_46_unk|t
+0x424054	switch_handler_fwcode_47_unk|t
+0x42405c	switch_handler_fwcode_48_unk|t
+0x424062	switch_handler_fwcode_49_unk|t
+0x424068	switch_handler_fwcode_4a_unk|t
+0x42406d	switch_handler_fwcode_4b_unk|t
+0x424073	switch_handler_fwcode_50_unk|t
+0x42407b	switch_handler_fwcode_51_unk|t
+
+0x426ca8	switch_handler_fwcode_30_unk|u
+0x426cb6	switch_handler_fwcode_31_unk|u
+0x426cc4	switch_handler_fwcode_32_unk|u
+0x426cca	switch_handler_fwcode_33_unk|u
+0x426cd0	switch_handler_fwcode_40_unk|u
+0x426cd8	switch_handler_fwcode_41_unk|u
+0x426cdc	switch_handler_fwcode_42_unk|u
+0x426ce0	switch_handler_fwcode_43_unk|u
+0x426ce4	switch_handler_fwcode_44_unk|u
+0x426ce8	switch_handler_fwcode_45_unk|u
+0x426cec	switch_handler_fwcode_46_unk|u
+0x426cf0	switch_handler_fwcode_47_unk|u
+0x426cf8	switch_handler_fwcode_48_unk|u
+0x426cfc	switch_handler_fwcode_49_unk|u
+0x426d00	switch_handler_fwcode_4a_unk|u
+0x426d04	switch_handler_fwcode_4b_unk|u
+0x426d08	switch_handler_fwcode_50_unk|u
+0x426d10	switch_handler_fwcode_51_unk|u
+
+###short c0-c3
+0x4174d3	switch_handler_fwcode_c0_unk|m
+0x4174db	switch_handler_fwcode_c1_unk|m
+0x4174e3	switch_handler_fwcode_c2_unk|m
+0x4174e7	switch_handler_fwcode_c3_unk|m
+
+0x419015	switch_handler_fwcode_c0_unk|n
+0x41901d	switch_handler_fwcode_c1_unk|n
+0x419025	switch_handler_fwcode_c2_unk|n
+0x419029	switch_handler_fwcode_c3_unk|n
+
+0x41a6d9	switch_handler_fwcode_c0_unk|o
+0x41a6e1	switch_handler_fwcode_c1_unk|o
+0x41a6e9	switch_handler_fwcode_c2_unk|o
+0x41a6ed	switch_handler_fwcode_c3_unk|o
+
+0x41b12d	switch_handler_fwcode_c0_unk|p
+0x41b135	switch_handler_fwcode_c1_unk|p
+0x41b13d	switch_handler_fwcode_c2_unk|p
+0x41b141	switch_handler_fwcode_c3_unk|p
+
+0x41e76f	switch_handler_fwcode_c0_unk|q
+0x41e777	switch_handler_fwcode_c1_unk|q
+0x41e77f	switch_handler_fwcode_c2_unk|q
+0x41e783	switch_handler_fwcode_c3_unk|q
+
+0x42176e	switch_handler_fwcode_c0_unk|r
+0x421776	switch_handler_fwcode_c1_unk|r
+0x42177e	switch_handler_fwcode_c2_unk|r
+0x421782	switch_handler_fwcode_c3_unk|r
+
+0x42271b	switch_handler_fwcode_c0_unk|s
+0x422725	switch_handler_fwcode_c1_unk|s
+0x42272f	switch_handler_fwcode_c2_unk|s
+0x422733	switch_handler_fwcode_c3_unk|s
+
+0x424106	switch_handler_fwcode_c0_unk|t
+0x42410e	switch_handler_fwcode_c1_unk|t
+0x424116	switch_handler_fwcode_c2_unk|t
+0x42411a	switch_handler_fwcode_c3_unk|t
+
+0x426d9b	switch_handler_fwcode_c0_unk|u
+0x426da3	switch_handler_fwcode_c1_unk|u
+0x426dab	switch_handler_fwcode_c2_unk|u
+0x426daf	switch_handler_fwcode_c3_unk|u
+
+
+###short 70-85
+0x417323	Switch_on_fwcode_70_to_85|m
+0x41742d	switch_handler_fwcode_70_unk|m
+0x417431	switch_handler_fwcode_71_unk|m
+0x417435	switch_handler_fwcode_72_unk|m
+0x41743c	switch_handler_fwcode_73_unk|m
+0x417443	switch_handler_fwcode_74_unk|m
+0x41744a	switch_handler_fwcode_75_unk|m
+0x417451	switch_handler_fwcode_76_unk|m
+0x417458	switch_handler_fwcode_77_unk|m
+0x41745f	switch_handler_fwcode_78_unk|m
+0x417466	switch_handler_fwcode_80_unk|m
+0x4174a3	switch_handler_fwcode_81_unk|m
+0x4174ab	switch_handler_fwcode_82_unk|m
+0x4174b3	switch_handler_fwcode_83_unk|m
+0x4174bb	switch_handler_fwcode_84_unk|m
+0x4174c3	switch_handler_fwcode_85_unk|m
+
+0x418e9c	Switch_on_fwcode_70_to_85|n
+0x418fa6	switch_handler_fwcode_70_unk|n
+0x418faa	switch_handler_fwcode_71_unk|n
+0x418fae	switch_handler_fwcode_72_unk|n
+0x418fb5	switch_handler_fwcode_73_unk|n
+0x418fbc	switch_handler_fwcode_74_unk|n
+0x418fc3	switch_handler_fwcode_75_unk|n
+0x418fca	switch_handler_fwcode_76_unk|n
+0x418fd1	switch_handler_fwcode_77_unk|n
+0x418fd8	switch_handler_fwcode_78_unk|n
+0x418fdf	switch_handler_fwcode_80_unk|n
+0x418fe7	switch_handler_fwcode_81_unk|n
+0x418fed	switch_handler_fwcode_82_unk|n
+0x418ff5	switch_handler_fwcode_83_unk|n
+0x418ffd	switch_handler_fwcode_84_unk|n
+0x419005	switch_handler_fwcode_85_unk|n
+
+0x41a560	Switch_on_fwcode_70_to_85|o
+0x41a66a	switch_handler_fwcode_70_unk|o
+0x41a66e	switch_handler_fwcode_71_unk|o
+0x41a672	switch_handler_fwcode_72_unk|o
+0x41a679	switch_handler_fwcode_73_unk|o
+0x41a680	switch_handler_fwcode_74_unk|o
+0x41a687	switch_handler_fwcode_75_unk|o
+0x41a68e	switch_handler_fwcode_76_unk|o
+0x41a695	switch_handler_fwcode_77_unk|o
+0x41a69c	switch_handler_fwcode_78_unk|o
+0x41a6a3	switch_handler_fwcode_80_unk|o
+0x41a6ab	switch_handler_fwcode_81_unk|o
+0x41a6b1	switch_handler_fwcode_82_unk|o
+0x41a6b9	switch_handler_fwcode_83_unk|o
+0x41a6c1	switch_handler_fwcode_84_unk|o
+0x41a6c9	switch_handler_fwcode_85_unk|o
+
+0x41b0be	switch_handler_fwcode_70_unk|p
+0x41b0c2	switch_handler_fwcode_71_unk|p
+0x41b0c6	switch_handler_fwcode_72_unk|p
+0x41b0cd	switch_handler_fwcode_73_unk|p
+0x41b0d4	switch_handler_fwcode_74_unk|p
+0x41b0db	switch_handler_fwcode_75_unk|p
+0x41b0e2	switch_handler_fwcode_76_unk|p
+0x41b0e9	switch_handler_fwcode_77_unk|p
+0x41b0f0	switch_handler_fwcode_78_unk|p
+0x41b0f7	switch_handler_fwcode_80_unk|p
+0x41b0ff	switch_handler_fwcode_81_unk|p
+0x41b105	switch_handler_fwcode_82_unk|p
+0x41b10d	switch_handler_fwcode_83_unk|p
+0x41b115	switch_handler_fwcode_84_unk|p
+0x41b11d	switch_handler_fwcode_85_unk|p
+
+0x41e700	switch_handler_fwcode_70_unk|q
+0x41e704	switch_handler_fwcode_71_unk|q
+0x41e708	switch_handler_fwcode_72_unk|q
+0x41e70f	switch_handler_fwcode_73_unk|q
+0x41e716	switch_handler_fwcode_74_unk|q
+0x41e71d	switch_handler_fwcode_75_unk|q
+0x41e724	switch_handler_fwcode_76_unk|q
+0x41e72b	switch_handler_fwcode_77_unk|q
+0x41e732	switch_handler_fwcode_78_unk|q
+0x41e739	switch_handler_fwcode_80_unk|q
+0x41e741	switch_handler_fwcode_81_unk|q
+0x41e747	switch_handler_fwcode_82_unk|q
+0x41e74f	switch_handler_fwcode_83_unk|q
+0x41e757	switch_handler_fwcode_84_unk|q
+0x41e75f	switch_handler_fwcode_85_unk|q
+
+0x4216ff	switch_handler_fwcode_70_unk|r
+0x421703	switch_handler_fwcode_71_unk|r
+0x421707	switch_handler_fwcode_72_unk|r
+0x42170e	switch_handler_fwcode_73_unk|r
+0x421715	switch_handler_fwcode_74_unk|r
+0x42171c	switch_handler_fwcode_75_unk|r
+0x421723	switch_handler_fwcode_76_unk|r
+0x42172a	switch_handler_fwcode_77_unk|r
+0x421731	switch_handler_fwcode_78_unk|r
+0x421738	switch_handler_fwcode_80_unk|r
+0x421740	switch_handler_fwcode_81_unk|r
+0x421746	switch_handler_fwcode_82_unk|r
+0x42174e	switch_handler_fwcode_83_unk|r
+0x421756	switch_handler_fwcode_84_unk|r
+0x42175e	switch_handler_fwcode_85_unk|r
+
+0x42268d	switch_handler_fwcode_70_unk|s
+0x422691	switch_handler_fwcode_71_unk|s
+0x422695	switch_handler_fwcode_72_unk|s
+0x42269c	switch_handler_fwcode_73_unk|s
+0x4226a3	switch_handler_fwcode_74_unk|s
+0x4226aa	switch_handler_fwcode_75_unk|s
+0x4226b1	switch_handler_fwcode_76_unk|s
+0x4226b8	switch_handler_fwcode_77_unk|s
+0x4226bf	switch_handler_fwcode_78_unk|s
+0x4226c6	switch_handler_fwcode_80_unk|s
+0x4226e1	switch_handler_fwcode_81_unk|s
+0x4226e9	switch_handler_fwcode_82_unk|s
+0x4226f3	switch_handler_fwcode_83_unk|s
+0x4226fd	switch_handler_fwcode_84_unk|s
+0x422707	switch_handler_fwcode_85_unk|s
+
+0x424097	switch_handler_fwcode_70_unk|t
+0x42409b	switch_handler_fwcode_71_unk|t
+0x42409f	switch_handler_fwcode_72_unk|t
+0x4240a6	switch_handler_fwcode_73_unk|t
+0x4240ad	switch_handler_fwcode_74_unk|t
+0x4240b4	switch_handler_fwcode_75_unk|t
+0x4240bb	switch_handler_fwcode_76_unk|t
+0x4240c2	switch_handler_fwcode_77_unk|t
+0x4240c9	switch_handler_fwcode_78_unk|t
+0x4240d0	switch_handler_fwcode_80_unk|t
+0x4240d8	switch_handler_fwcode_81_unk|t
+0x4240de	switch_handler_fwcode_82_unk|t
+0x4240e6	switch_handler_fwcode_83_unk|t
+0x4240ee	switch_handler_fwcode_84_unk|t
+0x4240f6	switch_handler_fwcode_85_unk|t
+
+0x426d2c	switch_handler_fwcode_70_unk|u
+0x426d30	switch_handler_fwcode_71_unk|u
+0x426d34	switch_handler_fwcode_72_unk|u
+0x426d3b	switch_handler_fwcode_73_unk|u
+0x426d42	switch_handler_fwcode_74_unk|u
+0x426d49	switch_handler_fwcode_75_unk|u
+0x426d50	switch_handler_fwcode_76_unk|u
+0x426d57	switch_handler_fwcode_77_unk|u
+0x426d5e	switch_handler_fwcode_78_unk|u
+0x426d65	switch_handler_fwcode_80_unk|u
+0x426d6d	switch_handler_fwcode_81_unk|u
+0x426d73	switch_handler_fwcode_82_unk|u
+0x426d7b	switch_handler_fwcode_83_unk|u
+0x426d83	switch_handler_fwcode_84_unk|u
+0x426d8b	switch_handler_fwcode_85_unk|u
+
+#short e0-ec
+0x417357	Switch_on_fwcode_e0_to_ec|m
+0x4174eb	switch_handler_fwcode_e0_unk|m
+0x4174ef	switch_handler_fwcode_e1_unk|m
+0x4174f3	switch_handler_fwcode_e2_unk|m
+0x417510	switch_handler_fwcode_e3_unk|m
+0x417529	switch_handler_fwcode_e4_unk|m
+0x41750c	switch_handler_fwcode_e5_unk|m
+0x417542	switch_handler_fwcode_e6_unk|m
+0x417546	switch_handler_fwcode_e7_unk|m
+0x41754a	switch_handler_fwcode_e8_unk|m
+0x417561	switch_handler_fwcode_e9_unk|m
+0x417565	switch_handler_fwcode_ea_unk|m
+0x417569	switch_handler_fwcode_eb_unk|m
+0x41756d	switch_handler_fwcode_ec_unk|m
+
+0x418ed0	Switch_on_fwcode_b0_to_ec|n
+0x41900d	handler_fwcode_b0_unk|n
+0x41902d	switch_handler_fwcode_e0_unk|n
+0x419031	switch_handler_fwcode_e1_unk|n
+0x419035	switch_handler_fwcode_e2_unk|n
+0x419052	switch_handler_fwcode_e3_unk|n
+0x41906b	switch_handler_fwcode_e4_unk|n
+0x41904e	switch_handler_fwcode_e5_unk|n
+0x419084	switch_handler_fwcode_e6_unk|n
+0x419088	switch_handler_fwcode_e7_unk|n
+0x41908c	switch_handler_fwcode_e8_unk|n
+0x4190a3	switch_handler_fwcode_e9_unk|n
+0x4190a7	switch_handler_fwcode_ea_unk|n
+0x4190ab	switch_handler_fwcode_eb_unk|n
+0x4190af	switch_handler_fwcode_ec_unk|n
+
+0x41a594	Switch_on_fwcode_b0_to_ec|o
+0x41a6d1	handler_fwcode_b0_unk|o
+0x41a6f1	switch_handler_fwcode_e0_unk|o
+0x41a6f5	switch_handler_fwcode_e1_unk|o
+0x41a6f9	switch_handler_fwcode_e2_unk|o
+0x41a716	switch_handler_fwcode_e3_unk|o
+0x41a72f	switch_handler_fwcode_e4_unk|o
+0x41a712	switch_handler_fwcode_e5_unk|o
+0x41a748	switch_handler_fwcode_e6_unk|o
+0x41a74c	switch_handler_fwcode_e7_unk|o
+0x41a750	switch_handler_fwcode_e8_unk|o
+0x41a767	switch_handler_fwcode_e9_unk|o
+0x41a76b	switch_handler_fwcode_ea_unk|o
+0x41a76f	switch_handler_fwcode_eb_unk|o
+0x41a773	switch_handler_fwcode_ec_unk|o
+
+0x41b125	handler_fwcode_b0_unk|p
+0x41b145	switch_handler_fwcode_e0_unk|p
+0x41b149	switch_handler_fwcode_e1_unk|p
+0x41b14d	switch_handler_fwcode_e2_unk|p
+0x41b16a	switch_handler_fwcode_e3_unk|p
+0x41b183	switch_handler_fwcode_e4_unk|p
+0x41b166	switch_handler_fwcode_e5_unk|p
+0x41b19c	switch_handler_fwcode_e6_unk|p
+0x41b1a0	switch_handler_fwcode_e7_unk|p
+0x41b1a4	switch_handler_fwcode_e8_unk|p
+0x41b1bb	switch_handler_fwcode_e9_unk|p
+0x41b1bf	switch_handler_fwcode_ea_unk|p
+0x41b1d6	switch_handler_fwcode_eb_unk|p
+0x41b1da	switch_handler_fwcode_ec_unk|p
+
+0x41e767	handler_fwcode_b0_unk|q
+0x41e787	switch_handler_fwcode_e0_unk|q
+0x41e78b	switch_handler_fwcode_e1_unk|q
+0x41e78f	switch_handler_fwcode_e2_unk|q
+0x41e7ac	switch_handler_fwcode_e3_unk|q
+0x41e7c5	switch_handler_fwcode_e4_unk|q
+0x41e7a8	switch_handler_fwcode_e5_unk|q
+0x41e7de	switch_handler_fwcode_e6_unk|q
+0x41e7e2	switch_handler_fwcode_e7_unk|q
+0x41e7e6	switch_handler_fwcode_e8_unk|q
+0x41e7fd	switch_handler_fwcode_e9_unk|q
+0x41e801	switch_handler_fwcode_ea_unk|q
+0x41e805	switch_handler_fwcode_eb_unk|q
+0x41e809	switch_handler_fwcode_ec_unk|q
+
+0x421766	handler_fwcode_b0_unk|r
+0x421786	switch_handler_fwcode_e0_unk|r
+0x42178a	switch_handler_fwcode_e1_unk|r
+0x42178e	switch_handler_fwcode_e2_unk|r
+0x4217ab	switch_handler_fwcode_e3_unk|r
+0x4217c4	switch_handler_fwcode_e4_unk|r
+0x4217a7	switch_handler_fwcode_e5_unk|r
+0x4217dd	switch_handler_fwcode_e6_unk|r
+0x4217e1	switch_handler_fwcode_e7_unk|r
+0x4217e5	switch_handler_fwcode_e8_unk|r
+0x4217fc	switch_handler_fwcode_e9_unk|r
+0x421800	switch_handler_fwcode_ea_unk|r
+0x421804	switch_handler_fwcode_eb_unk|r
+0x421808	switch_handler_fwcode_ec_unk|r
+
+0x422711	handler_fwcode_b0_unk|s
+0x422737	switch_handler_fwcode_e0_unk|s
+0x42273b	switch_handler_fwcode_e1_unk|s
+0x42273f	switch_handler_fwcode_e2_unk|s
+0x42275e	switch_handler_fwcode_e3_unk|s
+0x422779	switch_handler_fwcode_e4_unk|s
+0x42275a	switch_handler_fwcode_e5_unk|s
+0x422794	switch_handler_fwcode_e6_unk|s
+0x422798	switch_handler_fwcode_e7_unk|s
+0x42279c	switch_handler_fwcode_e8_unk|s
+0x4227b5	switch_handler_fwcode_e9_unk|s
+0x4227ce	switch_handler_fwcode_ea_unk|s
+0x4227d2	switch_handler_fwcode_eb_unk|s
+0x4227d6	switch_handler_fwcode_ec_unk|s
+
+0x4240fe	handler_fwcode_b0_unk|t
+0x42411e	switch_handler_fwcode_e0_unk|t
+0x424122	switch_handler_fwcode_e1_unk|t
+0x424126	switch_handler_fwcode_e2_unk|t
+0x424143	switch_handler_fwcode_e3_unk|t
+0x42415c	switch_handler_fwcode_e4_unk|t
+0x42413f	switch_handler_fwcode_e5_unk|t
+0x424175	switch_handler_fwcode_e6_unk|t
+0x424179	switch_handler_fwcode_e7_unk|t
+0x42417d	switch_handler_fwcode_e8_unk|t
+0x424194	switch_handler_fwcode_e9_unk|t
+0x4241ab	switch_handler_fwcode_ea_unk|t
+0x4241b5	switch_handler_fwcode_eb_unk|t
+0x4241b9	switch_handler_fwcode_ec_unk|t
+
+0x426d93	handler_fwcode_b0_unk|u
+0x426db3	switch_handler_fwcode_e0_unk|u
+0x426db7	switch_handler_fwcode_e1_unk|u
+0x426dbb	switch_handler_fwcode_e2_unk|u
+0x426dd8	switch_handler_fwcode_e3_unk|u
+0x426df1	switch_handler_fwcode_e4_unk|u
+0x426dd4	switch_handler_fwcode_e5_unk|u
+0x426e0a	switch_handler_fwcode_e6_unk|u
+0x426e0e	switch_handler_fwcode_e7_unk|u
+0x426e12	switch_handler_fwcode_e8_unk|u
+0x426e29	switch_handler_fwcode_e9_unk|u
+0x426e2d	switch_handler_fwcode_ea_unk|u
+0x426e31	switch_handler_fwcode_eb_unk|u
+0x426e35	switch_handler_fwcode_ec_unk|u
+
+#large fwcode handlers
+0x4168d6	Switch_on_30_to_51|a
+0x416916	Switch_on_00_to_12|a
+0x416930	Switch_on_70_to_85|a
+0x416964	Switch_on_60_to_62|a
+0x416978	Switch_on_b0|a
+0x416980	Switch_on_f01_to_f16|a
+0x4169b7	Switch_on_400_to_408|a
+0x4169e1	Switch_on_108_to_10c|a
+0x416a07	Switch_on_501_to_504|a
+0x416a1e	Switch_on_2000_and_above|a
+0x416a51	Switch_on_7000_and_above|a
+
+0x42286f	Switch_on_30_to_51|b
+0x4228af	Switch_on_00_to_12|b
+0x4228c9	Switch_on_70_to_85|b
+0x4228fd	Switch_on_60_61_62|b
+0x422911	Switch_on_b0|b
+0x422919	Switch_on_f01_to_f16|b
+0x422950	Switch_on_400_to_408|b
+0x42297a	Switch_on_108_to_10c|b
+0x4229a0	Switch_on_501_to_504|b
+0x4229c5	Switch_on_2000_and_above|b
+0x4229f8	Switch_on_7000_and_above|b
+
+###large c0-ef
+0x416b92	switch_handler_fwcode_c0_unk|a
+0x416b9a	switch_handler_fwcode_c1_unk|a
+0x416ba2	switch_handler_fwcode_c2_unk|a
+0x416ba6	switch_handler_fwcode_c3_unk|a
+0x416baa	switch_handler_fwcode_c4_unk|a
+0x416bc1	switch_handler_fwcode_cc_unk|a
+0x416bc5	switch_handler_fwcode_cd_unk|a
+0x416bc9	switch_handler_fwcode_da_unk|a
+0x416bee	switch_handler_fwcode_db_unk|a
+0x416c13	switch_handler_fwcode_dc_unk|a
+0x416c2f	switch_handler_fwcode_dd_unk|a
+0x416c4b	switch_handler_fwcode_de_unk|a
+0x416c67	switch_handler_fwcode_e0_unk|a
+0x416c6b	switch_handler_fwcode_e1_unk|a
+0x416c6f	switch_handler_fwcode_e2_unk|a
+0x416c90	switch_handler_fwcode_e3_unk|a
+0x416c8c	switch_handler_fwcode_e4_unk|a
+0x416cad	switch_handler_fwcode_e5_unk|a
+0x416cca	switch_handler_fwcode_e6_unk|a
+0x416cf8	switch_handler_fwcode_e7_unk|a
+0x416ce8	switch_handler_fwcode_e8_unk|a
+0x416cec	switch_handler_fwcode_e9_unk|a
+0x416cf0	switch_handler_fwcode_ea_unk|a
+0x416cf4	switch_handler_fwcode_eb_unk|a
+0x416d00	switch_handler_fwcode_ec_unk|a
+0x416d04	switch_handler_fwcode_ed_unk|a
+0x416d08	switch_handler_fwcode_ee_unk|a
+0x416cfc	switch_handler_fwcode_ef_unk|a
+
+0x422b70	switch_handler_fwcode_c0_unk|b
+0x422b7a	switch_handler_fwcode_c1_unk|b
+0x422b84	switch_handler_fwcode_c2_unk|b
+0x422b88	switch_handler_fwcode_c3_unk|b
+0x422b8c	switch_handler_fwcode_c4_unk|b
+0x422ba5	switch_handler_fwcode_cc_unk|b
+0x422ba9	switch_handler_fwcode_cd_unk|b
+0x422bad	switch_handler_fwcode_da_unk|b
+0x422bd4	switch_handler_fwcode_db_unk|b
+0x422bfb	switch_handler_fwcode_dc_unk|b
+0x422c19	switch_handler_fwcode_dd_unk|b
+0x422c37	switch_handler_fwcode_de_unk|b
+0x422c55	switch_handler_fwcode_e0_unk|b
+0x422c59	switch_handler_fwcode_e1_unk|b
+0x422c5d	switch_handler_fwcode_e2_unk|b
+0x422c80	switch_handler_fwcode_e3_unk|b
+0x422c7c	switch_handler_fwcode_e4_unk|b
+0x422c9f	switch_handler_fwcode_e5_unk|b
+0x422cbe	switch_handler_fwcode_e6_unk|b
+0x422cee	switch_handler_fwcode_e7_unk|b
+0x422cde	switch_handler_fwcode_e8_unk|b
+0x422ce2	switch_handler_fwcode_e9_unk|b
+0x422ce6	switch_handler_fwcode_ea_unk|b
+0x422cea	switch_handler_fwcode_eb_unk|b
+0x422cf6	switch_handler_fwcode_ec_unk|b
+0x422cfa	switch_handler_fwcode_ed_unk|b
+0x422cfe	switch_handler_fwcode_ee_unk|b
+0x422cf2	switch_handler_fwcode_ef_unk|b
+
+0x4193fa	switch_handler_fwcode_c0_unk|c
+0x419402	switch_handler_fwcode_c1_unk|c
+0x41940a	switch_handler_fwcode_c2_unk|c
+0x41940e	switch_handler_fwcode_c3_unk|c
+0x419412	switch_handler_fwcode_c4_unk|c
+0x419429	switch_handler_fwcode_cc_unk|c
+0x41942d	switch_handler_fwcode_cd_unk|c
+0x419431	switch_handler_fwcode_da_unk|c
+0x419456	switch_handler_fwcode_db_unk|c
+0x41947b	switch_handler_fwcode_dc_unk|c
+0x419497	switch_handler_fwcode_dd_unk|c
+0x4194b3	switch_handler_fwcode_de_unk|c
+0x4194cf	switch_handler_fwcode_e0_unk|c
+0x4194d3	switch_handler_fwcode_e1_unk|c
+0x4194d7	switch_handler_fwcode_e2_unk|c
+0x4194f8	switch_handler_fwcode_e3_unk|c
+0x4194f4	switch_handler_fwcode_e4_unk|c
+0x419515	switch_handler_fwcode_e5_unk|c
+0x419532	switch_handler_fwcode_e6_unk|c
+0x419560	switch_handler_fwcode_e7_unk|c
+0x419550	switch_handler_fwcode_e8_unk|c
+0x419554	switch_handler_fwcode_e9_unk|c
+0x419558	switch_handler_fwcode_ea_unk|c
+0x41955c	switch_handler_fwcode_eb_unk|c
+0x419568	switch_handler_fwcode_ec_unk|c
+0x41956c	switch_handler_fwcode_ed_unk|c
+0x419570	switch_handler_fwcode_ee_unk|c
+0x419564	switch_handler_fwcode_ef_unk|c
+
+0x419fed	switch_handler_fwcode_c0_unk|d
+0x419ff5	switch_handler_fwcode_c1_unk|d
+0x419ffd	switch_handler_fwcode_c2_unk|d
+0x41a001	switch_handler_fwcode_c3_unk|d
+0x41a005	switch_handler_fwcode_c4_unk|d
+0x41a01c	switch_handler_fwcode_cc_unk|d
+0x41a020	switch_handler_fwcode_cd_unk|d
+0x41a024	switch_handler_fwcode_da_unk|d
+0x41a049	switch_handler_fwcode_db_unk|d
+0x41a06e	switch_handler_fwcode_dc_unk|d
+0x41a08a	switch_handler_fwcode_dd_unk|d
+0x41a0a6	switch_handler_fwcode_de_unk|d
+0x41a0c2	switch_handler_fwcode_e0_unk|d
+0x41a0c6	switch_handler_fwcode_e1_unk|d
+0x41a0ca	switch_handler_fwcode_e2_unk|d
+0x41a0eb	switch_handler_fwcode_e3_unk|d
+0x41a0e7	switch_handler_fwcode_e4_unk|d
+0x41a108	switch_handler_fwcode_e5_unk|d
+0x41a125	switch_handler_fwcode_e6_unk|d
+0x41a153	switch_handler_fwcode_e7_unk|d
+0x41a143	switch_handler_fwcode_e8_unk|d
+0x41a147	switch_handler_fwcode_e9_unk|d
+0x41a14b	switch_handler_fwcode_ea_unk|d
+0x41a14f	switch_handler_fwcode_eb_unk|d
+0x41a15b	switch_handler_fwcode_ec_unk|d
+0x41a15f	switch_handler_fwcode_ed_unk|d
+0x41a163	switch_handler_fwcode_ee_unk|d
+0x41a157	switch_handler_fwcode_ef_unk|d
+
+0x41b643	switch_handler_fwcode_c0_unk|e
+0x41b64b	switch_handler_fwcode_c1_unk|e
+0x41b653	switch_handler_fwcode_c2_unk|e
+0x41b657	switch_handler_fwcode_c3_unk|e
+0x41b65b	switch_handler_fwcode_c4_unk|e
+0x41b672	switch_handler_fwcode_cc_unk|e
+0x41b676	switch_handler_fwcode_cd_unk|e
+0x41b67a	switch_handler_fwcode_da_unk|e
+0x41b69f	switch_handler_fwcode_db_unk|e
+0x41b6c4	switch_handler_fwcode_dc_unk|e
+0x41b6e0	switch_handler_fwcode_dd_unk|e
+0x41b6fc	switch_handler_fwcode_de_unk|e
+0x41b718	switch_handler_fwcode_e0_unk|e
+0x41b71c	switch_handler_fwcode_e1_unk|e
+0x41b720	switch_handler_fwcode_e2_unk|e
+0x41b741	switch_handler_fwcode_e3_unk|e
+0x41b73d	switch_handler_fwcode_e4_unk|e
+0x41b75e	switch_handler_fwcode_e5_unk|e
+0x41b77b	switch_handler_fwcode_e6_unk|e
+0x41b7a9	switch_handler_fwcode_e7_unk|e
+0x41b799	switch_handler_fwcode_e8_unk|e
+0x41b79d	switch_handler_fwcode_e9_unk|e
+0x41b7a1	switch_handler_fwcode_ea_unk|e
+0x41b7a5	switch_handler_fwcode_eb_unk|e
+0x41b7b1	switch_handler_fwcode_ec_unk|e
+0x41b7b5	switch_handler_fwcode_ed_unk|e
+0x41b7b9	switch_handler_fwcode_ee_unk|e
+0x41b7ad	switch_handler_fwcode_ef_unk|e
+
+0x41eb65	switch_handler_fwcode_c0_unk|f
+0x41eb6d	switch_handler_fwcode_c1_unk|f
+0x41eb75	switch_handler_fwcode_c2_unk|f
+0x41eb79	switch_handler_fwcode_c3_unk|f
+0x41eb7d	switch_handler_fwcode_c4_unk|f
+0x41eb94	switch_handler_fwcode_cc_unk|f
+0x41eb98	switch_handler_fwcode_cd_unk|f
+0x41eb9c	switch_handler_fwcode_da_unk|f
+0x41ebc1	switch_handler_fwcode_db_unk|f
+0x41ebe6	switch_handler_fwcode_dc_unk|f
+0x41ec02	switch_handler_fwcode_dd_unk|f
+0x41ec1e	switch_handler_fwcode_de_unk|f
+0x41ec3a	switch_handler_fwcode_e0_unk|f
+0x41ec3e	switch_handler_fwcode_e1_unk|f
+0x41ec42	switch_handler_fwcode_e2_unk|f
+0x41ec63	switch_handler_fwcode_e3_unk|f
+0x41ec5f	switch_handler_fwcode_e4_unk|f
+0x41ec80	switch_handler_fwcode_e5_unk|f
+0x41ec9d	switch_handler_fwcode_e6_unk|f
+0x41eccb	switch_handler_fwcode_e7_unk|f
+0x41ecbb	switch_handler_fwcode_e8_unk|f
+0x41ecbf	switch_handler_fwcode_e9_unk|f
+0x41ecc3	switch_handler_fwcode_ea_unk|f
+0x41ecc7	switch_handler_fwcode_eb_unk|f
+0x41ecd3	switch_handler_fwcode_ec_unk|f
+0x41ecd7	switch_handler_fwcode_ed_unk|f
+0x41ecdb	switch_handler_fwcode_ee_unk|f
+0x41eccf	switch_handler_fwcode_ef_unk|f
+
+0x421b53	switch_handler_fwcode_c0_unk|g
+0x421b5b	switch_handler_fwcode_c1_unk|g
+0x421b63	switch_handler_fwcode_c2_unk|g
+0x421b67	switch_handler_fwcode_c3_unk|g
+0x421b6b	switch_handler_fwcode_c4_unk|g
+0x421b82	switch_handler_fwcode_cc_unk|g
+0x421b86	switch_handler_fwcode_cd_unk|g
+0x421b8a	switch_handler_fwcode_da_unk|g
+0x421baf	switch_handler_fwcode_db_unk|g
+0x421bd4	switch_handler_fwcode_dc_unk|g
+0x421bf0	switch_handler_fwcode_dd_unk|g
+0x421c0c	switch_handler_fwcode_de_unk|g
+0x421c28	switch_handler_fwcode_e0_unk|g
+0x421c2c	switch_handler_fwcode_e1_unk|g
+0x421c30	switch_handler_fwcode_e2_unk|g
+0x421c51	switch_handler_fwcode_e3_unk|g
+0x421c4d	switch_handler_fwcode_e4_unk|g
+0x421c6e	switch_handler_fwcode_e5_unk|g
+0x421c8b	switch_handler_fwcode_e6_unk|g
+0x421d05	switch_handler_fwcode_e7_unk|g
+0x421ca9	switch_handler_fwcode_e8_unk|g
+0x421cc0	switch_handler_fwcode_e9_unk|g
+0x421cd7	switch_handler_fwcode_ea_unk|g
+0x421cee	switch_handler_fwcode_eb_unk|g
+0x421d13	switch_handler_fwcode_ec_unk|g
+0x421d24	switch_handler_fwcode_ed_unk|g
+0x421d28	switch_handler_fwcode_ee_unk|g
+0x421d09	switch_handler_fwcode_ef_unk|g
+
+0x4246da	switch_handler_fwcode_c0_unk|h
+0x4246e2	switch_handler_fwcode_c1_unk|h
+0x4246ea	switch_handler_fwcode_c2_unk|h
+0x4246ee	switch_handler_fwcode_c3_unk|h
+0x4246f2	switch_handler_fwcode_c4_unk|h
+0x424709	switch_handler_fwcode_cc_unk|h
+0x42470d	switch_handler_fwcode_cd_unk|h
+0x424711	switch_handler_fwcode_da_unk|h
+0x424736	switch_handler_fwcode_db_unk|h
+0x42475b	switch_handler_fwcode_dc_unk|h
+0x424777	switch_handler_fwcode_dd_unk|h
+0x424793	switch_handler_fwcode_de_unk|h
+0x4247af	switch_handler_fwcode_e0_unk|h
+0x4247b3	switch_handler_fwcode_e1_unk|h
+0x4247b7	switch_handler_fwcode_e2_unk|h
+0x4247d8	switch_handler_fwcode_e3_unk|h
+0x4247d4	switch_handler_fwcode_e4_unk|h
+0x4247f5	switch_handler_fwcode_e5_unk|h
+0x424812	switch_handler_fwcode_e6_unk|h
+0x424840	switch_handler_fwcode_e7_unk|h
+0x424830	switch_handler_fwcode_e8_unk|h
+0x424834	switch_handler_fwcode_e9_unk|h
+0x424838	switch_handler_fwcode_ea_unk|h
+0x42483c	switch_handler_fwcode_eb_unk|h
+0x424848	switch_handler_fwcode_ec_unk|h
+0x42484c	switch_handler_fwcode_ed_unk|h
+0x424850	switch_handler_fwcode_ee_unk|h
+0x424844	switch_handler_fwcode_ef_unk|h
+
+0x427180	switch_handler_fwcode_c0_unk|i
+0x427188	switch_handler_fwcode_c1_unk|i
+0x427190	switch_handler_fwcode_c2_unk|i
+0x427194	switch_handler_fwcode_c3_unk|i
+0x427198	switch_handler_fwcode_c4_unk|i
+0x4271af	switch_handler_fwcode_cc_unk|i
+0x4271b3	switch_handler_fwcode_cd_unk|i
+0x4271b7	switch_handler_fwcode_da_unk|i
+0x4271dc	switch_handler_fwcode_db_unk|i
+0x427201	switch_handler_fwcode_dc_unk|i
+0x42721d	switch_handler_fwcode_dd_unk|i
+0x427239	switch_handler_fwcode_de_unk|i
+0x427255	switch_handler_fwcode_e0_unk|i
+0x427259	switch_handler_fwcode_e1_unk|i
+0x42725d	switch_handler_fwcode_e2_unk|i
+0x42727e	switch_handler_fwcode_e3_unk|i
+0x42727a	switch_handler_fwcode_e4_unk|i
+0x42729b	switch_handler_fwcode_e5_unk|i
+0x4272b8	switch_handler_fwcode_e6_unk|i
+0x4272e6	switch_handler_fwcode_e7_unk|i
+0x4272d6	switch_handler_fwcode_e8_unk|i
+0x4272da	switch_handler_fwcode_e9_unk|i
+0x4272de	switch_handler_fwcode_ea_unk|i
+0x4272e2	switch_handler_fwcode_eb_unk|i
+0x4272ee	switch_handler_fwcode_ec_unk|i
+0x4272f2	switch_handler_fwcode_ed_unk|i
+0x4272f6	switch_handler_fwcode_ee_unk|i
+0x4272ea	switch_handler_fwcode_ef_unk|i
+
+###large 30-51
+0x416a8a	switch_handler_fwcode_30_volplus|a
+0x416a98	switch_handler_fwcode_31_volminus|a
+0x416aa6	switch_handler_fwcode_32_unk|a
+0x416aac	switch_handler_fwcode_33_unk|a
+0x416ab2	switch_handler_fwcode_40_mp3|a
+0x416aba	switch_handler_fwcode_41_unk|a
+0x416abe	switch_handler_fwcode_42_mp3_pause|a
+0x416ac2	switch_handler_fwcode_43_mp3_play|a
+0x416ac6	switch_handler_fwcode_44_mp3_stop|a
+0x416aca	switch_handler_fwcode_45_mp3_next|a
+0x416ace	switch_handler_fwcode_46_mp3_prev|a
+0x416ad2	switch_handler_fwcode_47_unk|a
+0x416ad6	switch_handler_fwcode_48_unk|a
+0x416ada	switch_handler_fwcode_49_unk|a
+0x416ade	switch_handler_fwcode_4a_unk|a
+0x416ae2	switch_handler_fwcode_4b_unk|a
+0x416ae6	switch_handler_fwcode_4c_unk|a
+0x416afd	switch_handler_fwcode_50_compare|a
+0x416b05	switch_handler_fwcode_51_unk|a
+
+0x422a37	switch_handler_fwcode_30_volplus|b
+0x422a45	switch_handler_fwcode_31_volminus|b
+0x422a53	switch_handler_fwcode_32_unk|b
+0x422a59	switch_handler_fwcode_33_unk|b
+0x422a5f	switch_handler_fwcode_40_mp3|b
+0x422a69	switch_handler_fwcode_41_unk|b
+0x422a6d	switch_handler_fwcode_42_mp3_pause|b
+0x422a71	switch_handler_fwcode_43_mp3_play|b
+0x422a75	switch_handler_fwcode_44_mp3_stop|b
+0x422a79	switch_handler_fwcode_45_mp3_next|b
+0x422a7d	switch_handler_fwcode_46_mp3_prev|b
+0x422a81	switch_handler_fwcode_47_unk|b
+0x422a8b	switch_handler_fwcode_48_unk|b
+0x422a8f	switch_handler_fwcode_49_unk|b
+0x422a93	switch_handler_fwcode_4a_unk|b
+0x422a97	switch_handler_fwcode_4b_unk|b
+0x422a9b	switch_handler_fwcode_4c_unk|b
+0x422ab4	switch_handler_fwcode_50_compare|b
+0x422abe	switch_handler_fwcode_51_unk|b
+
+0x4192f2	switch_handler_fwcode_30_volplus|c
+0x419300	switch_handler_fwcode_31_volminus|c
+0x41930e	switch_handler_fwcode_32_unk|c
+0x419314	switch_handler_fwcode_33_unk|c
+0x41931a	switch_handler_fwcode_40_mp3|c
+0x419322	switch_handler_fwcode_41_unk|c
+0x419326	switch_handler_fwcode_42_mp3_pause|c
+0x41932a	switch_handler_fwcode_43_mp3_play|c
+0x41932e	switch_handler_fwcode_44_mp3_stop|c
+0x419332	switch_handler_fwcode_45_mp3_next|c
+0x419336	switch_handler_fwcode_46_mp3_prev|c
+0x41933a	switch_handler_fwcode_47_unk|c
+0x41933e	switch_handler_fwcode_48_unk|c
+0x419342	switch_handler_fwcode_49_unk|c
+0x419346	switch_handler_fwcode_4a_unk|c
+0x41934a	switch_handler_fwcode_4b_unk|c
+0x41934e	switch_handler_fwcode_4c_unk|c
+0x419365	switch_handler_fwcode_50_compare|c
+0x41936d	switch_handler_fwcode_51_unk|c
+
+0x419ee5	switch_handler_fwcode_30_volplus|d
+0x419ef3	switch_handler_fwcode_31_volminus|d
+0x419f01	switch_handler_fwcode_32_unk|d
+0x419f07	switch_handler_fwcode_33_unk|d
+0x419f0d	switch_handler_fwcode_40_mp3|d
+0x419f15	switch_handler_fwcode_41_unk|d
+0x419f19	switch_handler_fwcode_42_mp3_pause|d
+0x419f1d	switch_handler_fwcode_43_mp3_play|d
+0x419f21	switch_handler_fwcode_44_mp3_stop|d
+0x419f25	switch_handler_fwcode_45_mp3_next|d
+0x419f29	switch_handler_fwcode_46_mp3_prev|d
+0x419f2d	switch_handler_fwcode_47_unk|d
+0x419f31	switch_handler_fwcode_48_unk|d
+0x419f35	switch_handler_fwcode_49_unk|d
+0x419f39	switch_handler_fwcode_4a_unk|d
+0x419f3d	switch_handler_fwcode_4b_unk|d
+0x419f41	switch_handler_fwcode_4c_unk|d
+0x419f58	switch_handler_fwcode_50_compare|d
+0x419f60	switch_handler_fwcode_51_unk|d
+
+0x41b41e	switch_handler_fwcode_30_volplus|e
+0x41b42c	switch_handler_fwcode_31_volminus|e
+0x41b43a	switch_handler_fwcode_32_unk|e
+0x41b440	switch_handler_fwcode_33_unk|e
+0x41b446	switch_handler_fwcode_40_mp3|e
+0x41b44e	switch_handler_fwcode_41_unk|e
+0x41b49f	switch_handler_fwcode_42_mp3_pause|e
+0x41b4a9	switch_handler_fwcode_43_mp3_play|e
+0x41b4fa	switch_handler_fwcode_44_mp3_stop|e
+0x41b4fe	switch_handler_fwcode_45_mp3_next|e
+0x41b53b	switch_handler_fwcode_46_mp3_prev|e
+0x41b578	switch_handler_fwcode_47_unk|e
+0x41b580	switch_handler_fwcode_48_unk|e
+0x41b586	switch_handler_fwcode_49_unk|e
+0x41b58c	switch_handler_fwcode_4a_unk|e
+0x41b591	switch_handler_fwcode_4b_unk|e
+0x41b597	switch_handler_fwcode_4c_unk|e
+0x41b5ae	switch_handler_fwcode_50_compare|e
+0x41b5b6	switch_handler_fwcode_51_unk|e
+
+0x41ea4c	switch_handler_fwcode_30_volplus|f
+0x41ea5a	switch_handler_fwcode_31_volminus|f
+0x41ea68	switch_handler_fwcode_32_unk|f
+0x41ea6e	switch_handler_fwcode_33_unk|f
+0x41ea74	switch_handler_fwcode_40_mp3|f
+0x41ea7c	switch_handler_fwcode_41_unk|f
+0x41ea80	switch_handler_fwcode_42_mp3_pause|f
+0x41ea84	switch_handler_fwcode_43_mp3_play|f
+0x41ea88	switch_handler_fwcode_44_mp3_stop|f
+0x41ea8c	switch_handler_fwcode_45_mp3_next|f
+0x41ea90	switch_handler_fwcode_46_mp3_prev|f
+0x41ea94	switch_handler_fwcode_47_unk|f
+0x41ea98	switch_handler_fwcode_48_unk|f
+0x41ea9c	switch_handler_fwcode_49_unk|f
+0x41eaa0	switch_handler_fwcode_4a_unk|f
+0x41eaa4	switch_handler_fwcode_4b_unk|f
+0x41eaa8	switch_handler_fwcode_4c_unk|f
+0x41eabf	switch_handler_fwcode_50_compare|f
+0x41eac7	switch_handler_fwcode_51_unk|f
+
+0x421a4b	switch_handler_fwcode_30_volplus|g
+0x421a59	switch_handler_fwcode_31_volminus|g
+0x421a67	switch_handler_fwcode_32_unk|g
+0x421a6d	switch_handler_fwcode_33_unk|g
+0x421a73	switch_handler_fwcode_40_mp3|g
+0x421a7b	switch_handler_fwcode_41_unk|g
+0x421a7f	switch_handler_fwcode_42_mp3_pause|g
+0x421a83	switch_handler_fwcode_43_mp3_play|g
+0x421a87	switch_handler_fwcode_44_mp3_stop|g
+0x421a8b	switch_handler_fwcode_45_mp3_next|g
+0x421a8f	switch_handler_fwcode_46_mp3_prev|g
+0x421a93	switch_handler_fwcode_47_unk|g
+0x421a97	switch_handler_fwcode_48_unk|g
+0x421a9b	switch_handler_fwcode_49_unk|g
+0x421a9f	switch_handler_fwcode_4a_unk|g
+0x421aa3	switch_handler_fwcode_4b_unk|g
+0x421aa7	switch_handler_fwcode_4c_unk|g
+0x421abe	switch_handler_fwcode_50_compare|g
+0x421ac6	switch_handler_fwcode_51_unk|g
+
+0x4243fd	switch_handler_fwcode_30_volplus|h
+0x42440b	switch_handler_fwcode_31_volminus|h
+0x424419	switch_handler_fwcode_32_unk|h
+0x42441f	switch_handler_fwcode_33_unk|h
+0x424425	switch_handler_fwcode_40_mp3|h
+0x42442d	switch_handler_fwcode_41_unk|h
+0x4244ad	switch_handler_fwcode_42_mp3_pause|h
+0x4244b7	switch_handler_fwcode_43_mp3_play|h
+0x424537	switch_handler_fwcode_44_mp3_stop|h
+0x42453b	switch_handler_fwcode_45_mp3_next|h
+0x4245a7	switch_handler_fwcode_46_mp3_prev|h
+0x424613	switch_handler_fwcode_47_unk|h
+0x424617	switch_handler_fwcode_48_unk|h
+0x42461d	switch_handler_fwcode_49_unk|h
+0x424623	switch_handler_fwcode_4a_unk|h
+0x424628	switch_handler_fwcode_4b_unk|h
+0x42462e	switch_handler_fwcode_4c_unk|h
+0x424645	switch_handler_fwcode_50_compare|h
+0x42464d	switch_handler_fwcode_51_unk|h
+
+0x427078	switch_handler_fwcode_30_volplus|i
+0x427086	switch_handler_fwcode_31_volminus|i
+0x427094	switch_handler_fwcode_32_unk|i
+0x42709a	switch_handler_fwcode_33_unk|i
+0x4270a0	switch_handler_fwcode_40_mp3|i
+0x4270a8	switch_handler_fwcode_41_unk|i
+0x4270ac	switch_handler_fwcode_42_mp3_pause|i
+0x4270b0	switch_handler_fwcode_43_mp3_play|i
+0x4270b4	switch_handler_fwcode_44_mp3_stop|i
+0x4270b8	switch_handler_fwcode_45_mp3_next|i
+0x4270bc	switch_handler_fwcode_46_mp3_prev|i
+0x4270c0	switch_handler_fwcode_47_unk|i
+0x4270c4	switch_handler_fwcode_48_unk|i
+0x4270c8	switch_handler_fwcode_49_unk|i
+0x4270cc	switch_handler_fwcode_4a_unk|i
+0x4270d0	switch_handler_fwcode_4b_unk|i
+0x4270d4	switch_handler_fwcode_4c_unk|i
+0x4270eb	switch_handler_fwcode_50_compare|i
+0x4270f3	switch_handler_fwcode_51_unk|i
+
+###large 00,10,11,12
+0x416a61	handler_fwcode_00_unk|a
+0x416a6e	handler_fwcode_10_bookid|a
+0x416a7e	handler_fwcode_11_unk|a
+0x416a86	handler_fwcode_12_unk|a
+
+0x422a08	handler_fwcode_00_unk|b
+0x422a17	handler_fwcode_10_bookid|b
+0x422a29	handler_fwcode_11_unk|b
+0x422a33	handler_fwcode_12_unk|b
+
+0x4192c9	handler_fwcode_00_unk|c
+0x4192d6	handler_fwcode_10_bookid|c
+0x4192e6	handler_fwcode_11_unk|c
+0x4192ee	handler_fwcode_12_unk|c 
+
+0x419ebc	handler_fwcode_00_unk|d
+0x419ec9	handler_fwcode_10_bookid|d
+0x419ed9	handler_fwcode_11_unk|d
+0x419ee1	handler_fwcode_12_unk|d 
+
+0x41b3f5	handler_fwcode_00_unk|e
+0x41b402	handler_fwcode_10_bookid|e
+0x41b412	handler_fwcode_11_unk|e
+0x41b41a	handler_fwcode_12_unk|e
+
+0x41ea23	handler_fwcode_00_unk|f
+0x41ea30	handler_fwcode_10_bookid|f
+0x41ea40	handler_fwcode_11_unk|f
+0x41ea48	handler_fwcode_12_unk|f 
+
+0x421a22	handler_fwcode_00_unk|g
+0x421a2f	handler_fwcode_10_bookid|g
+0x421a3f	handler_fwcode_11_unk|g
+0x421a47	handler_fwcode_12_unk|g 
+
+0x4243d4	handler_fwcode_00_unk|h
+0x4243e1	handler_fwcode_10_bookid|h
+0x4243f1	handler_fwcode_11_unk|h
+0x4243f9	handler_fwcode_12_unk|h
+
+0x42704f	handler_fwcode_00_unk|i
+0x42705c	handler_fwcode_10_bookid|i
+0x42706c	handler_fwcode_11_unk|i
+0x427074	handler_fwcode_12_unk|i
+
+###large 70-85
+0x416b21	switch_handler_fwcode_70_unk|a
+0x416b25	switch_handler_fwcode_71_unk|a
+0x416b29	switch_handler_fwcode_72_unk|a
+0x416b30	switch_handler_fwcode_73_unk|a
+0x416b37	switch_handler_fwcode_74_unk|a
+0x416b3e	switch_handler_fwcode_75_unk|a
+0x416b45	switch_handler_fwcode_76_unk|a
+0x416b4c	switch_handler_fwcode_77_unk|a
+0x416b53	switch_handler_fwcode_78_unk|a
+0x416b5a	switch_handler_fwcode_80_stop|a
+0x416b62	switch_handler_fwcode_81_unk|a
+0x416b6a	switch_handler_fwcode_82_unk|a
+0x416b72	switch_handler_fwcode_83_unk|a
+0x416b7a	switch_handler_fwcode_84_unk|a
+0x416b82	switch_handler_fwcode_85_unk|a
+
+0x422ae0	switch_handler_fwcode_70_unk|b
+0x422ae4	switch_handler_fwcode_71_unk|b
+0x422ae8	switch_handler_fwcode_72_unk|b
+0x422aef	switch_handler_fwcode_73_unk|b
+0x422af6	switch_handler_fwcode_74_unk|b
+0x422afd	switch_handler_fwcode_75_unk|b
+0x422b04	switch_handler_fwcode_76_unk|b
+0x422b0b	switch_handler_fwcode_77_unk|b
+0x422b12	switch_handler_fwcode_78_unk|b
+0x422b19	switch_handler_fwcode_80_unk|b
+0x422b34	switch_handler_fwcode_81_unk|b
+0x422b3e	switch_handler_fwcode_82_unk|b
+0x422b48	switch_handler_fwcode_83_unk|b
+0x422b52	switch_handler_fwcode_84_unk|b
+0x422b5c	switch_handler_fwcode_85_unk|b
+
+0x419389	switch_handler_fwcode_70_unk|c
+0x41938d	switch_handler_fwcode_71_unk|c
+0x419391	switch_handler_fwcode_72_unk|c
+0x419398	switch_handler_fwcode_73_unk|c
+0x41939f	switch_handler_fwcode_74_unk|c
+0x4193a6	switch_handler_fwcode_75_unk|c
+0x4193ad	switch_handler_fwcode_76_unk|c
+0x4193b4	switch_handler_fwcode_77_unk|c
+0x4193bb	switch_handler_fwcode_78_unk|c
+0x4193c2	switch_handler_fwcode_80_stop|c
+0x4193ca	switch_handler_fwcode_81_unk|c
+0x4193d2	switch_handler_fwcode_82_unk|c
+0x4193da	switch_handler_fwcode_83_unk|c
+0x4193e2	switch_handler_fwcode_84_unk|c
+0x4193ea	switch_handler_fwcode_85_unk|c
+
+0x419f7c	switch_handler_fwcode_70_unk|d
+0x419f80	switch_handler_fwcode_71_unk|d
+0x419f84	switch_handler_fwcode_72_unk|d
+0x419f8b	switch_handler_fwcode_73_unk|d
+0x419f92	switch_handler_fwcode_74_unk|d
+0x419f99	switch_handler_fwcode_75_unk|d
+0x419fa0	switch_handler_fwcode_76_unk|d
+0x419fa7	switch_handler_fwcode_77_unk|d
+0x419fae	switch_handler_fwcode_78_unk|d
+0x419fb5	switch_handler_fwcode_80_stop|d
+0x419fbd	switch_handler_fwcode_81_unk|d
+0x419fc5	switch_handler_fwcode_82_unk|d
+0x419fcd	switch_handler_fwcode_83_unk|d
+0x419fd5	switch_handler_fwcode_84_unk|d
+0x419fdd	switch_handler_fwcode_85_unk|d
+
+0x41b5d2	switch_handler_fwcode_70_unk|e
+0x41b5d6	switch_handler_fwcode_71_unk|e
+0x41b5da	switch_handler_fwcode_72_unk|e
+0x41b5e1	switch_handler_fwcode_73_unk|e
+0x41b5e8	switch_handler_fwcode_74_unk|e
+0x41b5ef	switch_handler_fwcode_75_unk|e
+0x41b5f6	switch_handler_fwcode_76_unk|e
+0x41b5fd	switch_handler_fwcode_77_unk|e
+0x41b604	switch_handler_fwcode_78_unk|e
+0x41b60b	switch_handler_fwcode_80_stop|e
+0x41b613	switch_handler_fwcode_81_unk|e
+0x41b61b	switch_handler_fwcode_82_unk|e
+0x41b623	switch_handler_fwcode_83_unk|e
+0x41b62b	switch_handler_fwcode_84_unk|e
+0x41b633	switch_handler_fwcode_85_unk|e
+
+0x41eaf4	switch_handler_fwcode_70_unk|f
+0x41eaf8	switch_handler_fwcode_71_unk|f
+0x41eafc	switch_handler_fwcode_72_unk|f
+0x41eb03	switch_handler_fwcode_73_unk|f
+0x41eb0a	switch_handler_fwcode_74_unk|f
+0x41eb11	switch_handler_fwcode_75_unk|f
+0x41eb18	switch_handler_fwcode_76_unk|f
+0x41eb1f	switch_handler_fwcode_77_unk|f
+0x41eb26	switch_handler_fwcode_78_unk|f
+0x41eb2d	switch_handler_fwcode_80_stop|f
+0x41eb35	switch_handler_fwcode_81_unk|f
+0x41eb3d	switch_handler_fwcode_82_unk|f
+0x41eb45	switch_handler_fwcode_83_unk|f
+0x41eb4d	switch_handler_fwcode_84_unk|f
+0x41eb55	switch_handler_fwcode_85_unk|f
+
+0x421ae2	switch_handler_fwcode_70_unk|g
+0x421ae6	switch_handler_fwcode_71_unk|g
+0x421aea	switch_handler_fwcode_72_unk|g
+0x421af1	switch_handler_fwcode_73_unk|g
+0x421af8	switch_handler_fwcode_74_unk|g
+0x421aff	switch_handler_fwcode_75_unk|g
+0x421b06	switch_handler_fwcode_76_unk|g
+0x421b0d	switch_handler_fwcode_77_unk|g
+0x421b14	switch_handler_fwcode_78_unk|g
+0x421b1b	switch_handler_fwcode_80_stop|g
+0x421b23	switch_handler_fwcode_81_unk|g
+0x421b2b	switch_handler_fwcode_82_unk|g
+0x421b33	switch_handler_fwcode_83_unk|g
+0x421b3b	switch_handler_fwcode_84_unk|g
+0x421b43	switch_handler_fwcode_85_unk|g
+
+0x424669	switch_handler_fwcode_70_unk|h
+0x42466d	switch_handler_fwcode_71_unk|h
+0x424671	switch_handler_fwcode_72_unk|h
+0x424678	switch_handler_fwcode_73_unk|h
+0x42467f	switch_handler_fwcode_74_unk|h
+0x424686	switch_handler_fwcode_75_unk|h
+0x42468d	switch_handler_fwcode_76_unk|h
+0x424694	switch_handler_fwcode_77_unk|h
+0x42469b	switch_handler_fwcode_78_unk|h
+0x4246a2	switch_handler_fwcode_80_stop|h
+0x4246aa	switch_handler_fwcode_81_unk|h
+0x4246b2	switch_handler_fwcode_82_unk|h
+0x4246ba	switch_handler_fwcode_83_unk|h
+0x4246c2	switch_handler_fwcode_84_unk|h
+0x4246ca	switch_handler_fwcode_85_unk|h
+
+0x42710f	switch_handler_fwcode_70_unk|i
+0x427113	switch_handler_fwcode_71_unk|i
+0x427117	switch_handler_fwcode_72_unk|i
+0x42711e	switch_handler_fwcode_73_unk|i
+0x427125	switch_handler_fwcode_74_unk|i
+0x42712c	switch_handler_fwcode_75_unk|i
+0x427133	switch_handler_fwcode_76_unk|i
+0x42713a	switch_handler_fwcode_77_unk|i
+0x427141	switch_handler_fwcode_78_unk|i
+0x427148	switch_handler_fwcode_80_stop|i
+0x427150	switch_handler_fwcode_81_unk|i
+0x427158	switch_handler_fwcode_82_unk|i
+0x427160	switch_handler_fwcode_83_unk|i
+0x427168	switch_handler_fwcode_84_unk|i
+0x427170	switch_handler_fwcode_85_unk|i
+
+###large 60-62
+0x416b0d	handler_fwcode_60_unk|a
+0x416b15	handler_fwcode_61_unk|a
+0x416b19	handler_fwcode_62_unk|a
+
+0x422ac8	handler_fwcode_60_unk|b
+0x422ad2	handler_fwcode_61_unk|b
+0x422ad6	handler_fwcode_62_unk|b
+
+0x419375	handler_fwcode_60_unk|c
+0x41937d	handler_fwcode_61_unk|c
+0x419381	handler_fwcode_62_unk|c
+
+0x419f68	handler_fwcode_60_unk|d
+0x419f70	handler_fwcode_61_unk|d
+0x419f74	handler_fwcode_62_unk|d
+
+0x41b5be	handler_fwcode_60_unk|e
+0x41b5c6	handler_fwcode_61_unk|e
+0x41b5ca	handler_fwcode_62_unk|e
+
+0x41eacf	handler_fwcode_60_unk|f
+0x41ead7	handler_fwcode_61_unk|f
+0x41eaec	handler_fwcode_62_unk|f
+
+0x421ace	handler_fwcode_60_unk|g
+0x421ad6	handler_fwcode_61_unk|g
+0x421ada	handler_fwcode_62_unk|g
+
+0x424655	handler_fwcode_60_unk|h
+0x42465d	handler_fwcode_61_unk|h
+0x424661	handler_fwcode_62_unk|h
+
+0x4270fb	handler_fwcode_60_unk|i
+0x427103	handler_fwcode_61_unk|i
+0x427107	handler_fwcode_62_unk|i
+
+###large b0
+0x416b8a	handler_fwcode_b0_unk|a
+0x422b66	handler_fwcode_b0_unk|b
+0x4193f2	handler_fwcode_b0_unk|c
+0x419fe5	handler_fwcode_b0_unk|d
+0x41b63b	handler_fwcode_b0_unk|e
+0x4246d2	handler_fwcode_b0_unk|h
+0x427178	handler_fwcode_b0_unk|i
+
+###large f01-f16
+0x416d0c	switch_handler_fwcode_f01_unk|a
+0x416d16	switch_handler_fwcode_f0c_unk|a
+0x416d20	switch_handler_fwcode_f0d_unk|a
+0x416d5c	switch_handler_fwcode_f0e_unk|a
+0x416d98	switch_handler_fwcode_f0f_unk|a
+0x416dae	switch_handler_fwcode_f10_unk|a
+0x416dd8	switch_handler_fwcode_f11_unk|a
+0x416e0e	switch_handler_fwcode_f12_unk|a
+0x416e46	switch_handler_fwcode_f13_unk|a
+0x416e7d	switch_handler_fwcode_f14_unk|a
+0x416ebb	switch_handler_fwcode_f15_unk|a
+0x416f3d	switch_handler_fwcode_f16_unk|a
+
+0x422d02	switch_handler_fwcode_f01_unk|b
+0x422d06	switch_handler_fwcode_f0c_unk|b
+0x422d0a	switch_handler_fwcode_f0d_unk|b
+0x422d0e	switch_handler_fwcode_f0e_unk|b
+0x422d12	switch_handler_fwcode_f0f_unk|b
+0x422d2a	switch_handler_fwcode_f10_unk|b
+0x422d2e	switch_handler_fwcode_f11_unk|b
+0x422d32	switch_handler_fwcode_f12_unk|b
+0x422d36	switch_handler_fwcode_f13_unk|b
+0x422d3a	switch_handler_fwcode_f14_unk|b
+0x422d3e	switch_handler_fwcode_f15_unk|b
+0x422d42	switch_handler_fwcode_f16_unk|b
+
+0x419574	switch_handler_fwcode_f01_unk|c
+0x419578	switch_handler_fwcode_f0c_unk|c
+0x41957c	switch_handler_fwcode_f0d_unk|c
+0x419580	switch_handler_fwcode_f0e_unk|c
+0x419584	switch_handler_fwcode_f0f_unk|c
+0x41959a	switch_handler_fwcode_f10_unk|c
+0x41959e	switch_handler_fwcode_f11_unk|c
+0x4195a2	switch_handler_fwcode_f12_unk|c
+0x4195a6	switch_handler_fwcode_f13_unk|c
+0x4195aa	switch_handler_fwcode_f14_unk|c
+0x4195ae	switch_handler_fwcode_f15_unk|c
+0x4195b2	switch_handler_fwcode_f16_unk|c
+
+0x41a167	switch_handler_fwcode_f01_unk|d
+0x41a16b	switch_handler_fwcode_f0c_unk|d
+0x41a16f	switch_handler_fwcode_f0d_unk|d
+0x41a173	switch_handler_fwcode_f0e_unk|d
+0x41a177	switch_handler_fwcode_f0f_unk|d
+0x41a18d	switch_handler_fwcode_f10_unk|d
+0x41a191	switch_handler_fwcode_f11_unk|d
+0x41a195	switch_handler_fwcode_f12_unk|d
+0x41a199	switch_handler_fwcode_f13_unk|d
+0x41a19d	switch_handler_fwcode_f14_unk|d
+0x41a1a1	switch_handler_fwcode_f15_unk|d
+0x41a1a5	switch_handler_fwcode_f16_unk|d
+
+0x41b7bd	switch_handler_fwcode_f01_unk|e
+0x41b7c1	switch_handler_fwcode_f0c_unk|e
+0x41b7c5	switch_handler_fwcode_f0d_unk|e
+0x41b7c9	switch_handler_fwcode_f0e_unk|e
+0x41b7cd	switch_handler_fwcode_f0f_unk|e
+0x41b7e3	switch_handler_fwcode_f10_unk|e
+0x41b7e7	switch_handler_fwcode_f11_unk|e
+0x41b7eb	switch_handler_fwcode_f12_unk|e
+0x41b7ef	switch_handler_fwcode_f13_unk|e
+0x41b7f3	switch_handler_fwcode_f14_unk|e
+0x41b7f7	switch_handler_fwcode_f15_unk|e
+0x41b7fb	switch_handler_fwcode_f16_unk|e
+
+0x41ecdf	switch_handler_fwcode_f01_unk|f
+0x41ece3	switch_handler_fwcode_f0c_unk|f
+0x41ece7	switch_handler_fwcode_f0d_unk|f
+0x41eceb	switch_handler_fwcode_f0e_unk|f
+0x41ecef	switch_handler_fwcode_f0f_unk|f
+0x41ed05	switch_handler_fwcode_f10_unk|f
+0x41ed09	switch_handler_fwcode_f11_unk|f
+0x41ed0d	switch_handler_fwcode_f12_unk|f
+0x41ed11	switch_handler_fwcode_f13_unk|f
+0x41ed15	switch_handler_fwcode_f14_unk|f
+0x41ed19	switch_handler_fwcode_f15_unk|f
+0x41ed1d	switch_handler_fwcode_f16_unk|f
+
+0x421d2c	switch_handler_fwcode_f01_unk|g
+0x421d30	switch_handler_fwcode_f0c_unk|g
+0x421d34	switch_handler_fwcode_f0d_unk|g
+0x421d38	switch_handler_fwcode_f0e_unk|g
+0x421d3c	switch_handler_fwcode_f0f_unk|g
+0x421d52	switch_handler_fwcode_f10_unk|g
+0x421d56	switch_handler_fwcode_f11_unk|g
+0x421d5a	switch_handler_fwcode_f12_unk|g
+0x421d5e	switch_handler_fwcode_f13_unk|g
+0x421d62	switch_handler_fwcode_f14_unk|g
+0x421d66	switch_handler_fwcode_f15_unk|g
+0x421d6a	switch_handler_fwcode_f16_unk|g
+
+0x424854	switch_handler_fwcode_f01_unk|h
+0x424858	switch_handler_fwcode_f0c_unk|h
+0x42485c	switch_handler_fwcode_f0d_unk|h
+0x424860	switch_handler_fwcode_f0e_unk|h
+0x424864	switch_handler_fwcode_f0f_unk|h
+0x42487a	switch_handler_fwcode_f10_unk|h
+0x42487e	switch_handler_fwcode_f11_unk|h
+0x424882	switch_handler_fwcode_f12_unk|h
+0x424886	switch_handler_fwcode_f13_unk|h
+0x42488a	switch_handler_fwcode_f14_unk|h
+0x42488e	switch_handler_fwcode_f15_unk|h
+0x424892	switch_handler_fwcode_f16_unk|h
+
+0x4272fa	switch_handler_fwcode_f01_unk|i
+0x4272fe	switch_handler_fwcode_f0c_unk|i
+0x427302	switch_handler_fwcode_f0d_unk|i
+0x427306	switch_handler_fwcode_f0e_unk|i
+0x42730a	switch_handler_fwcode_f0f_unk|i
+0x427320	switch_handler_fwcode_f10_unk|i
+0x427324	switch_handler_fwcode_f11_unk|i
+0x427328	switch_handler_fwcode_f12_unk|i
+0x42732c	switch_handler_fwcode_f13_unk|i
+0x427330	switch_handler_fwcode_f14_unk|i
+0x427334	switch_handler_fwcode_f15_unk|i
+0x427338	switch_handler_fwcode_f16_unk|i
+
+###large 400-408
+0x416f8f	switch_handler_fwcode_400_unk|a
+0x416f9f	switch_handler_fwcode_401_unk|a
+0x416fa3	switch_handler_fwcode_402_unk|a
+0x416f7f	switch_handler_fwcode_403_unk|a
+0x416fee	switch_handler_fwcode_404_to_408_unk|a
+
+0x422d91	switch_handler_fwcode_400_unk|b
+0x422da3	switch_handler_fwcode_401_unk|b
+0x422dbf	switch_handler_fwcode_402_unk|b
+0x422d7f	switch_handler_fwcode_403_unk|b
+0x422ef4	switch_handler_fwcode_404_to_408_unk|b
+
+0x419659	switch_handler_fwcode_400_unk|c
+0x419669	switch_handler_fwcode_401_unk|c
+0x41966d	switch_handler_fwcode_402_unk|c
+0x419649	switch_handler_fwcode_403_unk|c
+0x4196b8	switch_handler_fwcode_404_to_408_unk|c
+
+0x41a1f0	switch_handler_fwcode_400_unk|d
+0x41a200	switch_handler_fwcode_401_unk|d
+0x41a204	switch_handler_fwcode_402_unk|d
+0x41a1e0	switch_handler_fwcode_403_unk|d
+0x41a24f	switch_handler_fwcode_404_to_408_unk|d
+
+0x41b846	switch_handler_fwcode_400_unk|e
+0x41b856	switch_handler_fwcode_401_unk|e
+0x41b85a	switch_handler_fwcode_402_unk|e
+0x41b836	switch_handler_fwcode_403_unk|e
+0x41b895	switch_handler_fwcode_404_to_408_unk|e
+
+0x41ed68	switch_handler_fwcode_400_unk|f
+0x41ed78	switch_handler_fwcode_401_unk|f
+0x41ed7c	switch_handler_fwcode_402_unk|f
+0x41ed58	switch_handler_fwcode_403_unk|f
+0x41edc7	switch_handler_fwcode_404_to_408_unk|f
+
+0x421db5	switch_handler_fwcode_400_unk|g
+0x421dc5	switch_handler_fwcode_401_unk|g
+0x421dc9	switch_handler_fwcode_402_unk|g
+0x421da5	switch_handler_fwcode_403_unk|g
+0x421e14	switch_handler_fwcode_404_to_408_unk|g
+
+0x4248dd	switch_handler_fwcode_400_unk|h
+0x4248ed	switch_handler_fwcode_401_unk|h
+0x4248f1	switch_handler_fwcode_402_unk|h
+0x4248cd	switch_handler_fwcode_403_unk|h
+0x42493c	switch_handler_fwcode_404_to_408_unk|h
+
+0x427418	switch_handler_fwcode_400_unk|i
+0x427428	switch_handler_fwcode_401_unk|i
+0x42742c	switch_handler_fwcode_402_unk|i
+0x427408	switch_handler_fwcode_403_unk|i
+0x427477	switch_handler_fwcode_404_to_408_unk|i
+
+0x41f579	switch_handler_fwcode_404_unk|
+0x41f587	switch_handler_fwcode_405_unk|
+0x41f595	switch_handler_fwcode_406_unk|
+0x41f5a3	switch_handler_fwcode_407_unk|
+0x41f5b1	switch_handler_fwcode_408_unk|
+
+###large 108-10c
+0x416fa7	switch_handler_fwcode_108_unk|a
+0x416fbb	switch_handler_fwcode_109_unk|a
+0x416fbf	switch_handler_fwcode_10a_unk|a
+0x416fc3	switch_handler_fwcode_10b_unk|a
+0x416fc7	switch_handler_fwcode_10c_unk|a
+
+0x422ddb	switch_handler_fwcode_108_unk|b
+0x422def	switch_handler_fwcode_109_unk|b
+0x422e25	switch_handler_fwcode_10a_unk|b
+0x422e5b	switch_handler_fwcode_10b_unk|b
+0x422e89	switch_handler_fwcode_10c_unk|b
+
+0x419671	switch_handler_fwcode_108_unk|c
+0x419685	switch_handler_fwcode_109_unk|c
+0x419689	switch_handler_fwcode_10a_unk|c
+0x41968d	switch_handler_fwcode_10b_unk|c
+0x419691	switch_handler_fwcode_10c_unk|c
+
+0x41a208	switch_handler_fwcode_108_unk|d
+0x41a21c	switch_handler_fwcode_109_unk|d
+0x41a220	switch_handler_fwcode_10a_unk|d
+0x41a224	switch_handler_fwcode_10b_unk|d
+0x41a228	switch_handler_fwcode_10c_unk|d
+
+0x41b85e	switch_handler_fwcode_108_unk|e
+0x41b862	switch_handler_fwcode_109_unk|e
+0x41b866	switch_handler_fwcode_10a_unk|e
+0x41b86a	switch_handler_fwcode_10b_unk|e
+0x41b86e	switch_handler_fwcode_10c_unk|e
+
+0x41ed80	switch_handler_fwcode_108_unk|f
+0x41ed94	switch_handler_fwcode_109_unk|f
+0x41ed98	switch_handler_fwcode_10a_unk|f
+0x41ed9c	switch_handler_fwcode_10b_unk|f
+0x41eda0	switch_handler_fwcode_10c_unk|f
+
+0x421dcd	switch_handler_fwcode_108_unk|g
+0x421de1	switch_handler_fwcode_109_unk|g
+0x421de5	switch_handler_fwcode_10a_unk|g
+0x421de9	switch_handler_fwcode_10b_unk|g
+0x421ded	switch_handler_fwcode_10c_unk|g
+
+0x4248f5	switch_handler_fwcode_108_unk|h
+0x424909	switch_handler_fwcode_109_unk|h
+0x42490d	switch_handler_fwcode_10a_unk|h
+0x424911	switch_handler_fwcode_10b_unk|h
+0x424915	switch_handler_fwcode_10c_unk|h
+
+0x427430	switch_handler_fwcode_108_unk|i
+0x427444	switch_handler_fwcode_109_unk|i
+0x427448	switch_handler_fwcode_10a_unk|i
+0x42744c	switch_handler_fwcode_10b_unk|i
+0x427450	switch_handler_fwcode_10c_unk|i
+
+###large 501-504
+0x416fcb	handler_fwcode_501_unk|a
+0x416fdc	handler_fwcode_502_unk|a
+0x416a65	handler_fwcode_504_unk|a
+
+0x422eb7	switch_handler_fwcode_501_unk|b
+0x422ec8	switch_handler_fwcode_502_unk|b
+0x422eda	switch_handler_fwcode_503_unk|b
+0x422a0c	switch_handler_fwcode_504_unk|b
+
+0x419695	handler_fwcode_501_unk|c
+0x4196a6	handler_fwcode_502_unk|c
+0x4192cd	handler_fwcode_504_unk|c
+
+0x41a22c	handler_fwcode_501_unk|d
+0x41a23d	handler_fwcode_502_unk|d
+0x419ec0	handler_fwcode_504_unk|d
+
+0x41b872	handler_fwcode_501_unk|e
+0x41b883	handler_fwcode_502_unk|e
+0x41b3f9	handler_fwcode_504_unk|e
+
+0x41eda4	handler_fwcode_501_unk|f
+0x41edb5	handler_fwcode_502_unk|f
+0x41ea27	handler_fwcode_504_unk|f
+
+0x421df1	handler_fwcode_501_unk|g
+0x421e02	handler_fwcode_502_unk|g
+0x421a26	handler_fwcode_504_unk|g
+
+0x424919	handler_fwcode_501_unk|h
+0x42492a	handler_fwcode_502_unk|h
+0x4243d8	handler_fwcode_504_unk|h
+
+0x427454	handler_fwcode_501_unk|i
+0x427465	handler_fwcode_502_unk|i
+0x427053	handler_fwcode_504_unk|i
+
+###large 2000
+0x416f48	handler_fwcode_2000_unk|a
+0x416f67	handler_fwcode_2001_unk|a
+0x416f6b	handler_fwcode_2002_unk|a
+0x416f6f	handler_fwcode_201d_unk|a
+0x417264	end_of_fwcode_handling|a
+0x416f73	handler_fwcode_2020_unk|a
+
+0x422d46	handler_fwcode_2000_unk|b
+0x422d67	handler_fwcode_2001_unk|b
+0x422d6b	handler_fwcode_2002_unk|b
+0x422d6f	handler_fwcode_201d_unk|b
+0x423197	end_of_fwcode_handling|b
+0x422d73	handler_fwcode_2020_unk|b
+
+0x4195b6	handler_fwcode_2000_unk|c
+0x4195d5	handler_fwcode_2001_unk|c
+0x4195dd	handler_fwcode_2002_unk|c
+0x4195e5	handler_fwcode_201d_unk|c
+0x41992c	end_of_fwcode_handling|c
+0x419639	handler_fwcode_2020_unk|c
+
+0x41a1a9	handler_fwcode_2000_unk|d
+0x41a1c8	handler_fwcode_2001_unk|d
+0x41a1cc	handler_fwcode_2002_unk|d
+0x41a1d0	handler_fwcode_201d_unk|d
+0x41a4a1	end_of_fwcode_handling|d
+0x41a1d4	handler_fwcode_2020_unk|d
+
+0x41b7ff	handler_fwcode_2000_unk|e
+0x41b81e	handler_fwcode_2001_unk|e
+0x41b822	handler_fwcode_2002_unk|e
+0x41b826	handler_fwcode_201d_unk|e
+0x41bae5	end_of_fwcode_handling|e
+0x41b82a	handler_fwcode_2020_unk|e
+
+0x41ed21	handler_fwcode_2000_unk|f
+0x41ed40	handler_fwcode_2001_unk|f
+0x41ed44	handler_fwcode_2002_unk|f
+0x41ed48	handler_fwcode_201d_unk|f
+0x41f019	end_of_fwcode_handling|f
+0x41ed4c	handler_fwcode_2020_unk|f
+
+0x421d6e	handler_fwcode_2000_unk|g
+0x421d8d	handler_fwcode_2001_unk|g
+0x421d91	handler_fwcode_2002_unk|g
+0x421d95	handler_fwcode_201d_unk|g
+0x42206d	end_of_fwcode_handling|g
+0x421d99	handler_fwcode_2020_unk|g
+
+0x424896	handler_fwcode_2000_unk|h
+0x4248b5	handler_fwcode_2001_unk|h
+0x4248b9	handler_fwcode_2002_unk|h
+0x4248bd	handler_fwcode_201d_unk|h
+0x424b8c	end_of_fwcode_handling|h
+0x4248c1	handler_fwcode_2020_unk|h
+
+0x42733c	handler_fwcode_2000_unk|i
+0x42735b	handler_fwcode_2001_unk|i
+0x42735f	handler_fwcode_2002_unk|i
+0x427363	handler_fwcode_201d_unk|i
+0x42775d	end_of_fwcode_handling|i
+0x427367	handler_fwcode_2020_unk|i
+
+
+###large 7000
+0x416f77	handler_fwcode_7000_unk|a
+0x416f7b	handler_fwcode_7001_unk|a
+
+0x422d77	handler_fwcode_7000_unk|b
+0x422d7b	handler_fwcode_7001_unk|b
+
+0x419641	handler_fwcode_7000_unk|c
+0x419645	handler_fwcode_7001_unk|c
+
+0x41a1d8	handler_fwcode_7000_unk|d
+0x41a1dc	handler_fwcode_7001_unk|d
+
+0x41b82e	handler_fwcode_7000_unk|e
+0x41b832	handler_fwcode_7001_unk|e
+
+0x41ed50	handler_fwcode_7000_unk|f
+0x41ed54	handler_fwcode_7001_unk|f
+
+0x4248c5	handler_fwcode_7000_unk|h
+0x4248c9	handler_fwcode_7001_unk|h
+
+0x42736b	handler_fwcode_7000_unk|i
+0x4273ba	handler_fwcode_7001_unk|i
+
+###large multi
+0x416ff5	switch_handler_fwcode_MULTI_unk|a
+0x422efb	switch_handler_fwcode_MULTI_unk|b
+0x4196bf	switch_handler_fwcode_MULTI_unk|c
+0x41a258	switch_handler_fwcode_MULTI_unk|d
+0x41b89c	switch_handler_fwcode_MULTI_unk|e
+0x41edd0	switch_handler_fwcode_MULTI_unk|f
+0x421e1b	switch_handler_fwcode_MULTI_unk|g
+0x424943	switch_handler_fwcode_MULTI_unk|h
+0x42747e	switch_handler_fwcode_MULTI_unk|i
+
+###large rest
+0x417001	Handle_fwcode_20_to_2f_volume|a
+0x41703a	Handle_fwcode_90_to_af|a
+0x417058	Handle_fwcode_d0_to_d9|a
+0x41708e	Handle_fwcode_f02_to_f0b|a
+0x4170ce	Handle_fwcode_f0_to_f9|a
+0x4170fc	Handle_fwcode_1000_to_1999_quiz|a
+0x417129	Handle_fwcode_2003_to_2013|a
+0x41715c	Handle_fwcode_3000_to_3fff|a
+0x41718f	Handle_fwcode_5000_to_5fff|a
+0x4171c3	Handle_fwcode_4000_to_4fff|a
+0x4171f6	Handle_fwcode_6000_to_6fff|a
+0x41722a	Handle_fwcode_100_to_107|a
+0x417242	Handle_fwcode_200_to_2ff|a
+0x417252	Handle_fwcode_300_to_3ff|a
+
+0x422f07	Handle_fwcode_20_to_2f_volume|b
+0x422f40	Handle_fwcode_90_to_af|b
+0x422f79	Handle_fwcode_d0_to_d9|b
+0x422fb1	Handle_fwcode_f02_to_f0b|b
+0x422fcd	Handle_fwcode_f0_to_f9|b
+0x422ffd	Handle_fwcode_1000_to_1999_quiz|b
+0x42302c	Handle_fwcode_2003_to_2013|b
+0x423061	Handle_fwcode_3000_to_3fff|b
+0x423096	Handle_fwcode_5000_to_5fff|b
+0x4230cc	Handle_fwcode_4000_to_4fff|b
+0x423101	Handle_fwcode_6000_to_6fff|b
+0x423137	Handle_fwcode_100_to_107|b
+0x42314f	Handle_fwcode_200_to_2ff|b
+0x423172	Handle_fwcode_300_to_3ff|b
+
+
+
+###end of large fwcode handling
+
+
+
+
+0x420000	DoesSomethingWithSystemVoiceDatabin
+0x420040	Read3c43_call_40e4c8_and_zero_3c43
+#0x40e4c8	Deref_stack1ptr+0x10_and_call_28ad0a
+0x40e4c8	FS_Close_probably
+0x40f9a6	Some_SPIDATA5_ADR_handling_waiting_probably
+0x4151c5	Init_3c79_to_3c81_and_read_from_port_0
+0x428475	Initialize_OID_module_if_not_yet_initialized
+0x428520	Check_if_P4_bit6_iszero_ret1_else_ret0
+0x41fe75	Check_if_p4.13_is_1_set_p3.15
+0x41fe69	Check_if_p4.13_is_1_set_p3.15_b
+0x415178	Read_from_port0_modify_3c7d_3c7f
+0x41516d	Set_Timer0
+0x40f9bd	Get_stack1ptr+0x0d_and_return_in_R0R1
+0x41cf57	Something_with_UpdateChp
+0x42854a	Just_Call_OID_Init
+0x4160d3	Zero_3fa0_to_4000
+0x41e1b5	Initialize_all_vars
+0x41fe63	SetPort3Bit14
+0x411192	Initialize3binPointers
+0x41505f	Play_Sound_From_2bin_table_by_stack1
+0x41551b	Get_3bin_unknown_table_by_stack1_to_R0
+0x41535f	Something_with_3bin_30344_mp3_table_from_stack1
+0x4000c9	Get32bit_from_Ix1_mask_with_R0R1_store_to_Ix0
+0x4000d7	Get32bit_from_Ix1_mask_with_Y0Y1_store_to_Ix0
+0x40f93a	str_something1_stk1stk2_stk3stk4_strcpy_strcat
+0x40f904	strcat_char_stk1stk2_stk3
+0x41839b	dirname_something_nullsafe_handle_to_R0
+0x4183bc	Get_SAR_ADR_shl_6_to_R0
+0x40f9d2	Dir_Something_fn
+
+0x419942	Switch_on_3d62_probably_pen_state|a
+0x41bafb	Something_long_and_also_switch_on_3d62_pen_state|b
+0x41f02f	Something_long_and_also_switch_on_3d62_pen_state|c
+0x422083	Something_long_and_also_switch_on_3d62_pen_state|d
+0x4231ad	Something_long_and_also_switch_on_3d62_pen_state|e
+0x424e7d	Something_long_and_also_switch_on_3d62_pen_state|f
+0x4259cf	Switch_on_3d62_probably_pen_state|g
+0x427773	Something_long_and_also_switch_on_3d62_pen_state|h
+
+0x419b87	default_on_penstate_processing|a
+0x4199bb	switch_on_penstate_01_unk|a
+0x4199c1	switch_on_penstate_02_unk|a
+0x4199c7	switch_on_penstate_03_unk|a
+0x419b84	switch_on_penstate_04_unk|a
+0x4199cd	switch_on_penstate_05_unk|a
+0x4199d3	switch_on_penstate_06_unk|a
+0x4199d9	switch_on_penstate_08_unk|a
+0x4199f3	switch_on_penstate_09_unk|a
+0x419a0e	switch_on_penstate_0a_unk|a
+0x419a13	switch_on_penstate_0b_unk|a
+0x419a19	switch_on_penstate_0c_unk|a
+0x419a1f	switch_on_penstate_0d_unk|a
+0x419a25	switch_on_penstate_0e_unk|a
+0x419a2b	switch_on_penstate_0f_unk|a
+0x419a31	switch_on_penstate_10_unk|a
+0x419a37	switch_on_penstate_11_unk|a
+0x419a3d	switch_on_penstate_12_unk|a
+0x419a43	switch_on_penstate_13_unk|a
+0x419a49	switch_on_penstate_14_unk|a
+0x419a4f	switch_on_penstate_15_unk|a
+0x419a55	switch_on_penstate_16_unk|a
+0x419a5b	switch_on_penstate_17_unk|a
+0x419a61	switch_on_penstate_18_unk|a
+0x419a67	switch_on_penstate_19_unk|a
+0x419a6d	switch_on_penstate_1a_unk|a
+0x419a73	switch_on_penstate_1b_unk|a
+0x419a79	switch_on_penstate_1c_unk|a
+0x419a7f	switch_on_penstate_1d_unk|a
+0x419a85	switch_on_penstate_1e_unk|a
+0x419a8a	switch_on_penstate_1f_unk|a
+0x419aa5	switch_on_penstate_20_unk|a
+0x419ac0	switch_on_penstate_21_unk|a
+0x419ac6	switch_on_penstate_22_unk|a
+0x419acc	switch_on_penstate_23_unk|a
+0x419ad2	switch_on_penstate_24_unk|a
+0x419ad7	switch_on_penstate_25_unk|a
+0x419add	switch_on_penstate_26_unk|a
+0x419ae3	switch_on_penstate_27_unk|a
+0x419ae9	switch_on_penstate_28_unk|a
+0x419aef	switch_on_penstate_29_unk|a
+0x419af5	switch_on_penstate_2a_unk|a
+0x419afa	switch_on_penstate_2b_unk|a
+0x419aff	switch_on_penstate_2c_unk|a
+0x419b04	switch_on_penstate_2d_unk|a
+0x419b0a	switch_on_penstate_2e_unk|a
+0x419b10	switch_on_penstate_2f_unk|a
+0x419b16	switch_on_penstate_30_unk|a
+0x419b1c	switch_on_penstate_31_unk|a
+0x419b22	switch_on_penstate_32_unk|a
+0x419b28	switch_on_penstate_34_unk|a
+0x419b2e	switch_on_penstate_35_unk|a
+0x419b34	switch_on_penstate_36_unk|a
+0x419b39	switch_on_penstate_37_unk|a
+0x419b3e	switch_on_penstate_38_unk|a
+0x419b43	switch_on_penstate_39_unk|a
+0x419b48	switch_on_penstate_3a_unk|a
+0x419b4d	switch_on_penstate_3b_unk|a
+0x419b52	switch_on_penstate_3c_unk|a
+0x419b57	switch_on_penstate_3d_unk|a
+0x419b5c	switch_on_penstate_3e_unk|a
+0x419b61	switch_on_penstate_3f_unk|a
+0x419b66	switch_on_penstate_40_unk|a
+0x419b6c	switch_on_penstate_41_unk|a
+0x419b71	switch_on_penstate_42_unk|a
+0x419b76	switch_on_penstate_43_unk|a
+0x4199b5	switch_on_penstate_44_unk|a
+0x419b7b	switch_on_penstate_48_unk|a
+
+0x41be32	switch_on_penstate_00_unk|b
+0x41bc92	switch_on_penstate_01_unk|b
+0x41bc98	switch_on_penstate_02_unk|b
+0x41bc9e	switch_on_penstate_03_unk|b
+0x41be2f	switch_on_penstate_04_unk|b
+0x41bca4	switch_on_penstate_05_unk|b
+0x41bcaa	switch_on_penstate_06_unk|b
+0x41bcb0	switch_on_penstate_08_unk|b
+0x41bcca	switch_on_penstate_09_unk|b
+0x41bce5	switch_on_penstate_0a_unk|b
+0x41bcea	switch_on_penstate_0b_unk|b
+0x41bcf0	switch_on_penstate_0c_unk|b
+0x41bcf6	switch_on_penstate_0d_unk|b
+0x41bcfc	switch_on_penstate_0e_unk|b
+0x41bd02	switch_on_penstate_0f_unk|b
+0x41bd08	switch_on_penstate_10_unk|b
+0x41bd0e	switch_on_penstate_11_unk|b
+0x41bd14	switch_on_penstate_12_unk|b
+0x41bd1a	switch_on_penstate_13_unk|b
+0x41bd20	switch_on_penstate_14_unk|b
+0x41bd26	switch_on_penstate_15_unk|b
+0x41bd2c	switch_on_penstate_16_unk|b
+0x41bd32	switch_on_penstate_17_unk|b
+0x41bd38	switch_on_penstate_18_unk|b
+0x41bd3e	switch_on_penstate_19_unk|b
+0x41bd44	switch_on_penstate_1a_unk|b
+0x41bd4a	switch_on_penstate_1b_unk|b
+0x41bd50	switch_on_penstate_1c_unk|b
+0x41bd56	switch_on_penstate_1d_unk|b
+0x41bd5c	switch_on_penstate_1e_unk|b
+0x41bd61	switch_on_penstate_1f_unk|b
+0x41bd66	switch_on_penstate_20_unk|b
+0x41bd6b	switch_on_penstate_21_unk|b
+0x41bd71	switch_on_penstate_22_unk|b
+0x41bd77	switch_on_penstate_23_unk|b
+0x41bd7d	switch_on_penstate_24_unk|b
+0x41bd82	switch_on_penstate_25_unk|b
+0x41bd88	switch_on_penstate_26_unk|b
+0x41bd8e	switch_on_penstate_27_unk|b
+0x41bd94	switch_on_penstate_28_unk|b
+0x41bd9a	switch_on_penstate_29_unk|b
+0x41bda0	switch_on_penstate_2a_unk|b
+0x41bda5	switch_on_penstate_2b_unk|b
+0x41bdaa	switch_on_penstate_2c_unk|b
+0x41bdaf	switch_on_penstate_2d_unk|b
+0x41bdb5	switch_on_penstate_2e_unk|b
+0x41bdbb	switch_on_penstate_2f_unk|b
+0x41bdc1	switch_on_penstate_30_unk|b
+0x41bdc7	switch_on_penstate_31_unk|b
+0x41bdcd	switch_on_penstate_32_unk|b
+0x41bdd3	switch_on_penstate_34_unk|b
+0x41bdd9	switch_on_penstate_35_unk|b
+0x41bddf	switch_on_penstate_36_unk|b
+0x41bde4	switch_on_penstate_37_unk|b
+0x41bde9	switch_on_penstate_38_unk|b
+0x41bdee	switch_on_penstate_39_unk|b
+0x41bdf3	switch_on_penstate_3a_unk|b
+0x41bdf8	switch_on_penstate_3b_unk|b
+0x41bdfd	switch_on_penstate_3c_unk|b
+0x41be02	switch_on_penstate_3d_unk|b
+0x41be07	switch_on_penstate_3e_unk|b
+0x41be0c	switch_on_penstate_3f_unk|b
+0x41be11	switch_on_penstate_40_unk|b
+0x41be17	switch_on_penstate_41_unk|b
+0x41be1c	switch_on_penstate_42_unk|b
+0x41be21	switch_on_penstate_43_unk|b
+0x41bc8c	switch_on_penstate_44_unk|b
+0x41be26	switch_on_penstate_48_unk|b
+
+0x41f321	switch_on_penstate_00_unk|c
+0x41f115	switch_on_penstate_01_unk|c
+0x41f11b	switch_on_penstate_02_unk|c
+0x41f121	switch_on_penstate_03_unk|c
+0x41f31e	switch_on_penstate_04_unk|c
+0x41f127	switch_on_penstate_05_unk|c
+0x41f12d	switch_on_penstate_06_unk|c
+0x41f133	switch_on_penstate_08_unk|c
+0x41f14d	switch_on_penstate_09_unk|c
+0x41f168	switch_on_penstate_0a_unk|c
+0x41f19d	switch_on_penstate_0b_unk|c
+0x41f1df	switch_on_penstate_0c_unk|c
+0x41f1e5	switch_on_penstate_0d_unk|c
+0x41f1eb	switch_on_penstate_0e_unk|c
+0x41f1f1	switch_on_penstate_0f_unk|c
+0x41f1f7	switch_on_penstate_10_unk|c
+0x41f1fd	switch_on_penstate_11_unk|c
+0x41f203	switch_on_penstate_12_unk|c
+0x41f209	switch_on_penstate_13_unk|c
+0x41f20f	switch_on_penstate_14_unk|c
+0x41f215	switch_on_penstate_15_unk|c
+0x41f21b	switch_on_penstate_16_unk|c
+0x41f221	switch_on_penstate_17_unk|c
+0x41f227	switch_on_penstate_18_unk|c
+0x41f22d	switch_on_penstate_19_unk|c
+0x41f233	switch_on_penstate_1a_unk|c
+0x41f239	switch_on_penstate_1b_unk|c
+0x41f23f	switch_on_penstate_1c_unk|c
+0x41f245	switch_on_penstate_1d_unk|c
+0x41f24b	switch_on_penstate_1e_unk|c
+0x41f250	switch_on_penstate_1f_unk|c
+0x41f255	switch_on_penstate_20_unk|c
+0x41f25a	switch_on_penstate_21_unk|c
+0x41f260	switch_on_penstate_22_unk|c
+0x41f266	switch_on_penstate_23_unk|c
+0x41f26c	switch_on_penstate_24_unk|c
+0x41f271	switch_on_penstate_25_unk|c
+0x41f277	switch_on_penstate_26_unk|c
+0x41f27d	switch_on_penstate_27_unk|c
+0x41f283	switch_on_penstate_28_unk|c
+0x41f289	switch_on_penstate_29_unk|c
+0x41f28f	switch_on_penstate_2a_unk|c
+0x41f294	switch_on_penstate_2b_unk|c
+0x41f299	switch_on_penstate_2c_unk|c
+0x41f29e	switch_on_penstate_2d_unk|c
+0x41f2a4	switch_on_penstate_2e_unk|c
+0x41f2aa	switch_on_penstate_2f_unk|c
+0x41f2b0	switch_on_penstate_30_unk|c
+0x41f2b6	switch_on_penstate_31_unk|c
+0x41f2bc	switch_on_penstate_32_unk|c
+0x41f2c2	switch_on_penstate_34_unk|c
+0x41f2c8	switch_on_penstate_35_unk|c
+0x41f2ce	switch_on_penstate_36_unk|c
+0x41f2d3	switch_on_penstate_37_unk|c
+0x41f2d8	switch_on_penstate_38_unk|c
+0x41f2dd	switch_on_penstate_39_unk|c
+0x41f2e2	switch_on_penstate_3a_unk|c
+0x41f2e7	switch_on_penstate_3b_unk|c
+0x41f2ec	switch_on_penstate_3c_unk|c
+0x41f2f1	switch_on_penstate_3d_unk|c
+0x41f2f6	switch_on_penstate_3e_unk|c
+0x41f2fb	switch_on_penstate_3f_unk|c
+0x41f300	switch_on_penstate_40_unk|c
+0x41f306	switch_on_penstate_41_unk|c
+0x41f30b	switch_on_penstate_42_unk|c
+0x41f310	switch_on_penstate_43_unk|c
+0x41f10f	switch_on_penstate_44_unk|c
+0x41f315	switch_on_penstate_48_unk|c
+
+0x4223e6	switch_on_penstate_00_unk|d
+0x422230	switch_on_penstate_01_unk|d
+0x422236	switch_on_penstate_02_unk|d
+0x42223c	switch_on_penstate_03_unk|d
+0x4223e3	switch_on_penstate_04_unk|d
+0x422242	switch_on_penstate_05_unk|d
+0x422248	switch_on_penstate_06_unk|d
+0x42224e	switch_on_penstate_08_unk|d
+0x422268	switch_on_penstate_09_unk|d
+0x422283	switch_on_penstate_0a_unk|d
+0x422288	switch_on_penstate_0b_unk|d
+0x42228e	switch_on_penstate_0c_unk|d
+0x422294	switch_on_penstate_0d_unk|d
+0x42229a	switch_on_penstate_0e_unk|d
+0x4222a0	switch_on_penstate_0f_unk|d
+0x4222a6	switch_on_penstate_10_unk|d
+0x4222ac	switch_on_penstate_11_unk|d
+0x4222b2	switch_on_penstate_12_unk|d
+0x4222b8	switch_on_penstate_13_unk|d
+0x4222be	switch_on_penstate_14_unk|d
+0x4222c4	switch_on_penstate_15_unk|d
+0x4222ca	switch_on_penstate_16_unk|d
+0x4222d0	switch_on_penstate_17_unk|d
+0x4222d6	switch_on_penstate_18_unk|d
+0x4222ef	switch_on_penstate_19_unk|d
+0x4222f5	switch_on_penstate_1a_unk|d
+0x4222fb	switch_on_penstate_1b_unk|d
+0x422301	switch_on_penstate_1c_unk|d
+0x422307	switch_on_penstate_1d_unk|d
+0x42230d	switch_on_penstate_1e_unk|d
+0x422312	switch_on_penstate_1f_unk|d
+0x422317	switch_on_penstate_20_unk|d
+0x42231c	switch_on_penstate_21_unk|d
+0x422322	switch_on_penstate_22_unk|d
+0x422328	switch_on_penstate_23_unk|d
+0x42232e	switch_on_penstate_24_unk|d
+0x422335	switch_on_penstate_25_unk|d
+0x42233b	switch_on_penstate_26_unk|d
+0x422341	switch_on_penstate_27_unk|d
+0x422347	switch_on_penstate_28_unk|d
+0x42234d	switch_on_penstate_29_unk|d
+0x422353	switch_on_penstate_2a_unk|d
+0x422358	switch_on_penstate_2b_unk|d
+0x42235d	switch_on_penstate_2c_unk|d
+0x422362	switch_on_penstate_2d_unk|d
+0x422368	switch_on_penstate_2e_unk|d
+0x42236e	switch_on_penstate_2f_unk|d
+0x422374	switch_on_penstate_30_unk|d
+0x42237a	switch_on_penstate_31_unk|d
+0x422380	switch_on_penstate_32_unk|d
+0x422386	switch_on_penstate_34_unk|d
+0x42238c	switch_on_penstate_35_unk|d
+0x422392	switch_on_penstate_36_unk|d
+0x422398	switch_on_penstate_37_unk|d
+0x42239d	switch_on_penstate_38_unk|d
+0x4223a2	switch_on_penstate_39_unk|d
+0x4223a7	switch_on_penstate_3a_unk|d
+0x4223ac	switch_on_penstate_3b_unk|d
+0x4223b1	switch_on_penstate_3c_unk|d
+0x4223b6	switch_on_penstate_3d_unk|d
+0x4223bb	switch_on_penstate_3e_unk|d
+0x4223c0	switch_on_penstate_3f_unk|d
+0x4223c5	switch_on_penstate_40_unk|d
+0x4223cb	switch_on_penstate_41_unk|d
+0x4223d0	switch_on_penstate_42_unk|d
+0x4223d5	switch_on_penstate_43_unk|d
+0x42222a	switch_on_penstate_44_unk|d
+0x4223da	switch_on_penstate_48_unk|d
+
+0x423732	switch_on_penstate_00_unk|e
+0x4232e4	switch_on_penstate_01_unk|e
+0x4232ea	switch_on_penstate_02_unk|e
+0x4232f7	switch_on_penstate_03_unk|e
+0x42372f	switch_on_penstate_04_unk|e
+0x4232fd	switch_on_penstate_05_unk|e
+0x423314	switch_on_penstate_06_unk|e
+0x42331e	switch_on_penstate_08_unk|e
+0x423338	switch_on_penstate_09_unk|e
+0x423353	switch_on_penstate_0a_unk|e
+0x423358	switch_on_penstate_0b_unk|e
+0x42335e	switch_on_penstate_0c_unk|e
+0x42337c	switch_on_penstate_0d_unk|e
+0x4233af	switch_on_penstate_0e_unk|e
+0x4233e2	switch_on_penstate_0f_unk|e
+0x423448	switch_on_penstate_10_unk|e
+0x423468	switch_on_penstate_11_unk|e
+0x42346e	switch_on_penstate_12_unk|e
+0x423478	switch_on_penstate_13_unk|e
+0x4234ae	switch_on_penstate_14_unk|e
+0x4234e0	switch_on_penstate_15_unk|e
+0x423525	switch_on_penstate_16_unk|e
+0x423555	switch_on_penstate_17_unk|e
+0x423585	switch_on_penstate_18_unk|e
+0x42359e	switch_on_penstate_19_unk|e
+0x4235b2	switch_on_penstate_1a_unk|e
+0x4235c9	switch_on_penstate_1b_unk|e
+0x4235dd	switch_on_penstate_1c_unk|e
+0x4235f9	switch_on_penstate_1d_unk|e
+0x423615	switch_on_penstate_1e_unk|e
+0x42361a	switch_on_penstate_1f_unk|e
+0x42361f	switch_on_penstate_20_unk|e
+0x423624	switch_on_penstate_21_unk|e
+0x42363b	switch_on_penstate_22_unk|e
+0x423652	switch_on_penstate_23_unk|e
+0x42365c	switch_on_penstate_24_unk|e
+0x423661	switch_on_penstate_25_unk|e
+0x423667	switch_on_penstate_26_unk|e
+0x42366d	switch_on_penstate_27_unk|e
+0x423673	switch_on_penstate_28_unk|e
+0x423679	switch_on_penstate_29_unk|e
+0x42367f	switch_on_penstate_2a_unk|e
+0x423684	switch_on_penstate_2b_unk|e
+0x423689	switch_on_penstate_2c_unk|e
+0x42368e	switch_on_penstate_2d_unk|e
+0x423694	switch_on_penstate_2e_unk|e
+0x42369a	switch_on_penstate_2f_unk|e
+0x4236a0	switch_on_penstate_30_unk|e
+0x4236a6	switch_on_penstate_31_unk|e
+0x4236ac	switch_on_penstate_32_unk|e
+0x4236b9	switch_on_penstate_34_unk|e
+0x4236c9	switch_on_penstate_35_unk|e
+0x4236df	switch_on_penstate_36_unk|e
+0x4236e4	switch_on_penstate_37_unk|e
+0x4236e9	switch_on_penstate_38_unk|e
+0x4236ee	switch_on_penstate_39_unk|e
+0x4236f3	switch_on_penstate_3a_unk|e
+0x4236f8	switch_on_penstate_3b_unk|e
+0x4236fd	switch_on_penstate_3c_unk|e
+0x423702	switch_on_penstate_3d_unk|e
+0x423707	switch_on_penstate_3e_unk|e
+0x42370c	switch_on_penstate_3f_unk|e
+0x423711	switch_on_penstate_40_unk|e
+0x423717	switch_on_penstate_41_unk|e
+0x42371c	switch_on_penstate_42_unk|e
+0x423721	switch_on_penstate_43_unk|e
+0x42322a	switch_on_penstate_44_unk|e
+0x423249	switch_on_penstate_45_unk|e
+0x4232ac	switch_on_penstate_46_unk|e
+0x4232cd	switch_on_penstate_47_unk|e
+0x423726	switch_on_penstate_48_unk|e
+
+0x4252bb	switch_on_penstate_00_unk|f
+0x42511b	switch_on_penstate_01_unk|f
+0x425121	switch_on_penstate_02_unk|f
+0x425127	switch_on_penstate_03_unk|f
+0x4252b8	switch_on_penstate_04_unk|f
+0x42512d	switch_on_penstate_05_unk|f
+0x425133	switch_on_penstate_06_unk|f
+0x425139	switch_on_penstate_08_unk|f
+0x425153	switch_on_penstate_09_unk|f
+0x42516e	switch_on_penstate_0a_unk|f
+0x425173	switch_on_penstate_0b_unk|f
+0x425179	switch_on_penstate_0c_unk|f
+0x42517f	switch_on_penstate_0d_unk|f
+0x425185	switch_on_penstate_0e_unk|f
+0x42518b	switch_on_penstate_0f_unk|f
+0x425191	switch_on_penstate_10_unk|f
+0x425197	switch_on_penstate_11_unk|f
+0x42519d	switch_on_penstate_12_unk|f
+0x4251a3	switch_on_penstate_13_unk|f
+0x4251a9	switch_on_penstate_14_unk|f
+0x4251af	switch_on_penstate_15_unk|f
+0x4251b5	switch_on_penstate_16_unk|f
+0x4251bb	switch_on_penstate_17_unk|f
+0x4251c1	switch_on_penstate_18_unk|f
+0x4251c7	switch_on_penstate_19_unk|f
+0x4251cd	switch_on_penstate_1a_unk|f
+0x4251d3	switch_on_penstate_1b_unk|f
+0x4251d9	switch_on_penstate_1c_unk|f
+0x4251df	switch_on_penstate_1d_unk|f
+0x4251e5	switch_on_penstate_1e_unk|f
+0x4251ea	switch_on_penstate_1f_unk|f
+0x4251ef	switch_on_penstate_20_unk|f
+0x4251f4	switch_on_penstate_21_unk|f
+0x4251fa	switch_on_penstate_22_unk|f
+0x425200	switch_on_penstate_23_unk|f
+0x425206	switch_on_penstate_24_unk|f
+0x42520b	switch_on_penstate_25_unk|f
+0x425211	switch_on_penstate_26_unk|f
+0x425217	switch_on_penstate_27_unk|f
+0x42521d	switch_on_penstate_28_unk|f
+0x425223	switch_on_penstate_29_unk|f
+0x425229	switch_on_penstate_2a_unk|f
+0x42522e	switch_on_penstate_2b_unk|f
+0x425233	switch_on_penstate_2c_unk|f
+0x425238	switch_on_penstate_2d_unk|f
+0x42523e	switch_on_penstate_2e_unk|f
+0x425244	switch_on_penstate_2f_unk|f
+0x42524a	switch_on_penstate_30_unk|f
+0x425250	switch_on_penstate_31_unk|f
+0x425256	switch_on_penstate_32_unk|f
+0x42525c	switch_on_penstate_34_unk|f
+0x425262	switch_on_penstate_35_unk|f
+0x425268	switch_on_penstate_36_unk|f
+0x42526d	switch_on_penstate_37_unk|f
+0x425272	switch_on_penstate_38_unk|f
+0x425277	switch_on_penstate_39_unk|f
+0x42527c	switch_on_penstate_3a_unk|f
+0x425281	switch_on_penstate_3b_unk|f
+0x425286	switch_on_penstate_3c_unk|f
+0x42528b	switch_on_penstate_3d_unk|f
+0x425290	switch_on_penstate_3e_unk|f
+0x425295	switch_on_penstate_3f_unk|f
+0x42529a	switch_on_penstate_40_unk|f
+0x4252a0	switch_on_penstate_41_unk|f
+0x4252a5	switch_on_penstate_42_unk|f
+0x4252aa	switch_on_penstate_43_unk|f
+0x4250fe	switch_on_penstate_44_unk|f
+0x425104	switch_on_penstate_47_unk|f
+0x4252af	switch_on_penstate_48_unk|f
+
+0x4261bc	switch_on_penstate_00_unk|g
+0x425a44	switch_on_penstate_01_unk|g
+0x425a4a	switch_on_penstate_02_unk|g
+0x425a50	switch_on_penstate_03_unk|g
+0x4261b9	switch_on_penstate_04_unk|g
+0x425a56	switch_on_penstate_05_unk|g
+0x425a5c	switch_on_penstate_06_unk|g
+0x425a62	switch_on_penstate_08_unk|g
+0x425a7c	switch_on_penstate_09_unk|g
+0x425a97	switch_on_penstate_0a_unk|g
+0x425a9c	switch_on_penstate_0b_unk|g
+0x425aa2	switch_on_penstate_0c_unk|g
+0x425aa8	switch_on_penstate_0d_unk|g
+0x425aae	switch_on_penstate_0e_unk|g
+0x425ab4	switch_on_penstate_0f_unk|g
+0x425aba	switch_on_penstate_10_unk|g
+0x425ac0	switch_on_penstate_11_unk|g
+0x425ac6	switch_on_penstate_12_unk|g
+0x425acc	switch_on_penstate_13_unk|g
+0x425ad2	switch_on_penstate_14_unk|g
+0x425ad8	switch_on_penstate_15_unk|g
+0x425ade	switch_on_penstate_16_unk|g
+0x425ae4	switch_on_penstate_17_unk|g
+0x425aea	switch_on_penstate_18_unk|g
+0x425af0	switch_on_penstate_19_unk|g
+0x425af6	switch_on_penstate_1a_unk|g
+0x425afc	switch_on_penstate_1b_unk|g
+0x425b02	switch_on_penstate_1c_unk|g
+0x425b08	switch_on_penstate_1d_unk|g
+0x425b0e	switch_on_penstate_1e_unk|g
+0x425b13	switch_on_penstate_1f_unk|g
+0x425b18	switch_on_penstate_20_unk|g
+0x425b1d	switch_on_penstate_21_unk|g
+0x425b23	switch_on_penstate_22_unk|g
+0x425b29	switch_on_penstate_23_unk|g
+0x425b2f	switch_on_penstate_24_unk|g
+0x425b34	switch_on_penstate_25_unk|g
+0x425b3a	switch_on_penstate_26_unk|g
+0x425b40	switch_on_penstate_27_unk|g
+0x425b46	switch_on_penstate_28_unk|g
+0x425b4c	switch_on_penstate_29_unk|g
+0x425b5c	switch_on_penstate_2a_unk|g
+0x425b61	switch_on_penstate_2b_unk|g
+0x425b66	switch_on_penstate_2c_unk|g
+0x425b6b	switch_on_penstate_2d_unk|g
+0x425b71	switch_on_penstate_2e_unk|g
+0x425b77	switch_on_penstate_2f_unk|g
+0x425b7d	switch_on_penstate_30_unk|g
+0x425b83	switch_on_penstate_31_unk|g
+0x425b89	switch_on_penstate_32_unk|g
+0x425b8f	switch_on_penstate_34_unk|g
+0x425b95	switch_on_penstate_35_unk|g
+0x425b9b	switch_on_penstate_36_unk|g
+0x425ba0	switch_on_penstate_37_unk|g
+0x425be2	switch_on_penstate_38_unk|g
+0x425c1c	switch_on_penstate_39_unk|g
+0x425c5a	switch_on_penstate_3a_unk|g
+0x425dde	switch_on_penstate_3b_unk|g
+0x425feb	switch_on_penstate_3c_unk|g
+0x426029	switch_on_penstate_3d_unk|g
+0x4260d0	switch_on_penstate_3f_unk|g
+0x426107	switch_on_penstate_40_unk|g
+0x42610c	switch_on_penstate_41_unk|g
+0x426111	switch_on_penstate_42_unk|g
+0x42617a	switch_on_penstate_43_unk|g
+0x425a3e	switch_on_penstate_44_unk|g
+0x4261b0	switch_on_penstate_48_unk|g
+
+0x4279bd	switch_on_penstate_00_unk|h
+0x42781f	switch_on_penstate_01_unk|h
+0x427825	switch_on_penstate_02_unk|h
+0x42782b	switch_on_penstate_03_unk|h
+0x4279ba	switch_on_penstate_04_unk|h
+0x427831	switch_on_penstate_05_unk|h
+0x427837	switch_on_penstate_06_unk|h
+0x42783d	switch_on_penstate_08_unk|h
+0x427857	switch_on_penstate_09_unk|h
+0x427872	switch_on_penstate_0a_unk|h
+0x427877	switch_on_penstate_0b_unk|h
+0x42787d	switch_on_penstate_0c_unk|h
+0x427883	switch_on_penstate_0d_unk|h
+0x427889	switch_on_penstate_0e_unk|h
+0x42788f	switch_on_penstate_0f_unk|h
+0x427895	switch_on_penstate_10_unk|h
+0x42789b	switch_on_penstate_11_unk|h
+0x4278a1	switch_on_penstate_12_unk|h
+0x4278a7	switch_on_penstate_13_unk|h
+0x4278ad	switch_on_penstate_14_unk|h
+0x4278b3	switch_on_penstate_15_unk|h
+0x4278b9	switch_on_penstate_16_unk|h
+0x4278bf	switch_on_penstate_17_unk|h
+0x4278c5	switch_on_penstate_18_unk|h
+0x4278cb	switch_on_penstate_19_unk|h
+0x4278d1	switch_on_penstate_1a_unk|h
+0x4278d7	switch_on_penstate_1b_unk|h
+0x4278dd	switch_on_penstate_1c_unk|h
+0x4278e3	switch_on_penstate_1d_unk|h
+0x4278e9	switch_on_penstate_1e_unk|h
+0x4278ee	switch_on_penstate_1f_unk|h
+0x4278f3	switch_on_penstate_20_unk|h
+0x4278f8	switch_on_penstate_21_unk|h
+0x4278fe	switch_on_penstate_22_unk|h
+0x427904	switch_on_penstate_23_unk|h
+0x42790a	switch_on_penstate_24_unk|h
+0x42790f	switch_on_penstate_25_unk|h
+0x427915	switch_on_penstate_26_unk|h
+0x42791b	switch_on_penstate_27_unk|h
+0x427921	switch_on_penstate_28_unk|h
+0x427927	switch_on_penstate_29_unk|h
+0x42792d	switch_on_penstate_2a_unk|h
+0x427932	switch_on_penstate_2b_unk|h
+0x427937	switch_on_penstate_2c_unk|h
+0x42793c	switch_on_penstate_2d_unk|h
+0x427942	switch_on_penstate_2e_unk|h
+0x427948	switch_on_penstate_2f_unk|h
+0x42794d	switch_on_penstate_30_unk|h
+0x427952	switch_on_penstate_31_unk|h
+0x427958	switch_on_penstate_32_unk|h
+0x42795e	switch_on_penstate_34_unk|h
+0x427964	switch_on_penstate_35_unk|h
+0x42796a	switch_on_penstate_36_unk|h
+0x42796f	switch_on_penstate_37_unk|h
+0x427974	switch_on_penstate_38_unk|h
+0x427979	switch_on_penstate_39_unk|h
+0x42797e	switch_on_penstate_3a_unk|h
+0x427983	switch_on_penstate_3b_unk|h
+0x427988	switch_on_penstate_3c_unk|h
+0x42798d	switch_on_penstate_3d_unk|h
+0x427992	switch_on_penstate_3e_unk|h
+0x427997	switch_on_penstate_3f_unk|h
+0x42799c	switch_on_penstate_40_unk|h
+0x4279a2	switch_on_penstate_41_unk|h
+0x4279a7	switch_on_penstate_42_unk|h
+0x4279ac	switch_on_penstate_43_unk|h
+0x427819	switch_on_penstate_44_unk|h
+0x4279b1	switch_on_penstate_48_unk|h
+
+0x41aba2	switch_on_penstate_00_unk|i
+0x41aa2b	switch_on_penstate_01_unk|i
+0x41aa31	switch_on_penstate_02_unk|i
+0x41aa37	switch_on_penstate_03_unk|i
+0x41ab9f	switch_on_penstate_04_unk|i
+0x41aa3d	switch_on_penstate_05_unk|i
+0x41aa43	switch_on_penstate_06_unk|i
+0x41aa49	switch_on_penstate_08_unk|i
+0x41aa4f	switch_on_penstate_09_unk|i
+0x41aa55	switch_on_penstate_0a_unk|i
+0x41aa5a	switch_on_penstate_0b_unk|i
+0x41aa60	switch_on_penstate_0c_unk|i
+0x41aa66	switch_on_penstate_0d_unk|i
+0x41aa6c	switch_on_penstate_0e_unk|i
+0x41aa72	switch_on_penstate_0f_unk|i
+0x41aa78	switch_on_penstate_10_unk|i
+0x41aa7e	switch_on_penstate_11_unk|i
+0x41aa84	switch_on_penstate_12_unk|i
+0x41aa8a	switch_on_penstate_13_unk|i
+0x41aa90	switch_on_penstate_14_unk|i
+0x41aa96	switch_on_penstate_15_unk|i
+0x41aa9c	switch_on_penstate_16_unk|i
+0x41aaa2	switch_on_penstate_17_unk|i
+0x41aaa8	switch_on_penstate_18_unk|i
+0x41aaae	switch_on_penstate_19_unk|i
+0x41aab4	switch_on_penstate_1a_unk|i
+0x41aaba	switch_on_penstate_1b_unk|i
+0x41aac0	switch_on_penstate_1c_unk|i
+0x41aac6	switch_on_penstate_1d_unk|i
+0x41aacc	switch_on_penstate_1e_unk|i
+0x41aad1	switch_on_penstate_1f_unk|i
+0x41aad6	switch_on_penstate_20_unk|i
+0x41aadb	switch_on_penstate_21_unk|i
+0x41aae1	switch_on_penstate_22_unk|i
+0x41aae7	switch_on_penstate_23_unk|i
+0x41aaed	switch_on_penstate_24_unk|i
+0x41aaf2	switch_on_penstate_25_unk|i
+0x41aaf8	switch_on_penstate_26_unk|i
+0x41aafe	switch_on_penstate_27_unk|i
+0x41ab04	switch_on_penstate_28_unk|i
+0x41ab0a	switch_on_penstate_29_unk|i
+0x41ab10	switch_on_penstate_2a_unk|i
+0x41ab15	switch_on_penstate_2b_unk|i
+0x41ab1a	switch_on_penstate_2c_unk|i
+0x41ab1f	switch_on_penstate_2d_unk|i
+0x41ab25	switch_on_penstate_2e_unk|i
+0x41ab2b	switch_on_penstate_2f_unk|i
+0x41ab31	switch_on_penstate_30_unk|i
+0x41ab37	switch_on_penstate_31_unk|i
+0x41ab3d	switch_on_penstate_32_unk|i
+0x41ab43	switch_on_penstate_34_unk|i
+0x41ab49	switch_on_penstate_35_unk|i
+0x41ab4f	switch_on_penstate_36_unk|i
+0x41ab54	switch_on_penstate_37_unk|i
+0x41ab59	switch_on_penstate_38_unk|i
+0x41ab5e	switch_on_penstate_39_unk|i
+0x41ab63	switch_on_penstate_3a_unk|i
+0x41ab68	switch_on_penstate_3b_unk|i
+0x41ab6d	switch_on_penstate_3c_unk|i
+0x41ab72	switch_on_penstate_3d_unk|i
+0x41ab77	switch_on_penstate_3e_unk|i
+0x41ab7c	switch_on_penstate_3f_unk|i
+0x41ab81	switch_on_penstate_40_unk|i
+0x41ab87	switch_on_penstate_41_unk|i
+0x41ab8c	switch_on_penstate_42_unk|i
+0x41ab91	switch_on_penstate_43_unk|i
+0x41aa25	switch_on_penstate_44_unk|i
+0x41ab96	switch_on_penstate_48_unk|i
+
+0x4111d3	Dereference3d6d_add55thenCallItAndThenCallNextFn
+0x4111e6	Dereference3d6d_add57thenCallItAndThenCallNextFn
+0x4111fa	Dereference3d6d_add1_thenUnk
+0x4224ae	Set_3d67_to_0_3d6d[0x10]_to_0_3d6d[0x11]_to_0
+0x411044	Init_3d6d_and_3dcf
+0x40f7f1	Init_3a38_and_3a3c
+0x420155	Init_3fa0_3ff2_2ff3_3fdd
+0x40e4f8	File_check?_lib_call_probably
+0x40e5c2	File_Open_lib_call_probably
+0x40f8e1	MaybeMemset_fromfrom_bywhat_howmuch
+
+
+0x418773	Check_bits_in_3a34_3a36_R0_is_1_or_0
+0x418994	Set_3df4_3df5_to_0
+0x41899b	Modify_3df4_3df5_on_some_bits
+0x4189ba	Modify_3df5_3df3_on_some_bits_and_3c83
+0x4189ea	Modify_3df4_on_bits_and_3c82
+0x41cc3b	Set_3c74_to_stack1
+0x41cc48	Get_3c74_to_R0
+0x41cc4c	Set_3c72_to_stack1
+0x41cc59	Get_3c72_to_R0
+0x41cd77	Set_3c72_to_1_3c73_to_stack1_3c74_to_0
+0x41e358	Some_Handle_close_and_zero_probably
+
+0x41e32a	Call_4160bc_and_set_3fa0_to_5
+0x40fd52	Get_Bookmode_to_R0
+0x40fd1c	Increment_Bookmode_but_check_it
+0x40fd01	Set_ptr3d6d[0x06]_to_stack1_return1_or_0
+0x40ff77	Set_ptr3d6d[0x12]_to_stack1
+0x411145	Get_ptr3d6d[0x27]_to_R0
+0x41114d	Get_ptr3d6d[0x28]_to_R0
+0x411167	Get_ptr3d6d[0x29]_to_R0
+0x40fd63	Set_Bookmode_with_check_return_1_or_0_in_R0
+0x411155	Set_ptr3d6d[0x28]_to_stack1
+0x41116f	Set_ptr3d6d[0x29]_to_stack1
+0x411181	Get_ptr3d6d[0x06]_or_0_to_R0
+0x411134	Get_ptr3d6d[0x2b]_or_5_to_R0
+0x40ff28	Get_ptr3d6d_to_R0
+0x40ff32	Get_ptr3d6d[0x09]_or_0_to_R0
+0x40ff43	Get_ptr3d6d[0x0c]_or_0_to_R0
+0x40ff54	Set_ptr3d6d[0x0c]_to_stack1_return1or0
+0x40ff6f	Get_ptr3d6d[0x12]_to_R0
+0x40b5ed	StartWavRecording_probably
+
+0x40f775	Set_Volume_from_variable
+0x40f7a3	Set_Volume_from_stack1
+
+0x415454	Dereference_string_in_3bin_table3_stack1_to_R0R1
+0x41cd6d	Init_3c72_to_3c74
+0x4000dd	Call_66b_and_or_Rx_with_Yx
+0x41608d	Evaluate_port3_and_call_0x289f82
+0x418518	Setup_ADC
+0x418512	Set_ADM_bit0
+0x40f771	Get_Volume_to_R0
+0x41558a	Something_with_3bin_30200
+0x41c648	strlen_lib_to_R0
+
+
+0x415c23	Indirect_call_428621_and_continue
+0x415c0d	Indirect_call_428625_and_continue
+
+0x415d05	indirect_Switch_on_stack1_e
+0x415ca4	indirect_Switch_on_stack1_d
+0x415c43	indirect_Switch_on_stack1_c
+
+0x4177c9	SetTimer1_to_fixed_1f00
+
+0x4002ff	EmptyFn01
+0x40007f	EmptyFn02
+0x41cf47	EmptyFn03
+0x418549	EmptyFn04
+0x41854a	EmptyFn05
+0x41854b	EmptyFn06
+0x40ffff	EmptyFn07
+0x410d12	EmptyFn08_strange
+0x00784a	EmptyFn09_strange
+0x417683	EmptyFn10_stack1
+0x41768c	EmptyFn11_stack1
+0x41421e	Probably_Read_bookmodes_from_bnl_file_to_R0
+0x4187f0	handle_ignored_magic_values_unk
+0x4187f2	handle_other_magic_values_unk
+0x41885c	handle_ignored_magic_values2_unk
+0x418862	handle_other_magic_values2_unk
+0x4188d0	handle_other_magic_values3_unk
+0x4188d4	handle_other_magic_values4_unk
+0x4188d8	handle_other_magic_values5_unk
+0x40cba8	Something_with_bookmode_as_input_on_stack1
+
+0x410bc3	Switch_on_3c75_0_to_3
+0x410cbc	Set_stack1_to_ptr3dcf[0]_stack2_to_ptr3dcf[1]_stack3_to_ptr3dcf[2]
+0x410cdb	Get_ptr3dcf[1]_to_R0
+0x410cec	Get_ptr3dcf[0]_to_R0
+0x410cf9	Set_ptr3d6d[0x12]_to_40_3d6d[0x3d]_to_0
+0x410d0a	Get_ptr3d6d[0x36]_to_R0
+
+0x417842	Init_indirect_functions_in_ptr3d6d_and_lots_of_other_stuff
+0x40008d	Store_negX0X1_to_Ix1
+0x400092	Store_negR0R1_to_Ix1
+0x400097	R0R1_is_negX0X1
+0x40009a	(dword)Ix0_neg_to_Ix1
+0x413c55	Extremely_long_read_seek_function_with_bookmode_as_stack1
+
+0x41c465	Function_touching_song_names?
+0x41c63e	Function_touching_song_names_err_exit
+
+0x410be3	handler_3c75_0|a
+0x410bfd	handler_3c75_1|a
+0x410c19	handler_3c75_2|a
+0x410c33	handler_3c75_3|a
+
+0x413efb	handler_unk_00|b
+0x413f3e	handler_unk_01|b
+0x413f81	handler_unk_02|b
+0x413fc4	handler_unk_03|b
+
+0x415c6d	handler_unk_00|c
+0x415c71	handler_unk_01|c
+0x415c75	handler_unk_02|c
+0x415c79	handler_unk_03|c
+0x415c7d	handler_unk_04|c
+0x415c81	handler_unk_05|c
+0x415c85	handler_unk_06|c
+0x415c9f	handler_unk_07|c
+0x415c89	handler_unk_08|c
+0x415c8d	handler_unk_09|c
+0x415c91	handler_unk_0A|c
+0x415c95	handler_unk_0B|c
+0x415c99	handler_unk_0C|c
+0x415c9d	handler_unk_0D|c
+
+0x415cce	handler_unk_00|d
+0x415cd2	handler_unk_01|d
+0x415cd6	handler_unk_02|d
+0x415cda	handler_unk_03|d
+0x415cde	handler_unk_04|d
+0x415ce2	handler_unk_05|d
+0x415ce6	handler_unk_06|d
+0x415d00	handler_unk_07|d
+0x415cea	handler_unk_08|d
+0x415cee	handler_unk_09|d
+0x415cf2	handler_unk_0A|d
+0x415cf6	handler_unk_0B|d
+0x415cfa	handler_unk_0C|d
+0x415cfe	handler_unk_0D|d
+
+0x415d2f	handler_unk_00|e
+0x415d33	handler_unk_01|e
+0x415d37	handler_unk_02|e
+0x415d3b	handler_unk_03|e
+0x415d3f	handler_unk_04|e
+0x415d43	handler_unk_05|e
+0x415d47	handler_unk_06|e
+0x415d61	handler_unk_07|e
+0x415d4b	handler_unk_08|e
+0x415d4f	handler_unk_09|e
+0x415d53	handler_unk_0A|e
+0x415d57	handler_unk_0B|e
+0x415d5b	handler_unk_0C|e
+0x415d5f	handler_unk_0D|e
+
+0x41bfcf	handler_unk_1a|f
+0x41bfed	handler_unk_1b|f
+0x41c00b	handler_unk_1c|f
+0x41c029	handler_unk_1d|f
+0x41c047	handler_unk_1e|f
+0x41c065	handler_unk_1f|f
+0x41c083	handler_unk_20|f
+0x41c0a1	handler_unk_21|f
+0x41c0bf	handler_unk_22|f
+0x41c0dd	handler_unk_23|f
+0x41c0fb	handler_unk_24|f
+0x41c119	handler_unk_25|f
+0x41c137	handler_unk_26|f
+0x41c155	handler_unk_27|f
+0x41c173	handler_unk_28|f
+0x41c191	handler_unk_29|f
+0x41c1af	handler_unk_2a|f
+0x41c1cd	handler_unk_2b|f
+0x41c1eb	handler_unk_2c|f
+0x41c209	handler_unk_2d|f
+0x41c227	handler_unk_2e|f
+0x41c245	handler_unk_2f|f
+0x41c263	handler_unk_30|f
+0x41c281	handler_unk_31|f
+0x41c29f	handler_unk_32|f
+0x41c2bd	handler_unk_33|f
+0x41c2db	handler_unk_34|f
+0x41c2f9	handler_unk_35|f
+0x41c317	handler_unk_36|f
+0x41c335	handler_unk_37|f
+0x41c353	handler_unk_38|f
+0x41c371	handler_unk_39|f
+0x41c38f	handler_unk_3a|f
+0x41c3ad	handler_unk_3b|f
+0x41c3cb	handler_unk_3c|f
+0x41c3e9	handler_unk_3d|f
+0x41c407	handler_unk_3e|f
+0x41c425	handler_unk_3f|f
+0x41c443	handler_unk_40|f
+
+0x41f618	handler_unk_1a|g
+0x41f62e	handler_unk_1b|g
+0x41f644	handler_unk_1c|g
+0x41f65a	handler_unk_1d|g
+0x41f670	handler_unk_1e|g
+0x41f686	handler_unk_1f|g
+0x41f69c	handler_unk_20|g
+0x41f6b2	handler_unk_21|g
+0x41f6c8	handler_unk_22|g
+0x41f6de	handler_unk_23|g
+0x41f6f4	handler_unk_24|g
+0x41f70a	handler_unk_25|g
+0x41f720	handler_unk_26|g
+0x41f736	handler_unk_27|g
+0x41f74c	handler_unk_28|g
+0x41f762	handler_unk_29|g
+0x41f778	handler_unk_2a|g
+0x41f78e	handler_unk_2b|g
+0x41f7a4	handler_unk_2c|g
+0x41f7ba	handler_unk_2d|g
+0x41f7d0	handler_unk_2e|g
+0x41f7e6	handler_unk_2f|g
+0x41f7fc	handler_unk_30|g
+0x41f812	handler_unk_31|g
+0x41f828	handler_unk_32|g
+0x41f83e	handler_unk_33|g
+0x41f854	handler_unk_34|g
+0x41f86a	handler_unk_35|g
+0x41f881	handler_unk_36|g
+0x41f897	handler_unk_37|g
+0x41f8ad	handler_unk_38|g
+0x41f8c3	handler_unk_39|g
+0x41f8d9	handler_unk_3a|g
+0x41f8ef	handler_unk_3b|g
+0x41f905	handler_unk_3c|g
+0x41f91b	handler_unk_3d|g
+0x41f931	handler_unk_3e|g
+0x41f947	handler_unk_3f|g
+0x41f95d	handler_unk_40|g
+
+0x41f9cd	handler_unk_1a|h
+0x41f9eb	handler_unk_1b|h
+0x41fa09	handler_unk_1c|h
+0x41fa27	handler_unk_1d|h
+0x41fa45	handler_unk_1e|h
+0x41fa63	handler_unk_1f|h
+0x41fa81	handler_unk_20|h
+0x41fa9f	handler_unk_21|h
+0x41fabd	handler_unk_22|h
+0x41fadb	handler_unk_23|h
+0x41faf9	handler_unk_24|h
+0x41fb17	handler_unk_25|h
+0x41fb35	handler_unk_26|h
+0x41fb53	handler_unk_27|h
+0x41fb71	handler_unk_28|h
+0x41fb8f	handler_unk_29|h
+0x41fbad	handler_unk_2a|h
+0x41fbcb	handler_unk_2b|h
+0x41fbe9	handler_unk_2c|h
+0x41fc07	handler_unk_2d|h
+0x41fc25	handler_unk_2e|h
+0x41fc43	handler_unk_2f|h
+0x41fc61	handler_unk_30|h
+0x41fc7f	handler_unk_31|h
+0x41fc9d	handler_unk_32|h
+0x41fcbb	handler_unk_33|h
+0x41fcd9	handler_unk_34|h
+0x41fcf7	handler_unk_35|h
+0x41fd15	handler_unk_36|h
+0x41fd33	handler_unk_37|h
+0x41fd51	handler_unk_38|h
+0x41fd6f	handler_unk_39|h
+0x41fd8d	handler_unk_3a|h
+0x41fdab	handler_unk_3b|h
+0x41fdc9	handler_unk_3c|h
+0x41fde7	handler_unk_3d|h
+0x41fe05	handler_unk_3e|h
+0x41fe23	handler_unk_3f|h
+
+0x420c14	handler_unk_0a|i
+0x420c5f	handler_unk_0b|i
+0x420cba	handler_unk_0c|i
+0x420d50	handler_unk_0d|i
+0x420de6	handler_unk_0e|i
+0x420e7c	handler_unk_0f|i
+0x420f12	handler_unk_10|i
+0x420f2d	handler_unk_11|i
+
+0x4213fe	handler_unk_2d|j
+0x4213f9	handler_unk_2e|j
+0x4213b3	handler_unk_30|j
+0x4213ba	handler_unk_31|j
+0x4213c1	handler_unk_32|j
+0x4213c8	handler_unk_33|j
+0x4213cf	handler_unk_34|j
+0x4213d6	handler_unk_35|j
+0x4213dd	handler_unk_36|j
+0x4213e4	handler_unk_37|j
+0x4213eb	handler_unk_38|j
+0x4213f2	handler_unk_39|j
+
+0x42142c	handler_unk_02|k
+0x421433	handler_unk_03|k
+0x42143a	handler_unk_04|k
+0x421441	handler_unk_05|k
+0x421448	handler_unk_06|k
+
+0x425c79	handler_unk_04|l
+0x425cdc	handler_unk_03|l
+0x425d1c	handler_unk_02|l
+0x425dcf	handler_unk_01|l
+0x425dda	handler_unk_00|l
+
+0x425e0e	handler_unk_07|m
+0x425e14	handler_unk_06|m
+0x425e5f	handler_unk_05|m
+0x425ed6	handler_unk_04|m
+0x425f03	handler_unk_03|m
+0x425f1d	handler_unk_02|m
+0x425f5d	handler_unk_01|m
+0x425fa6	handler_unk_00|m
+
+0x428092	handler_unk_07|n
+0x428099	handler_unk_06|n
+0x4280b2	handler_unk_05|n
+
+0x4116f6	handler_unk_00|a
+0x411705	handler_unk_01|a
+0x41189f	handler_unk_02|a
+0x4118f1	handler_unk_03|a
+0x41287d	handler_unk_04|a
+0x4128c3	handler_unk_05|a
+0x4129a3	handler_unk_06|a
+0x4129e8	handler_unk_07|a
+0x412a08	handler_unk_08|a
+0x412a24	handler_unk_09|a
+0x412a44	handler_unk_0a|a
+0x412a83	handler_unk_0b|a
+0x412a9e	handler_unk_0c|a
+0x412ac4	handler_unk_0d|a
+0x412ae8	handler_unk_0e|a
+0x412b0c	handler_unk_0f|a
+0x412bff	handler_unk_10|a
+0x412d77	handler_unk_11|a
+0x412c1b	handler_unk_12|a
+0x412c46	handler_unk_13|a
+0x412c79	handler_unk_14|a
+
+0x415d6e	Copy_Ext_to_PRAM?
+0x415db9	Copy_WRAM_to_PRAM?
+
+0x42839d	Manipulate_3de6_and_port4bit8
+0x4284a7	Read_OID_sensor
+0x428450	Initialize_OID_module_unconditionally
+0x000372	OID_Init
+0x00038d	OID_Check_ReadData
+0x0003a9	OID_ReceiveData
+0x0003c5	OID_TransmitCmd
+0x000419	PowerDown_OID_By_DSP
+0x000460	Wakeup_OID_By_DSP
+
+0x415fe8	Increment_3d6c
+0x415ffe	Increment_3d6b
+0x417695	Something_with_intr1_and_reading_oid
+
+0x005cf3	Some_Strange_Thunking_around_5cfa_routine
+0x00402c	Just_call_0x28851d
+0x005ce0	Call_28851d_then_5cfa_with_strange_mechanism
+
+0x34a5	probably_RTC
+
+#x57?
+0x351d	fat_dirhandles_base
+#3x113 to 38be
+0x3585	file_dirhandles_base
+
+#3a33 - start of user memory
+
+0x3a3c	volume_maybe
+
+0x3c43	some_handle0_maybe
+0x3c96	temp_store_lo
+0x3c97	temp_store_hi
+
+0x3d62	penstate
+
+0x3de3	oid_from_sensor
+0x3de4	oid_from_sensor2
+0x3de5	is_oid_module_initialized
+#0x3de6 ?
+
+0x3fa0	some_handle1_maybe
+0x3fa5	some_handle5_maybe
+0x3fa6	some_handle6_maybe
+0x3fa7	filename_buffer_maybe
+
+0xf10f	Reg_DMA_HFD_R_ADDR
+0xf110	Reg_DMA_HFD_R_LEN
+0xf111	Reg_DMA_HFD_R_CTRL
+
+0xf132	Reg_DMA2_WRAM_ADDR
+0xf133	Reg_DMA2_LEN
+0xf134	Reg_DMA2_CTRL
+0xf135	Reg_DMA2_PRAM_ADDR
+
+0xf300	hw_pll_ctrl
+0xf301	hw_int
+0xf302	hw_fra_l
+0xf303	hw_fra_h
+
+0xFE27	Reg_DMA_EXTF_ADDR_H
+0xFE28	Reg_DMA_EXTF_ADDR_L
+0xFE29	Reg_DMA1_PRAM_ADDR_H
+0xFE2A	Reg_DMA1_PRAM_ADDR_L
+0xFE2B	Reg_DMA1_LEN
+0xFE2C	Reg_DMA1_CTRL
+
+#3d6d -> 3d6e (0x5e)
+# + 0 = 0 - handle?
+# + 5 = 0 - current_bookmode
+# + 6 = ?
+# + 7 = 2
+# + 8 = 0
+# +12 = 0
+# +13 = 0
+# +14 = 0
+# +15
+# +16
+# +2c = 0xFFFF
+# +2d = 0xFFFF
+# +2e = 0xFFFF
+# +2f = 0xFFFF
+# +30 = 0xFFFF
+# +31 = 0xFFFF
+# +32 = 0xFFFF
+# +33 = 0xFFFF
+# +34 = 5
+# +35 = 0
+# +36 = 0
+# +37 = 0
+# +4b/4c = emptyfn / FS_Seek (7854)
+# +4d/4e = emptyfn
+# +4f/50 = emptyfn / fgets (7732)
+# +51/52 = emptyfn / fgetdw (7821)
+# +53/54 = emptyfn / 40f5eb
+# +55/56 = emptyfn / mp3_get_status (48ef)
+# +57/58 = emptyfn / 48e1
+# +59/5A = emptyfn / 40f708
+# +5b/5c = ? / Play_Sound_From_2bin_table_by_stack1 (41505f)
+
+#3dcc -> 3dcf (0x03)
+# + 0
+# + 1
+# + 2

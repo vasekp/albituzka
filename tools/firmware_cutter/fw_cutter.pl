@@ -58,9 +58,17 @@ my $b3e = shift @dw;
 my $b1b = 0x400000;
 my $b1e = $b2b;
 
-printf( "1.bin [%08X-%08X] = %d\n", $b1b, $b1e, ( $b1e - $b1b ) * 2 );
-printf( "2.bin [%08X-%08X] = %d\n", $b2b, $b2e, ( $b2e - $b2b ) * 2 );
-printf( "3.bin [%08X-%08X] = %d\n", $b3b, $b3e, ( $b3e - $b3b ) * 2 );
+my $f1b = ( $b1b - 0x400000 ) * 2;
+my $f1e = ( $b1e - 0x400000 ) * 2;
+my $f2b = ( $b2b - 0x400000 ) * 2;
+my $f2e = ( $b2e - 0x400000 ) * 2;
+my $f3b = ( $b3b - 0x400000 ) * 2;
+my $f3e = ( $b3e - 0x400000 ) * 2;
+
+printf( "1.bin [%06x-%06x/%06x-%06x] = %d\n", $b1b, $b1e, $f1b, $f1e, ( $b1e - $b1b ) * 2 );
+printf( "2.bin [%06x-%06x/%06x-%06x] = %d\n", $b2b, $b2e, $f2b, $f2e, ( $b2e - $b2b ) * 2 );
+printf( "3.bin [%06x-%06x/%06x-%06x] = %d\n", $b3b, $b3e, $f3b, $f3e, ( $b3e - $b3b ) * 2 );
+
 printf "Computed length: %s\n", ( ($b3e-$b1b)*2 == $length )? "Ok!" : "mismatch!";
 printf( "unk: %08X\n", shift @dw );
 my $verptr = shift @dw;
@@ -89,7 +97,7 @@ sub extract_1bin()
 {
 	if( $save_files )
 	{
-		open OUT, ">:encoding(utf8)", "firm_1.txt" or die;
+		open OUT, ">:encoding(utf8)", "1bin_extracted_texts.txt" or die;
 	}
 
 	my $text_offsets = 0x638;
@@ -106,8 +114,8 @@ sub extract_1bin()
 		{
 			my $data = substr( $buf, 0x638 + $dw1, $dw2 - $dw1 );
 			my $str = decode( "utf-16le", $data );
-			printf( OUT "%08X [%08X-%08X] = %2X  ", $i*4, $dw1, $dw2, $dw2-$dw1 );
-			print OUT "$i\t$str\n";	
+			printf( OUT "%4d/%06x [%06x-%06x] = %02x  ", $i, $i*4, $dw1, $dw2, $dw2-$dw1 );
+			print OUT "'$str'\n";	
 		}
 	}
 
@@ -115,7 +123,7 @@ sub extract_1bin()
 	{
 		close OUT;
 	}
-	print "1bin found $i song titles (?)\n";
+	print "1bin found $i texts\n";
 }
 
 sub extract_2bin()
@@ -123,6 +131,7 @@ sub extract_2bin()
 	my @d;
 	my $fptr = undef;
 	my $b2bm = ( $b2b - 0x400000 ) * 2;
+	my $b2em = ( $b2e - 0x400000 ) * 2;
 	my $ptr = $b2bm;
 
 	REPT:
@@ -143,10 +152,12 @@ sub extract_2bin()
 		$cnt++;
 
 		if( $save_files )
-		{	
+		{
+			last if( $f >= $b2em );
+	
 			printf( "2bin [%04X] %d) %08X (%08X) [%08X]\n", $cnt, $cnt, $f, $f-$b2bm, $f + $l );
 
-			open OUT, ">" . sprintf( "2-%03d.mp3", $cnt ) or die;
+			open OUT, ">" . sprintf( "2bin-%03d.mp3", $cnt ) or die;
 			binmode OUT;
 			print OUT substr( $buf, $f, $l );
 			close OUT;
@@ -157,16 +168,26 @@ sub extract_2bin()
 
 sub extract_3bin()
 {
+	printf( "one time pad [%06x-%06x]\n", ( $b3b - 0x400000 ) *2, ( $b3b - 0x400000 ) * 2 + 0x10000 );
+	printf( "oid2fw codes [%06x-%06x]\n", ( $b3b - 0x400000 ) *2 + 0x10000, ( $b3b - 0x400000 ) * 2 + 0x10000 + 0x20000 );
+
 	my $b3bm = ( $b3b - 0x400000 ) * 2; 
 
-	my @dws = unpack( "V*", substr( $buf, $b3bm + 0x30340, 3*4 ) );
+	printf( "dword tbl [%06x]\n", $b3bm + 0x30340 );
+
+	my @dws = unpack( "V*", substr( $buf, $b3bm + 0x30340, 4*4 ) );
+
+	for( my $i = 0; $i < 4; $i++ )
+	{
+		printf( "  dw%d: [%06x/%06x]\n", $i, $dws[$i], $dws[$i]+$b3bm );
+	}
+
 	$dws[0] += $b3bm;
 	$dws[1] += $b3bm;
 	$dws[2] += $b3bm;
+	$dws[3] += $b3bm;
 
-	#print join( "-", map( sprintf( "%08X", $_ ), @dws )), "<\n";
-
-	printf "3bin/part 1 (1st mp3s) follows [%08X]\n", 0x30400+$b3bm;
+	printf "3bin/part 1 (1st mp3s) follows [%06x]\n", 0x30400+$b3bm;
 	my $cnt = -1;
 	for( my $ptr = 0x30400+$b3bm; $ptr < 0x30500 + $b3bm; $ptr += 8 )
 	{
@@ -178,15 +199,15 @@ sub extract_3bin()
 
 		if( $l && $save_files )
 		{
-			printf( "[%04X] %d) %08X [%08X]\n", $cnt, $cnt, $f, $f + $l );
-        		open OUT, ">" . sprintf( "31_%03d.mp3", $cnt ) or die;
+			printf( "[%04X] %d) %06x [%06x]\n", $cnt, $cnt, $f, $f + $l );
+        		open OUT, ">" . sprintf( "3bin_1-%03d.mp3", $cnt ) or die;
 			binmode OUT;
 			print OUT substr( $buf, $f, $l );
 			close OUT;
 		}
 	}
 
-	printf "3bin/part 2 (unknown) follows [%08X]\n", $dws[1];
+	printf "3bin/part 2 (unknown) follows [%08X]\n", $dws[0];
 	$cnt = 0;
 	for( my $ptr = $dws[0]; $ptr < $dws[0]+0x200; $ptr += 4 )
 	{
@@ -211,7 +232,7 @@ sub extract_3bin()
 		if( $l && $save_files )
 		{
 			printf( "[%04X] %d) %08X [%08X]\n", $cnt, $cnt, $f, $f + $l );
-			open OUT, ">" . sprintf( "33_%03d.mp3", $cnt ) or die;
+			open OUT, ">" . sprintf( "3bin_3-%03d.mp3", $cnt ) or die;
 			binmode OUT;
 			print OUT substr( $buf, $f, $l );
 			close OUT;
@@ -296,7 +317,7 @@ sub extract_3bin()
 		my @w = unpack( "v*", $o );
 
 		my $cnt = 0;
-		open OUT, ">oid2fw_codes.txt" or die;
+		open OUT, ">3bin_oid2fw_codes.txt" or die;
 		my $lastout = undef;
 		foreach my $w ( @w )
 		{
@@ -319,7 +340,7 @@ sub extract_3bin()
 				}
 				my $raw_code = $oid_tbl_int2raw[$cnt];
 		
-				printf OUT "RAW OID %04X (%5d) = INT OID %04X (%5d) = %04X (%5d) %s\n", $raw_code, $raw_code, $cnt, $cnt, $w, $w, $asc;
+				printf OUT "RAW OID 0x%04X (%5d) = INT OID 0x%04X (%5d) = 0x%04X (%5d) %s\n", $raw_code, $raw_code, $cnt, $cnt, $w, $w, $asc;
 			}
 			$cnt++;
 		}

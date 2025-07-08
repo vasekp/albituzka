@@ -87,7 +87,7 @@ else
 {
 	#TODO this was never actually tested by me
 	#first part - there is uncertainty if prekey_dw could be fully randomized
-	#second part - depends on correct header key -> quizes don't work if it's incorrect
+	#second part - depends on correct header key -> quizes don't work if it's incorrect (number of quizzes stored inside header key)
 	if( $encryption == 1 )
 	{
 		print "Encryption: generated strong\n";
@@ -592,7 +592,7 @@ sub write_quiz()
 			}
 		}
 
-		my $qhdr = pack( "vvvvv", $quiz_type, scalar( @$ar_questions ), hex($$hr_quiz{q_asked}), hex($$hr_quiz{q_unk}), &oid_to_num($$hr_quiz{q_oid}) );
+		my $qhdr = pack( "vvvvv", $quiz_type, scalar( @$ar_questions ), hex($$hr_quiz{q_asked}), hex($$hr_quiz{q_verify}), &oid_to_num($$hr_quiz{q_oid}) );
 		$block_others .= $qhdr;
 
 		my $block_questions;
@@ -616,14 +616,29 @@ sub write_quiz()
 				$question .= &pack_hex_oid_array( $$hr_question{q4_final_bad}, 1 );
 				$block_questions .= $question;
 			}
-			else
+			elsif( $quiz_type == 1 )
 			{
-				&warn_on_oid( $$hr_question{ q1_oid }, "q1_oid" );
-				$oid_noprint{ &oid_to_num($$hr_question{q1_oid}) } = 1;
+				&warn_on_oid( $$hr_question{ q1_question }, "q1_question" );
+				&warn_on_oid( $$hr_question{ q1_correct_reply }, "q1_correct_reply" );
+				$oid_noprint{ &oid_to_num($$hr_question{q1_question}) } = 1;
+				$oid_noprint{ &oid_to_num($$hr_question{q1_correct_reply}) } = 1;
 
-        			my $question = pack( "vv", hex($$hr_question{q1_unk}),&oid_to_num($$hr_question{q1_oid}));
+        			my $question = pack( "vv", &oid_to_num($$hr_question{q1_question}),&oid_to_num($$hr_question{q1_correct_reply}));
 				$question .= &pack_hex_oid_array( $$hr_question{q1_good_reply_oids} );
 				$block_questions .= $question;
+			}
+			elsif( $quiz_type == 0 )
+			{
+				&warn_on_oid( $$hr_question{ q0_oid }, "q0_oid" );
+				$oid_noprint{ &oid_to_num($$hr_question{q0_oid}) } = 1;
+
+        			my $question = pack( "vv", hex($$hr_question{q0_unk}),&oid_to_num($$hr_question{q0_oid}));
+				$question .= &pack_hex_oid_array( $$hr_question{q0_good_reply_oids} );
+				$block_questions .= $question;
+			}
+			else
+			{
+				die;
 			}
 		}
 		my $ptr_questions = $ptr_others + length( $block_others ) + scalar( @questions_beg ) * 4;

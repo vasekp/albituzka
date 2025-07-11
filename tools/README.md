@@ -14,7 +14,7 @@ disassembler/bnl_dis.pl - rozebírá BNL soubor na mp3 soubory a bnl.yaml.
 
 firmware_cutter/fw_cutter.pl - identifikuje a rozřezává obsah firmware souboru update.chp
 
-firmware_disasm - obsahuje pythonovský skript dissector.py, který zpracovává mapfile_old.def a produkuje disassembly_old.asm
+firmware_disasm - nástroj pro disassemblování firmware
 
 oid_generator/oid_png_generator - generuje vytisknutelný png soubor s jedním OID kódem. Nebo více ze vstupního souboru
 

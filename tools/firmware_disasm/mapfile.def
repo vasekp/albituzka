@@ -1,4 +1,6 @@
 #disassembly mapping description
+# authors: jindroush, vasek potocek (mainly lower rom stackframe util functions)
+
 #this is for newest known Albi firmware SN95302 (ZC-p20115V01,20240530V023) from 2024
 #firmware is loaded as block from 0x400000. On 0x400080 is module description which then copies part of the flash to PRAM.
 #the PRAM, in disassembly starting from 0x4000, starts with interrupt vectors, first of them being started after reset
@@ -625,34 +627,156 @@ skip 0x2bf5e
 [SYMBOLS]
 
 #rom1
+0x00002a	local(X0)_to_RAM(Ix0)
+0x000051	local(X0,X0+1)_to_RAM(Ix0,Ix0+1)
+0x0000d7	X1_div_Y1_to_X0
 0x000305	OID_Check_ReadData
 0x00031f	OID_TransmitCmd
 0x00067d	Wakeup_OID_By_DSP
 
-0x00092b	limit_dword_DM[Ix1]_with_Y1Y0
-0x000916	set_DM[Ix1]=DM[Ix0]&Y1Y0
-0x000835	is_DM[Ix0]>=Y1Y0
+# dword subtraction block
+0x0007ed	RAM(Ix0,Ix0+1)_minus_Y1Y0_to_Y0X0_duplicite?
+0x0007fa	R1R0_minus_Y1Y0_to_Y0X0_duplicite?
+0x000808	X1X0_minus_R1R0_to_Y0X0_duplicite?
+0x00081c	X1X0_minus_RAM(Ix1,Ix1+1)_to_?Y0X0?
+0x000825	local(X0,X0+1)_minus_RAM(Ix1,Ix1+1)_to_Y0X0
+0x000828	local(X0,X0+1)_minus_local(X1,X1+1)_to_Y0X0
+0x00082a	local(X0,X0+1)_minus_Y1Y0_to_Y0X0
+0x00082d	RAM(Ix0,Ix0+1)_minus_local(X1,X1+1)_to_?Y0X0?
+0x000830	RAM(Ix0,Ix0+1)_minus_RAM(Ix1,Ix1+1)_to_Y0X0
+0x000835	RAM(Ix0,Ix0+1)_minus_Y1Y0_to_Y0X0
+0x000838	RAM(Ix0,Ix0+1)_minus_R1R0_to_Y0X0
+0x000840	R1R0_minus_RAM(Ix1,Ix1+1)_to_Y0X0
+0x000842	R1R0_minus_Y1Y0_to_Y0X0
+0x000850	X1X0_minus_R1R0_to_?Y0X0?
+0x000864	X1X0_minus_RAM(Ix1,Ix1+)_to_?Y0X0?
+0x000879	RAM(Ix0,Ix0+1)_minus_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)_implied
+0x000882	local(X0,X0+1)_minus_RAM(Ix1,Ix1+1)_to_RAM(Ix0,Ix0+1)
+0x00088a	RAM(Ix1,Ix1+1)_minus_Y1Y0_to_RAM(Ix0,Ix0+1)
+0x00088d	RAM(Ix1,Ix1+1)_minus_RAM(Ix0,Ix0+1)_to_R1R0_may_be_reverse
+0x000899	local(X0,X0+1)_minus_local(Y1,Y1+1)_to_R1R0_implied
+0x00089c	local(X0,X0+1)_minus_Y1Y0_to_R1R0_implied
+0x00089f	RAM(Ix1,Ix1+1)_minus_Y1Y0_to_R1R0
+0x0008ae	local(X0,X0+1)_minus_local(Y1,Y1+1)_to_local(X1,X1+1)
+0x0008b1	local(X0,X0+1)_minus_Y1Y0_to_local(X1,X1+1)
 
-0x000b31	FunctionPrologue1
-0x000b3c	FunctionPrologue3
-0x000b3e	FunctionPrologue2d
-0x000b3f	FunctionPrologue2c
-0x000b41	FunctionPrologue2b
-0x000b42	FunctionPrologue2
-0x000b43	FunctionPrologue3b
+# dword AND block
+0x000905	RAM(Ix0,Ix0+1)_and_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
+0x000908	RAM(Ix1,Ix1+1)_and_R1R0_to_RAM(Ix0,Ix0+1)
+0x000910	local(X0,X0+1)_and_Y1Y0_to_RAM(Ix0,Ix0+1)
+0x000916	RAM(Ix1,Ix1+1)_and_Y1Y0_to_RAM(Ix0,Ix0+1)
+0x00091c	RAM(Ix0,Ix0+1)_and_R1R0_to_R1R0
+0x000928	local(X0,X0+1)_and_Y1Y0_to_R1R0
+0x00092b	RAM(Ix1,Ix1+1)_and_Y1Y0_to_R1R0
+0x000931	RAM(Ix0,Ix0+1)_and_R1R0_to_local(X1,X1+1)
+0x00093d	local(X0,X0+1)_and_Y1Y0_to_local(X1,X1+1)
 
-0x000b9c	FunctionEpilogue2c
-0x000b9e	FunctionEpilogue2
-0x000b9f	FunctionEpilogue3
-0x000b99	FunctionEpilogue1
 
-0x000bc5	store_R0_to_local_var_Y1
-0x000c08	recall_local_var_X0_to_R1
+# dword addition block
+0x000952	RAM(Ix0,Ix0+1)_plus_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
+0x000955	RAM(Ix1,Ix1+1)_plus_R1R0_to_RAM(Ix0,Ix0+1)
+0x00095b	local(X0,X0+1)_plus_RAM(Ix1,Ix1+1)_to_RAM(Ix0,Ix0+1)_implied
+0x00095d	local(X0,X0+1)_plus_Y1Y0_to_RAM(Ix0,Ix0+1)
+0x000963	RAM(Ix1,Ix1+1)_plus_Y1Y0_to_RAM(Ix0,Ix0+1)
+0x000966	RAM(Ix0,Ix0+1)_plus_RAM(Ix1,Ix1+1)_to_R1R0
+0x000969	RAM(Ix0,Ix0+1)_plus_R1R0_to_R1R0
+0x00096c	local(X0,X0+1)_plus_R1R0_to_R1R0
+0x00096f	local(X0,X0+1)_plus_RAM(Ix0,Ix0+1)_to_R1R0
+0x000972	local(X0,X0+1)_plus_local(Y1,Y1+1)_to_R1R0
+0x000975	local(X0,X0+1)_plus_Y1Y0_to_R1R0
+0x000978	RAM(Ix1,Ix1+1)_plus_Y1Y0_to_R1R0
+0x00097e	RAM(Ix0,Ix0+1)_plus_R1R0_to_local(X1,X1+1)
+0x000981	local(X0,X0+1)_plus_R1R0_to_local(X1,X1+1)
+0x00098a	local(X0,X0+1)_plus_Y1Y0_to_local(X1,X1+1)
 
-0x000bd5	Write_char_in_Y0_to_Y1
+# word bit shift block
+0x0009b6	RAM(Ix0)_lshift_X0_to_RAM(Ix1)
+0x0009c4	local(Y0)_lshift_X0_to_RAM(Ix1)
+0x0009c8	Y0_lshift_X0_to_R0
+0x000a06	R0_rshift_X0_to_RAM(Ix1)
+0x000a22	local(Y0)_rshift_X0_to_R0
+
+# dword bit shift block
+0x000a73	R1R0_lshift_X0_to_R1R0
+0x000a92	Y1Y0_lshift_X0_to_RAM(Ix1,Ix1+1)
+0x000a99	RAM(Ix1,Ix1+1)_lshift_X0_to_RAM(Ix0,Ix0+1)
+0x000aad	RAM(Ix0,Ix0+1)_lshift_X0_to_R1R0
+0x000ad9	RAM(Ix1,Ix1+1)_rshift_X0_to_RAM(Ix0,Ix0+1)
+0x000aed	RAM(Ix0,Ix0+1)_rshift_X0_to_R1R0
+
+# Prepares stackframe:
+# - pushes DM(0x000) [akin to x86 push BP]
+# - DM(0x000) = Sp   [BP = SP]
+# - variants with Y0: raise Sp by Y0, creating space for local variables
+# - variants with X1, Y1: push DM(0x001) through DM(0x01e) as given by bits of X1[2..] and Y1
+# - NB: meaning of lowest two bits of X1 unknown.
+# - variants with Y1: expose pushed arguments 1 through 8 as MR1, MR0, R1, R0, Y1, Y0, X1, X0
+#   as given by high byte bits of Y1.
+# - If a function has 9 arguments, the last is accessed through local[0xfff4]:
+#   fff4 .. arg9
+#   fff5 .. arg8
+#   fff6 .. arg7
+#   fff7 .. arg6
+#   fff8 .. arg5
+#   fff9 .. arg4
+#   fffa .. arg3
+#   fffb .. arg2
+#   fffc .. arg1
+#   fffd .. return addr
+#   fffe .. return addr
+#   ffff .. previous DM(0x000)
+#   0000 .. start of local variables <<< DM(0x000) points here
+#     Y0 .. start of saved DM(...)
+#     ?? .. current Sp
+0x000b31	FunctionPrologue(Y0)
+0x000b3c	FunctionPrologue(X1,Y1)
+0x000b3e	FunctionPrologue(Y1)
+0x000b3f	FunctionPrologue(Y1,Y0)
+0x000b41	FunctionPrologue(X1)
+0x000b42	FunctionPrologue(X1,Y0)
+0x000b43	FunctionPrologue(X1,Y1,Y0)
+
+# Leaves the frame prepared by FunctionPrologue.
+# Does not need the local stack size so Y0 is not provided (0x000b9c mirrors 0x000b31)
+# Meaning of values X1, Y1 is swapped.
+0x000b9c	FunctionEpilogue()
+0x000b9e	FunctionEpilogue(X1)
+0x000b9f	FunctionEpilogue(Y1)
+0x000b99	FunctionEpilogue(X1,Y1)
+
+
+# locals store block
+0x000bc5	R0_to_local(Y1)
+0x000bcd	X0_to_local(Y1)
+0x000bd5	Y0_to_local(Y1)
+
+# locals load block
+0x000c04	local(X0)_to_R0
+0x000c08	local(X0)_to_R1
+0x000c0c	local(X0)_to_X0
+0x000c10	local(X0)_to_X1
+0x000c14	local(X0)_to_Y0
+0x000c18	local(X0)_to_Y1
+
+0x000c2e	local(X1,X1+1)_to_local(Y1,Y1+1)
+
+# pop block
+0x000c49	pop_8_words
+0x000c4b	pop_7_words
+0x000c4d	pop_6_words
+0x000c4f	pop_5_words
+0x000c51	pop_4_words
+0x000c53	pop_3_words
+
+0x000c81	local(X0,X0+1)_to_X1X0
+
+0x000c99	X1_mod_Y1_to_X0
+
 
 #rom2
 0x28913e	FS_FileExists_maybe_stk(szPath,FLAG)_ret_errc_in_R0
+0x289fa3	X1X0_mod_Y1Y0_to_R1R0
+0x289fa5	X1X0_div_Y1Y0_to_R1R0
 0x28b4ca	strlen_stk(string)_ret_in_R0
 0x28bd00	Get_word_from_table_at_R1R0_to_X0
 0x28bcfd	Get_word_from_table_at_Ix0,Ix0+1_to_X0
@@ -701,7 +825,7 @@ skip 0x2bf5e
 0x4282e6	naked_Get_huge_object[0x28]_to_R0(void)
 0x4282ee	naked_Get_huge_object[0x27]_to_R0(void)
 0x4282f6	naked_Get_huge_object[0x3e]_to_R0(void)
-0x4280b5	Set_huge_object[0x12]_to_stack1
+0x4280b5	void_set_huge_object[0x12]_stk(iValue)
 0x420730	naked_void_Initialize_all_vars(void)
 0x4203b8	naked_void_Init_3dea_to_3de2(void)
 0x427b11	Init_3ddd_to_3dd8
@@ -913,7 +1037,7 @@ skip 0x2bf5e
 0x428131	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+5]
 0x428142	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+6]
 0x428153	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+2b]
-0x427408	strcatC_stk(string,char)
+0x427408	strcatC_stk(szDest,iCharacter)
 0x423b9d	void_large_object_3d0b_creation_3d08_to_3d0a_clear(void)
 0x427106	naked_void_setup_all_ports_and_something(void)
 0x4281a5	naked_void_setup_port0_unk1(void)
@@ -924,6 +1048,26 @@ skip 0x2bf5e
 0x428251	naked_void_setup_port4_unk3(void)
 0x427dd1	naked_void_setup_port3_unk(void)
 0x41e8ba	Init_indirect_functions_in_huge_object_and_lots_of_other_stuff:
+0x424256	does_file_exist_stk(szPtr)
+0x4207f4	label_when_sdcard_not_detected
+	0x424fec	in this place we have prepared fname with sd:\ prefix
+
+0x3680	file_dirhandle_unk1
+0x3681	file_dirhandle_unk2_dw
+0x3683	file_dirhandle_unk3_dw
+0x3685	file_dirhandle_unk4_dw
+0x3687	file_dirhandle_unk5_dw
+0x3689	file_dirhandle_unk6_dw
+0x368b	file_dirhandle_unk7_dw
+0x368d	file_dirhandle_unk8_dw
+0x368f	file_dirhandle_unk9
+0x3690	file_dirhandle_is_open
+0x3691	file_dirhandle_unk10
+0x3692	file_dirhandle_unk11
+
+#3 of them? length of dirstruct 0x113
+#so up to 39c9
+#struct[0] bool = if it's used/opened
 
 0x3d0b	huge_object
 0x3d6a	ptr_to_huge_object

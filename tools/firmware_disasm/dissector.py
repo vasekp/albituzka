@@ -715,7 +715,10 @@ def dump_calls_table():
         if 'prologue_pars' in d_onecall and d_onecall['prologue_pars'] is not None:
             CALLS.write( f"  Prologue parameters: {(d_onecall['prologue_pars'])}\n" )
         if 'prologue_locals' in d_onecall and d_onecall['prologue_locals'] is not None:
-            CALLS.write( f"  Prologue locals: {(d_onecall['prologue_locals'])}\n" )
+            CALLS.write( f"  Prologue loaded parameters: {(d_onecall['prologue_locals'])}\n" )
+
+        if 'pop_pars' in d_onecall:
+            CALLS.write( f"  Popped {(d_onecall['pop_pars'])} parameters\n" )
 
         if 'epilogue_type' in d_onecall:
             CALLS.write( f"  Epilogue: {(d_onecall['epilogue_type'])}\n" )
@@ -1479,9 +1482,9 @@ def check_instruction_match(pat,inst,ctx):
                     if inst_pars >= 2:
                         ctx[var]=pars[1][1]
                     else:
-                        raise Exception
+                        raise Exception( f"trying to store non-existing parameter value" )
                 else:
-                    raise Exception( f"unknown src var name '{par}' in 'store'" )
+                    raise Exception( f"unimplemented 'store' variant '{par}'" )
         else:
             raise Exception( f"unknown id '{id}' to process" )
 
@@ -1516,6 +1519,12 @@ def instructions_mutator():
                 to_match = len(matcher)
                 #todo here is the place to check if there is jump in middle of instructions
                 #it's wrong to join instructions in that place
+
+                #todo it seems there could be optimization done here
+                #IF all 'from' checks contain 'mnemonic' - and I currently can't imagine check
+                #where there is no mnemonic, we may really fast pre-check if the rule applies at all
+                #also, because we would be iterating over the instructions, we may check the previous
+                #condition, ie. 'be sure nobody jumps in the middle'
 
                 #track context between instructions and replacements here
                 ctx = dict()
@@ -1951,6 +1960,44 @@ def instructions_printer():
         if is_last_instruction:
             extract_epilogue_info( g_last_function_start, idx )
             g_last_function_start = None
+
+        if instr['mnemonic']=='Callff':
+            next1 = None
+            next2 = None
+
+            if idx + 1 < len(g_instruction_store):
+                next1 = g_instruction_store[idx+1]
+            if idx + 2 < len(g_instruction_store):
+                next2 = g_instruction_store[idx+2]
+
+            dst_addr = instr['parameters'][0][1]
+            pop_pars = None
+
+            if next1 is not None:
+                mnem = next1['mnemonic']
+                if mnem=='Callff':
+                    sym = g_symbolsValue2Name[ next1['parameters'][0][1] ]
+                    match = re.match(r'pop_(\d+)_words', sym)
+                    if match:
+                        pop_pars = int(match.group(1))
+                elif mnem=='Pop':
+                    pop_pars = 1
+
+            if next2 is not None:
+                mnem = next2['mnemonic']
+                if mnem=='Pop' and pop_pars == 1:
+                    pop_pars = 2
+
+            if pop_pars:
+                if 'pop_pars_forbidden' not in g_calls[ dst_addr ]:
+                    if 'pop_pars' in g_calls[ dst_addr ]:
+                        prev = g_calls[ dst_addr ][ 'pop_pars' ]
+                        if prev != pop_pars:
+                            g_calls[ dst_addr ][ 'pop_pars_forbidden' ] = 1
+                            del g_calls[ dst_addr ][ 'pop_pars' ]
+                    else:
+                        g_calls[ dst_addr ][ 'pop_pars' ] = pop_pars
+
         idx += 1
     #endwhile
 

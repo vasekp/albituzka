@@ -777,10 +777,10 @@ skip 0x2bf5e
 0x28913e	FS_FileExists_maybe_stk(szPath,FLAG)_ret_errc_in_R0
 0x289fa3	X1X0_mod_Y1Y0_to_R1R0
 0x289fa5	X1X0_div_Y1Y0_to_R1R0
-0x28b4ca	strlen_stk(string)_ret_in_R0
+0x28b4ca	strlen_stk(szString)_ret_in_R0
 0x28bd00	Get_word_from_table_at_R1R0_to_X0
 0x28bcfd	Get_word_from_table_at_Ix0,Ix0+1_to_X0
-0x28bcdb	SD_DAC_Volume_Control_stk(volume)
+0x28bcdb	SD_DAC_Volume_Control_stk(wVolume)
 
 
 #code0
@@ -792,8 +792,8 @@ skip 0x2bf5e
 0x0058a9	dynamic_halt
 0x006c11	naked_void_Init_of_large_mem_blocks_3e3d_3e0d(void)
 0x006948	lib_seek_stk(wHandle,dwPtr,wWhence)_return?
-0x006073	lib_fgetw_stk(wHandle,wBuffer)_return?_caller_cleanup
-0x006eb7	lib_fgetdw_stk(wHandle,wBuffer)_return?_caller_cleanup
+0x006073	lib_fgetw_stk(wHandle,wBuffer)_return?
+0x006eb7	lib_fgetdw_stk(wHandle,wBuffer)_return?
 
 #code1
 0x40012f	Store_negX0X1_to_Ix1
@@ -873,7 +873,7 @@ skip 0x2bf5e
 
 	0x41f998	addr 40031a is pointer to table of texts
 
-0x427005	Read_word_from_3bin+dwPtr_stk(dwPtr)_return_in_R0_caller_cleans
+0x427005	Read_word_from_3bin+dwPtr_stk(dwPtr)_return_in_R0
 	0x423acf	3bin ptr 0x030344 2BD0
 	0x423adb	3bin ptr 0x030346 000A
 0x423abc	DoSomethingWith_3bin_mp3tbl2_stk(word)
@@ -1026,7 +1026,7 @@ skip 0x2bf5e
 
 0x42343e	maybe_some_check_for_update_file
 0x4222e3	Compute_2bin_pointers_stk(ptr_2bin,offset_sound)
-0x40a474	void_Zero_stk(variable)_and_F0_words_after_it_caller_cleans
+0x40a474	void_Zero_stk(variable)_and_F0_words_after_it
 0x42835f	empty_fn_01
 0x428360	empty_fn_02
 0x428361	empty_fn_03
@@ -1051,6 +1051,8 @@ skip 0x2bf5e
 0x424256	does_file_exist_stk(szPtr)
 0x4207f4	label_when_sdcard_not_detected
 	0x424fec	in this place we have prepared fname with sd:\ prefix
+0x4203d7	naked_setup_ADC_and_wait_for_interrupt_return_in_R0?
+0x42660a	naked_looking_for_some_ADC_input_return_bool_in_R0?
 
 0x3680	file_dirhandle_unk1
 0x3681	file_dirhandle_unk2_dw

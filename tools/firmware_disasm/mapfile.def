@@ -1,5 +1,5 @@
 #disassembly mapping description
-# authors: jindroush, vasek potocek (mainly lower rom stackframe util functions)
+# authors: jindroush, vasekp
 
 #this is for newest known Albi firmware SN95302 (ZC-p20115V01,20240530V023) from 2024
 #firmware is loaded as block from 0x400000. On 0x400080 is module description which then copies part of the flash to PRAM.
@@ -784,8 +784,8 @@ skip 0x2bf5e
 
 
 #code0
-0x006fd7	MP3_GetStatus_probably2
-0x006fe5	MP3_GetStatus_probably	
+0x006fd7	MP3_GetStatus_is_PAUSE
+0x006fe5	MP3_GetStatus_is_PLAY
 0x00701f	MP3_PlayProcess_Ext_probably
 0x007018	MP3_PlayProcess_Ext_probably_2
 0x0056aa	Something_with_updateA_chp
@@ -819,7 +819,7 @@ skip 0x2bf5e
 0x428318	naked_void_SetPort3Bit13(void)
 0x428312	naked_void_ClearPort3Bit11(void)
 0x42830c	naked_void_ClearPort3Bit13(void)
-0x428305	naked_void_SetTimer1_to_fixed_1f00(void)
+0x428305	naked_void_SetTimer1_to_10Hz_repeat(void)
 0x4282d6	naked_Get_huge_object[0x12]_to_R0(void)
 0x4282de	naked_Get_huge_object[0x29]_to_R0(void)
 0x4282e6	naked_Get_huge_object[0x28]_to_R0(void)
@@ -834,7 +834,7 @@ skip 0x2bf5e
 0x4282be	naked_void_Init_3dfe_to_3dff(void)
 0x428053	Init_3d06_to_3d02
 0x4273d0	Init_3dae_to_3da4
-0x428014	Init_3dcc_to_3dc4
+0x428014	Init_timers
 0x4280c8	Init_OID_module_variables
 0x427f07	Init_3dd6_to_3dce
 0x4281df	naked_void_Init_3df4_to_3df9(void)
@@ -1037,7 +1037,7 @@ skip 0x2bf5e
 0x428131	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+5]
 0x428142	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+6]
 0x428153	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+2b]
-0x427408	strcatC_stk(szDest,iCharacter)
+0x427408	ensure_last_char(szDest,iCharacter)
 0x423b9d	void_large_object_3d0b_creation_3d08_to_3d0a_clear(void)
 0x427106	naked_void_setup_all_ports_and_something(void)
 0x4281a5	naked_void_setup_port0_unk1(void)
@@ -1069,33 +1069,187 @@ skip 0x2bf5e
 #so up to 39c9
 #struct[0] bool = if it's used/opened
 
+0x3dcc	timer_counter_10Hz
+0x3dca	last_timer_value_bumped_every_second
+0x3dc8	timer_counter_0.1Hz
+0x3dc6	aux_timer_target
+0x3dc4	aux_timer_counter_10Hz
+
 0x3d0b	huge_object
 0x3d6a	ptr_to_huge_object
 #3d0b = length 5f, stored in 3d6a
 #3d0b[0] = 00
-#3d0b[5] = 00
-#3d0b[7] = 02
+#3d0b[5] = 00 book mode
+#3d0b[7] = 02 book mode count
 #3d0b[8] = 00
 #3d0b[12] = 00
 #3d0b[13] = 00
 #3d0b[14] = 00
+#3d0b[17+x] 16*W MP3 key
+#3d0b[2a] quiz index
+#3d0b[2b] int_format (4 for BNL)
 #3d0b[2c] = FFFF, FFFF
 #3d0b[2e] = FFFF, FFFF
 #3d0b[30] = FFFF, FFFF
 #3d0b[32] = FFFF, FFFF
 #3d0b[34] = 00,05
 #3d0b[36] = 00,00
-#3d0b[3d] = 00
+#3d0b[3d] quiz count
 #3d0b[4c] = 428365 (just retff) -> lib_seek
 #3d0b[4e] = 428365 (just retff)
 #3d0b[50] = 428365 (just retff) -> lib_fgetw
 #3d0b[52] = 428365 (just retff) -> lib_fgetdw
 #3d0b[54] = 428365 (just retff) -> 0x425919
-#3d0b[56] = 428365 (just retff) -> MP3_GetStatus_probably
-#3d0b[58] = 428365 (just retff) -> MP3_GetStatus_probably2
+#3d0b[56] = 428365 (just retff) -> MP3_GetStatus_is_PLAY
+#3d0b[58] = 428365 (just retff) -> MP3_GetStatus_is_PAUSE
 #3d0b[5a] = 428365 (just retff) -> 0x427fbe
 #3d0b[5c] -> 0x422324 Play_sound_from_2bin_table_stk(sound_num)
+#3d0b[5e] = quiz structure
+#3d0b[5e][0] = type
+#3d0b[5e][1] write only?
+#3d0b[5e][2] question count
+#3d0b[5e][3] quiz length
+#3d0b[5e][4] answer type: 0 - single, 1 - all, 2 - sequential
+#3d0b[5e][5] intro OID
+#3d0b[5e][6] write only?
+#3d0b[5e][7] write only?
+#3d0b[5e][8] after eval: 0 - error, 1 - correct, 2 - repeated. After find_wrong...: also index of wrong answer.
+#3d0b[5e][9] error counter
+#3d0b[5e][a] correct answer counter
+#3d0b[5e][b] temporary index within OID list
+#3d0b[5e][c] DW:start of list of pointers to questions
+#3d0b[5e][e] 3*DW (96 bits): questions bitset
+#3d0b[5e][14] questions asked counter
+#3d0b[5e][15] quiz state
+#3d0b[5e][16] sound choice randomizer value
+#3d0b[5e][17] DW: for type 11: timer for repeating question
+#3d0b[5e][19] DW: for type 11: question repeat timeout
+#3d0b[5e][1b] correct answer counter
+#3d0b[5e][1c] DW (32 bits): answers bitset
+#3d0b[5e][1e] DW (32 bits): wrong answers bitset
+#3d0b[5e][20] current question index
+#3d0b[5e][21] OID for types 2, 3: partial success
+#3d0b[5e][22] OID for types 2, 3: error within tolerance
+#3d0b[5e][23] OID for types 2, 3: question success
+#3d0b[5e][24] OID for types 2, 3: question fail
+#3d0b[5e][25] OID for type 2: question
+#3d0b[5e][26] for types 4+: controls sound choice: 0 - random, 1 - answer index, 2 - correct answer counter
+#3d0b[5e][27] for types 4+: 1 requires answers in order
+#3d0b[5e][28] for types 4+: separate wrong answer tolerance, default 3
+#3d0b[5e][29] answer count
+#3d0b[5e][2a] for types 4+: length of table 33
+#3d0b[5e][2b] for types 4+: length of table 35
+#3d0b[5e][2c] for types 4+: length of table 37
+#3d0b[5e][2d] for types 4+: length of table 39
+#3d0b[5e][2e] for types 4+: length of table 3b
+#3d0b[5e][2f] for types 4+: length of table 3d
+#3d0b[5e][30] for types 4+: length of table 3f
+#3d0b[5e][31] list of answers (file offset)
+#3d0b[5e][33] list of wrong answers
+#3d0b[5e][35] OIDs for correct responses + 1
+#3d0b[5e][37] OIDs for explicitly wrong answers
+#3d0b[5e][39] OIDs for repeared answers
+#3d0b[5e][3b] OIDs for other errors
+#3d0b[5e][3d] OIDs - unknown (state 5)
+#3d0b[5e][3f] OIDs for error above tolerance (either kind)
+#3d0b[5e][41] wrong answer counter
+#3d0b[5e][42] temporary index within OID list
+#3d0b[5e][43+x] for types (0),1,6,9: list of question choice OIDs (up to length 0x60)
+#3d0b[5e][a3] 1 for type 8, 2 for type 5, otherwise 0 (these otherwise overwritten to type 4) - questions in order
+#3d0b[5e][a4] unused?
+#3d0b[5e][a5] for type 7: number of sub-quizzes, must be 1
+#3d0b[5e][a6] for type 7: subquiz index, must be 0
+#3d0b[5e][a7] unused?
+#3d0b[5e][a8] unused?
+#3d0b[5e][a9] unused?
+#3d0b[5e][aa] for type 7: subquiz question count
+#3d0b[5e][ab] for type 7: subquiz tolerance
+#3d0b[5e][ac] DW:for type 7: subquiz pointer
+#3d0b[5e][ae] for type 7: write only?
+#3d0b[5e][af] for type 7: subquiz intro OID
+#3d0b[5e][b0] for types 9,10,11: time allowance
+#3d0b[5e][b1] for type 11: write only?
+#3d0b[5e][b2] for types 9,10,11: OID for low time left
+#3d0b[5e][b3] for types 9,10,11: OID for time out
+#3d0b[5e][b4] for types 9,10: time countdown
+#3d0b[5e][b5] for types 9,10,11: countdown active?
+#3d0b[5e][b6] 1 for type a: error OID indexed by error counter
+#3d0b[5e][b7] for type 11: time countdown
+#3d0b[5e][b8] for type 11: time allowance
+#3d0b[5e][b9] for type 11: unforgiving mode?
+#3d0b[5e][ba] for type 11: 0 - normal, 1 - questions in order, 2 - questions chosen by user
+#3d0b[5e][bb] unused?
+#3d0b[5e][bc] for type 11: countdown active
+#3d0b[5e][bd] for type 11: error OID indexed by error counter
+#3d0b[5e][be] for type 11: quiz evaluation size
+#3d0b[5e][bf] for type 11: OID list for quiz evaluation
+#3d0b[5e][c0]~be tolerance
 
+0x0045e1	determine_int_format_in_memory(ptr)
+0x006553	ptr_encrypt(ptr,bytekey1,bytekey2,dwkey,loc)
+0x006859	bytewise_xor2keys(key1,key2,dword)
+0x006dc0	ptr_map(map_id)
+0x410000	quiz_state_react(oid)
+0x417277	read_quiz(quiz_index)
+0x418f6e	load_question_types_4,5,6,8,9,a,10,11()
+0x419601	determine_int_format_from_handle(file)
+0x41b379	load_question_type_7_return_oid()
+0x41b82a	init_encrypt(file,&bytekey1,&bytekey2,&dwkey)
+0x41c05a	oid_to_fwcode(dw_oid)
+0x41d4f6	quiz_time_step_1Hz()
+0x41eb57	start_quiz()
+0x41f74c	evaluate_answer_types_4,5,6,7,8,9,a,10,11_or_question(oid)
+0x421792	get_quiz_sound(map_id,pick_random)
+0x42138a	read_type_7_subquiz()
+0x422a78	evaluate_answer_types_0,3_or_question(oid)
+0x42296f	init_book_modes()
+0x42306e	get_next_question_index()
+0x423164	get_first_question_index()
+0x42370d	time_step_10Hz()
+0x42418a	find_wrong_answer_by_oid(oid)
+0x424e2e	load_question_types_0,1,3()
+0x4251d6	get_next_question_simplified()
+0x4256ae	button_to_fwcode(button,is_long,mode)
+0x425995	read_book_modes()
+0x425a0f	read_book_id()
+0x425a89	prepare_questions_bitset(num_questions)
+0x425c5f	find_answer_by_oid(oid)
+0x425fe3	evaluate_answer_sequential(ans_index)
+0x426051	request_play_oid(oid)
+0x4260bf	prepare_answers_bitset(num_answers)
+0x42612c	prepare_wrong_answers_bitset(num_answers)
+0x426199	evaluate_answer_type_2(oid)
+0x4265a9	reduce_to_within(value,size)
+0x42666a	arg1_div_arg2_to_R0
+0x4267e3	set_book_mode_by_fwcode
+0x426840	locate_question_in_bnl(q_index)
+0x426b4f	get_table_element(table,index)
+0x426ba1	init_quizzes()
+0x426bf3	get_question_header_word+2(q_index)
+0x426d7b	get_question_header_word+0(q_index)
+0x426e12	find_question_by_oid(oid)
+0x427046	answers_bit_clear(ans_index)
+0x427086	wrong_answers_bit_clear(ans_index)
+0x4270c6	is_questions_bitset_defaulted()
+0x427237	questions_bit_set(q_index)
+0x427273	xor_two_byte_keys(key1,key2,value)
+0x427322	answers_bit_check_zero(ans_index)
+0x42735c	wrong_answers_bit_check_zero()
+0x427396	questions_bit_get(q_index)
+0x427554	are_all_answers_marked()
+0x42751d	clear_answers_bitset()
+0x427f65	hw_random()
+0x427cca	xor_one_byte_key(data,key)
+
+# map_id = 00 through 6f, location is in file after multiplying by 4.
+# Four values for each map_id, determined by int_format; the relevant one for BNL is the last.
+0x429366	tbl_map_id_to_location
+	0x006ddf	tbl_map_id_to_location
+0x4297d8	tbl_fwcode_to_mode
+	0x426810	tbl_fwcode_to_mode
+0x429626	tbl_encrypt_permutation
+0x429758	tbl_MP3_byte_offsets
+	0x41bb9a	tbl_MP3_byte_offsets
 
 0x4263b2	indirect_fn_1
 0x426418	indirect_fn_2
@@ -2057,7 +2211,9 @@ skip 0x2bf5e
 0x4000a0	mask_inplace_RAM[Ix0]_or_RAM[Ix1]
 0x40006e	if_p4bit8_then_set_p0bit7
 
-0x420777	SysMain	   
+0x4000ee	RAM(Ix0,Ix0+1)_xor_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
+
+0x420777	Main	   
 0x286513	SD_AD_ISR	
  
 0x006cd0	Usr_T0_ISR	  

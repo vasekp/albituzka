@@ -1148,9 +1148,9 @@ skip 0x2bf5e
 #3d0b[5e][33] list of wrong answers
 #3d0b[5e][35] OIDs for correct responses + 1
 #3d0b[5e][37] OIDs for explicitly wrong answers
-#3d0b[5e][39] OIDs for repeared answers
+#3d0b[5e][39] OIDs for repeated answers
 #3d0b[5e][3b] OIDs for other errors
-#3d0b[5e][3d] OIDs - unknown (state 5)
+#3d0b[5e][3d] OIDs for correct answer on last question
 #3d0b[5e][3f] OIDs for error above tolerance (either kind)
 #3d0b[5e][41] wrong answer counter
 #3d0b[5e][42] temporary index within OID list
@@ -2213,7 +2213,7 @@ skip 0x2bf5e
 
 0x4000ee	RAM(Ix0,Ix0+1)_xor_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
 
-0x420777	Main	   
+0x420777	main	   
 0x286513	SD_AD_ISR	
  
 0x006cd0	Usr_T0_ISR	  

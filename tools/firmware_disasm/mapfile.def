@@ -627,7 +627,7 @@ skip 0x2bf5e
 [SYMBOLS]
 
 #rom1
-0x00002a	local(X0)_to_RAM(Ix0)
+0x00002e	local(X0)_to_RAM(Ix0)
 0x000051	local(X0,X0+1)_to_RAM(Ix0,Ix0+1)
 0x0000d7	X1_div_Y1_to_X0
 0x000305	OID_Check_ReadData
@@ -703,6 +703,7 @@ skip 0x2bf5e
 0x000aad	RAM(Ix0,Ix0+1)_lshift_X0_to_R1R0
 0x000ad9	RAM(Ix1,Ix1+1)_rshift_X0_to_RAM(Ix0,Ix0+1)
 0x000aed	RAM(Ix0,Ix0+1)_rshift_X0_to_R1R0
+0x000af0	local(Y0,Y0+1)_rshift_X0_to_R1R0
 
 # Prepares stackframe:
 # - pushes DM(0x000) [akin to x86 push BP]
@@ -736,6 +737,20 @@ skip 0x2bf5e
 0x000b42	FunctionPrologue(X1,Y0)
 0x000b43	FunctionPrologue(X1,Y1,Y0)
 
+# Various functions facilitating implementation of dword operations in various combinations of parameters.
+# Not called from any other context.
+#0x000b6a:	(X, Y, Ix0) = (RAM(Ix0,+1), RAM(Ix1,+1), X1)
+#0x000b70:	(X, Y, Ix0) = (RAM(Ix0,+1), RAM(Ix1,+1), &local(X1))
+#0x000b77:	(Y, Ix0) = (RAM(Ix0,+1), &local(X1))
+#0x000b7c:	(Y, Ix0) = (local(X0,+1), &local(X1))
+#0x000b81:	(X, Y, Ix0) = (local(X0,+1), RAM(Ix0,+1), &local(X1))
+#0x000b88:	(X, Y, Ix0) = (local(X0,+1), local(Y1), &local(X1))
+#0x000b8f:	(X, Y, Ix0) = (local(X0,+1), Y, &local(X1))
+#0x000b94:	(X, Y, Ix0) = (RAM(Ix0,+1), Y, &local(X1))
+#0x000c84:	(X, Y) = (local(X0,+1), local(X1,+1))
+#0x000c8f:	X = local(X0,+1) == 0x000c81?
+#0x000c94:	can't guess
+
 # Leaves the frame prepared by FunctionPrologue.
 # Does not need the local stack size so Y0 is not provided (0x000b9c mirrors 0x000b31)
 # Meaning of values X1, Y1 is swapped.
@@ -745,7 +760,7 @@ skip 0x2bf5e
 0x000b99	FunctionEpilogue(X1,Y1)
 
 
-# locals store block
+# locals store block (word)
 0x000bc5	R0_to_local(Y1)
 0x000bcd	X0_to_local(Y1)
 0x000bd5	Y0_to_local(Y1)
@@ -758,6 +773,8 @@ skip 0x2bf5e
 0x000c14	local(X0)_to_Y0
 0x000c18	local(X0)_to_Y1
 
+# locals store (dword)
+0x000c1c	R1R0_to_local(Y1,Y1+1)
 0x000c2e	local(X1,X1+1)_to_local(Y1,Y1+1)
 
 # pop block
@@ -904,6 +921,38 @@ skip 0x2bf5e
 	0x42038f	3bin ptr 0x0302fc 45F2
 	0x42039b	3bin ptr 0x0302fe 0000
 
+	0x415fa1	3bin unk[0c] 03e8 (dec:1000)
+	0x415faf	3bin unk[0c] 03e8 (dec:1000)
+	0x41ea46	3bin unk[10] 0000
+	0x41ea6a	3bin unk[11] 0000
+	0x41ea8e	3bin unk[12] 0000
+	0x41eab2	3bin unk[13] 0000
+	0x41ead6	3bin unk[14] 0000
+	0x41eafa	3bin unk[35] 0000
+	0x41eb1e	3bin unk[43] 0000
+	0x41ed8a	3bin unk[03] 430e
+	0x41ed94	3bin unk[02] 3a98 (dec:15000)
+	0x41ed9c	3bin unk[04] 0026
+	0x41edaf	3bin unk[02] 3a98 (dec:15000)
+	0x41edb7	3bin unk[04] 0026
+	0x41edca	3bin unk[06] 00de
+	0x41edd2	3bin unk[00] 0064 (dec:100)
+	0x41edda	3bin unk[06] 00de
+	0x41ee00	3bin unk[07] 00cf
+	0x41ee08	3bin unk[01] 0015
+	0x41ee10	3bin unk[07] 00cf
+	0x41ee80	3bin unk[03] 430e
+	0x41ee88	3bin unk[04] 0026
+	0x41ee9b	3bin unk[03] 430e
+	0x41eea3	3bin unk[04] 0026
+	0x41eeb6	3bin unk[0a] 00db
+	0x41eebe	3bin unk[08] 0320 (dec:800)
+	0x41eec6	3bin unk[0a] 00db
+	0x41eeec	3bin unk[0b] 00cf
+	0x41eef4	3bin unk[09] 001e
+	0x41eefc	3bin unk[0b] 00cf
+	0x426a5a	3bin unk[0d] 0006
+
 	0x40bb00	sound 2/255, [empty or very short]
 	0x40bb1c	sound 2/254, Vyhledávám bluetooth zařízení pro spárování s tužkou
 	0x40c0ed	sound 2/8, [skladbička]
@@ -1036,7 +1085,7 @@ skip 0x2bf5e
 0x428120	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+9]
 0x428131	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+5]
 0x428142	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+6]
-0x428153	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+2b]
+0x428153	get_int_format_fallback_on_5
 0x427408	ensure_last_char(szDest,iCharacter)
 0x423b9d	void_large_object_3d0b_creation_3d08_to_3d0a_clear(void)
 0x427106	naked_void_setup_all_ports_and_something(void)
@@ -1071,6 +1120,100 @@ skip 0x2bf5e
 #so up to 39c9
 #struct[0] bool = if it's used/opened
 
+0x3db3	fw_config_30200__0168
+0x3db4	fw_config_30202__0078
+0x3db5	fw_config_30204__97
+0x3db6	fw_config_30207__04
+0x3db7	fw_config_30208__ffff
+0x3db8	fw_config_3020b__00030400
+0x3dba	fw_config_3020f__00010105
+0x3dbc	fw_config_30213__07020604
+0x3dbe	fw_config_30217__09020302
+0x3dc0	fw_config_3021b__00000000
+0x3dc2	fw_config_302fc__000045f2
+
+0x3c41	quiz_struct
+#3c41 = length c1, stored in 3d0b[5e]
+#3c41[0] type
+#3c41[1] write only?
+#3c41[2] question count
+#3c41[3] quiz length
+#3c41[4] answer type: 0 - single, 1 - all, 2 - sequential
+#3c41[5] intro OID
+#3c41[6] write only?
+#3c41[7] write only?
+#3c41[8] after eval: 0 - error, 1 - correct, 2 - repeated. After find_wrong...: also index of wrong answer.
+#3c41[9] error counter
+#3c41[a] correct answer counter
+#3c41[b] temporary index within OID list
+#3c41[c] DW:start of list of pointers to questions
+#3c41[e] 3*DW (96 bits): questions bitset
+#3c41[14] questions asked counter
+#3c41[15] quiz state
+#3c41[16] sound choice randomizer value
+#3c41[17] DW: for type 11: timer for repeating question
+#3c41[19] DW: for type 11: question repeat timeout
+#3c41[1b] correct answer counter
+#3c41[1c] DW (32 bits): answers bitset
+#3c41[1e] DW (32 bits): wrong answers bitset
+#3c41[20] current question index
+#3c41[21] OID for types 2, 3: partial success
+#3c41[22] OID for types 2, 3: error within tolerance
+#3c41[23] OID for types 2, 3: question fail
+#3c41[24] OID for types 2, 3: question success
+#3c41[25] OID for type 2: question
+#3c41[26] for types 4+: controls sound choice: 0 - random, 1 - answer index, 2 - correct answer counter
+#3c41[27] for types 4+: 1 requires answers in order
+#3c41[28] for types 4+: separate wrong answer tolerance, default 3
+#3c41[29] answer count
+#3c41[2a] for types 4+: length of table 33
+#3c41[2b] for types 4+: length of table 35
+#3c41[2c] for types 4+: length of table 37
+#3c41[2d] for types 4+: length of table 39
+#3c41[2e] for types 4+: length of table 3b
+#3c41[2f] for types 4+: length of table 3d
+#3c41[30] for types 4+: length of table 3f
+#3c41[31] list of answers (file offset)
+#3c41[33] list of wrong answers
+#3c41[35] OIDs for correct responses + 1
+#3c41[37] OIDs for explicitly wrong answers
+#3c41[39] OIDs for repeated answers
+#3c41[3b] OIDs for other errors
+#3c41[3d] OIDs for correct answer on last question
+#3c41[3f] OIDs for error above tolerance (either kind)
+#3c41[41] wrong answer counter
+#3c41[42] temporary index within OID list
+#3c41[43+x] for types (0),1,6,9: list of question choice OIDs (up to length 0x60)
+#3c41[a3] 1 for type 8, 2 for type 5, otherwise 0 (these otherwise overwritten to type 4) - questions in order
+#3c41[a4] unused?
+#3c41[a5] for type 7: number of sub-quizzes, must be 1
+#3c41[a6] for type 7: subquiz index, must be 0
+#3c41[a7] unused?
+#3c41[a8] unused?
+#3c41[a9] unused?
+#3c41[aa] for type 7: subquiz question count
+#3c41[ab] for type 7: subquiz tolerance
+#3c41[ac] DW:for type 7: subquiz pointer
+#3c41[ae] for type 7: write only?
+#3c41[af] for type 7: subquiz intro OID
+#3c41[b0] for types 9,10,11: time allowance
+#3c41[b1] for type 11: write only?
+#3c41[b2] for types 9,10,11: OID for low time left
+#3c41[b3] for types 9,10,11: OID for time out
+#3c41[b4] for types 9,10: time countdown
+#3c41[b5] for types 9,10,11: countdown active?
+#3c41[b6] 1 for type a: error OID indexed by error counter
+#3c41[b7] for type 11: time countdown
+#3c41[b8] for type 11: time allowance
+#3c41[b9] for type 11: unforgiving mode?
+#3c41[ba] for type 11: 0 - normal, 1 - questions in order, 2 - questions chosen by user
+#3c41[bb] unused?
+#3c41[bc] for type 11: countdown active
+#3c41[bd] for type 11: error OID indexed by error counter
+#3c41[be] for type 11: quiz evaluation size
+#3c41[bf] for type 11: OID list for quiz evaluation
+#3c41[c0] tolerance
+
 0x3dcc	timer_counter_10Hz
 0x3dca	last_timer_value_bumped_every_second
 0x3dc8	timer_counter_0.1Hz
@@ -1080,22 +1223,24 @@ skip 0x2bf5e
 0x3d0b	huge_object
 0x3d6a	ptr_to_huge_object
 #3d0b = length 5f, stored in 3d6a
-#3d0b[0] = 00
-#3d0b[5] = 00 book mode
-#3d0b[7] = 02 book mode count
+#3d0b[0] file handle
+#3d0b[1] last seen OID
+#3d0b[5] book mode
+#3d0b[7] = 02
 #3d0b[8] = 00
 #3d0b[12] = 00
-#3d0b[13] = 00
-#3d0b[14] = 00
+#3d0b[13] = 00 -> bytekey1 for ptr_encrypt (0 for BNL)
+#3d0b[14] = 00 -> bytekey2 for ptr_encrypt (0 for BNL)
+#3d0b[15] header_key
 #3d0b[17+x] 16*W MP3 key
 #3d0b[2a] quiz index
 #3d0b[2b] int_format (4 for BNL)
-#3d0b[2c] = FFFF, FFFF
-#3d0b[2e] = FFFF, FFFF
-#3d0b[30] = FFFF, FFFF
-#3d0b[32] = FFFF, FFFF
-#3d0b[34] = 00,05
-#3d0b[36] = 00,00
+#3d0b[2c] = FFFF, FFFF -> value from 3.bin +3020f: 00010105 - magic values for determining int_format
+#3d0b[2e] = FFFF, FFFF -> value from 3.bin +30213: 07020604
+#3d0b[30] = FFFF, FFFF -> value from 3.bin +30217: 09020302
+#3d0b[32] = FFFF, FFFF -> value from 3.bin +3021b: 00000000
+#3d0b[34] = 00,05 -> bitfield for enabling vendor-locked functions according to fw config
+#3d0b[36] = 00,00 -> bitfield for enabling int_formats according to fw config (bit 7/0x80: BNL)
 #3d0b[3d] quiz count
 #3d0b[4c] = 428365 (just retff) -> lib_seek
 #3d0b[4e] = 428365 (just retff)
@@ -1106,86 +1251,7 @@ skip 0x2bf5e
 #3d0b[58] = 428365 (just retff) -> MP3_GetStatus_is_PAUSE
 #3d0b[5a] = 428365 (just retff) -> 0x427fbe
 #3d0b[5c] -> 0x422324 Play_sound_from_2bin_table_stk(sound_num)
-#3d0b[5e] = quiz structure
-#3d0b[5e][0] = type
-#3d0b[5e][1] write only?
-#3d0b[5e][2] question count
-#3d0b[5e][3] quiz length
-#3d0b[5e][4] answer type: 0 - single, 1 - all, 2 - sequential
-#3d0b[5e][5] intro OID
-#3d0b[5e][6] write only?
-#3d0b[5e][7] write only?
-#3d0b[5e][8] after eval: 0 - error, 1 - correct, 2 - repeated. After find_wrong...: also index of wrong answer.
-#3d0b[5e][9] error counter
-#3d0b[5e][a] correct answer counter
-#3d0b[5e][b] temporary index within OID list
-#3d0b[5e][c] DW:start of list of pointers to questions
-#3d0b[5e][e] 3*DW (96 bits): questions bitset
-#3d0b[5e][14] questions asked counter
-#3d0b[5e][15] quiz state
-#3d0b[5e][16] sound choice randomizer value
-#3d0b[5e][17] DW: for type 11: timer for repeating question
-#3d0b[5e][19] DW: for type 11: question repeat timeout
-#3d0b[5e][1b] correct answer counter
-#3d0b[5e][1c] DW (32 bits): answers bitset
-#3d0b[5e][1e] DW (32 bits): wrong answers bitset
-#3d0b[5e][20] current question index
-#3d0b[5e][21] OID for types 2, 3: partial success
-#3d0b[5e][22] OID for types 2, 3: error within tolerance
-#3d0b[5e][23] OID for types 2, 3: question success
-#3d0b[5e][24] OID for types 2, 3: question fail
-#3d0b[5e][25] OID for type 2: question
-#3d0b[5e][26] for types 4+: controls sound choice: 0 - random, 1 - answer index, 2 - correct answer counter
-#3d0b[5e][27] for types 4+: 1 requires answers in order
-#3d0b[5e][28] for types 4+: separate wrong answer tolerance, default 3
-#3d0b[5e][29] answer count
-#3d0b[5e][2a] for types 4+: length of table 33
-#3d0b[5e][2b] for types 4+: length of table 35
-#3d0b[5e][2c] for types 4+: length of table 37
-#3d0b[5e][2d] for types 4+: length of table 39
-#3d0b[5e][2e] for types 4+: length of table 3b
-#3d0b[5e][2f] for types 4+: length of table 3d
-#3d0b[5e][30] for types 4+: length of table 3f
-#3d0b[5e][31] list of answers (file offset)
-#3d0b[5e][33] list of wrong answers
-#3d0b[5e][35] OIDs for correct responses + 1
-#3d0b[5e][37] OIDs for explicitly wrong answers
-#3d0b[5e][39] OIDs for repeated answers
-#3d0b[5e][3b] OIDs for other errors
-#3d0b[5e][3d] OIDs for correct answer on last question
-#3d0b[5e][3f] OIDs for error above tolerance (either kind)
-#3d0b[5e][41] wrong answer counter
-#3d0b[5e][42] temporary index within OID list
-#3d0b[5e][43+x] for types (0),1,6,9: list of question choice OIDs (up to length 0x60)
-#3d0b[5e][a3] 1 for type 8, 2 for type 5, otherwise 0 (these otherwise overwritten to type 4) - questions in order
-#3d0b[5e][a4] unused?
-#3d0b[5e][a5] for type 7: number of sub-quizzes, must be 1
-#3d0b[5e][a6] for type 7: subquiz index, must be 0
-#3d0b[5e][a7] unused?
-#3d0b[5e][a8] unused?
-#3d0b[5e][a9] unused?
-#3d0b[5e][aa] for type 7: subquiz question count
-#3d0b[5e][ab] for type 7: subquiz tolerance
-#3d0b[5e][ac] DW:for type 7: subquiz pointer
-#3d0b[5e][ae] for type 7: write only?
-#3d0b[5e][af] for type 7: subquiz intro OID
-#3d0b[5e][b0] for types 9,10,11: time allowance
-#3d0b[5e][b1] for type 11: write only?
-#3d0b[5e][b2] for types 9,10,11: OID for low time left
-#3d0b[5e][b3] for types 9,10,11: OID for time out
-#3d0b[5e][b4] for types 9,10: time countdown
-#3d0b[5e][b5] for types 9,10,11: countdown active?
-#3d0b[5e][b6] 1 for type a: error OID indexed by error counter
-#3d0b[5e][b7] for type 11: time countdown
-#3d0b[5e][b8] for type 11: time allowance
-#3d0b[5e][b9] for type 11: unforgiving mode?
-#3d0b[5e][ba] for type 11: 0 - normal, 1 - questions in order, 2 - questions chosen by user
-#3d0b[5e][bb] unused?
-#3d0b[5e][bc] for type 11: countdown active
-#3d0b[5e][bd] for type 11: error OID indexed by error counter
-#3d0b[5e][be] for type 11: quiz evaluation size
-#3d0b[5e][bf] for type 11: OID list for quiz evaluation
-#3d0b[5e][c0]~be tolerance
+#3d0b[5e] = pointer to quiz structure (0x3c41)
 
 0x0045e1	determine_int_format_in_memory(ptr)
 0x006553	ptr_encrypt(ptr,bytekey1,bytekey2,dwkey,loc)
@@ -1201,10 +1267,12 @@ skip 0x2bf5e
 0x41d4f6	quiz_time_step_1Hz()
 0x41eb57	start_quiz()
 0x41f74c	evaluate_answer_types_4,5,6,7,8,9,a,10,11_or_question(oid)
+0x4201dd	read_fw_configuration()
+0x420f2e	init_book(file)
+0x42163e	quiz_react_to_oid(oid)
 0x421792	get_quiz_sound(map_id,pick_random)
 0x42138a	read_type_7_subquiz()
 0x422a78	evaluate_answer_types_0,3_or_question(oid)
-0x42296f	init_book_modes()
 0x42306e	get_next_question_index()
 0x423164	get_first_question_index()
 0x42370d	time_step_10Hz()
@@ -1216,6 +1284,7 @@ skip 0x2bf5e
 0x425a0f	read_book_id()
 0x425a89	prepare_questions_bitset(num_questions)
 0x425c5f	find_answer_by_oid(oid)
+0x425f06	read_3bin_tbl_unk(index)
 0x425fe3	evaluate_answer_sequential(ans_index)
 0x426051	request_play_oid(oid)
 0x4260bf	prepare_answers_bitset(num_answers)
@@ -1226,7 +1295,7 @@ skip 0x2bf5e
 0x4267e3	set_book_mode_by_fwcode
 0x426840	locate_question_in_bnl(q_index)
 0x426b4f	get_table_element(table,index)
-0x426ba1	init_quizzes()
+0x426ba1	init_quiz_struct()
 0x426bf3	get_question_header_word+2(q_index)
 0x426d7b	get_question_header_word+0(q_index)
 0x426e12	find_question_by_oid(oid)
@@ -1238,10 +1307,20 @@ skip 0x2bf5e
 0x427322	answers_bit_check_zero(ans_index)
 0x42735c	wrong_answers_bit_check_zero()
 0x427396	questions_bit_get(q_index)
+0x427440	quiz_state_react_if_not_playing()
 0x427554	are_all_answers_marked()
 0x42751d	clear_answers_bitset()
+0x427bc1	set_quiz_struct_pointer()
 0x427f65	hw_random()
 0x427cca	xor_one_byte_key(data,key)
+0x4280a2	init_quiz_state_0()
+0x4280fe	get_num_quizzes()
+
+0x41026e	quiz_answer_type_3
+0x410404	quiz_answer_types_0,1
+0x41073e	quiz_answer_type_2
+0x410831	quiz_answer_types_4,5,6,8,9,a,10,11
+0x410e80	quiz_answer_type_7
 
 # map_id = 00 through 6f, location is in file after multiplying by 4.
 # Four values for each map_id, determined by int_format; the relevant one for BNL is the last.
@@ -2202,18 +2281,27 @@ skip 0x2bf5e
 0x429e44	tbl_dac_volume_values
 
 
-0x40009a	masking_R0R1=X0X1_or_Y0Y1
-0x400097	masking_R0R1=R0R1_or_Y0Y1
-0x400092	masking_RAM_Ix0=X0X1_or_Y0Y1
-0x40008d	masking_RAM_Ix0=R0R1_or_Y0Y1
-0x4000de	masking_RAM_Ix0=R0R1_or_Y0Y1_2
-0x4000e3	masking_RAM_Ix0=X0X1_or_Y0Y1_2
-0x4000e8	masking_R0R1=R0R1_or_Y0Y1_2
-0x4000eb	masking_R0R1=X0X1_or_Y0Y1_2
-0x4000a0	mask_inplace_RAM[Ix0]_or_RAM[Ix1]
 0x40006e	if_p4bit8_then_set_p0bit7
 
+0x40008d	masking_RAM_Ix0=R0R1_or_Y0Y1
+0x400092	masking_RAM_Ix0=X0X1_or_Y0Y1
+0x400097	masking_R0R1=R0R1_or_Y0Y1
+0x40009a	masking_R0R1=X0X1_or_Y0Y1
+0x40009d	RAM(Ix0,Ix0+1)_or_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
+0x4000a0	RAM(Ix1,Ix1+1)_or_R1R0_to_RAM(Ix0,Ix0+1)
+0x4000ae	RAM(Ix1,Ix1+1)_or_Y1Y0_to_RAM(Ix0,Ix0+1)
+0x4000b4	RAM(Ix0,Ix0+1)_or_R1R0_to_R1R0
+
+0x4000de	masking_RAM_Ix0=R0R1_xor_Y0Y1
+0x4000e3	masking_RAM_Ix0=X0X1_xor_Y0Y1
+0x4000e8	masking_R0R1=R0R1_xor_Y0Y1
+0x4000eb	masking_R0R1=X0X1_xor_Y0Y1
 0x4000ee	RAM(Ix0,Ix0+1)_xor_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
+0x4000f1	R1R0_xor_RAM(Ix1,Ix1+1)_to_RAM(Ix0,Ix0+1)
+0x400111	local(X0,X0+1)_xor_Y1Y0_to_R1R0
+0x40011d	local(X0,X0+1)_xor_R1R0_to_local(X1,X1+1)
+0x400120	local(X0,X0+1)_xor_RAM(Ix0,Ix0+1)_to_local(X1,X1+1)
+0x400123	local(X0,X0+1)_xor_local(Y1,Y1+1)_to_local(X1,X1+1)
 
 0x420777	main	   
 0x286513	SD_AD_ISR	

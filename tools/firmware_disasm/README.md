@@ -7,7 +7,7 @@ v kódu je však vidět závislosti na dalších částech.
 
 dissector.py - disassembler
 
-mapfile_old.def - obsahuje popis druhého nejstaršího firmware
+mapfile_old.def - obsahuje popis druhého nejstaršího firmware (tento soubor již nebude aktualizován)
 
 mapfile.def - obsahuje popis nejnovějšího firmware
 

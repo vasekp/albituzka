@@ -1,26 +1,65 @@
 #disassembly mapping description
 # authors: jindroush, vasekp
 
-#this is for newest known Albi firmware SN95302 (ZC-p20115V01,20240530V023) from 2024
-#firmware is loaded as block from 0x400000. On 0x400080 is module description which then copies part of the flash to PRAM.
-#the PRAM, in disassembly starting from 0x4000, starts with interrupt vectors, first of them being started after reset
-#it calls SysMain routine and then... magic. Don't forget that all addresses are WORD based.
-#unfortunately, contents of 0x0000-0x3FFF ROM and 0x280000 ROM is unknown, only function headers are documented.
-
-#the resulting disassembly is not a _pure_ disassembly, it adds 'virtual' instructions.
-#Such instructions are just common patterns created by assembler/compiler while using
-#limited DSP instruction set. For example REG = 0xYYXX (ie. IMM16 mov instruction) which
-#is usually encoded as two REG.L=0xXX, REG.H=0xYY instructions
-
-
+#this is memory map for newest known Albi firmware for Sonix SN95302 (ZC-p20115V01,20240530V023) from 2024
 #publishing date of firmware: in fw 30.05.2024, on web 28.08.2024
-#these were named as having new feats: Čeština hravě, Detektiv Vroubek
+
+#some Albi books were mentioned to have 'new' features
+#Čeština hravě, Detektiv Vroubek
 #
 #this is what should be new in this firmware
 #1) quiz answers in fixed order - this we have already confirmed
 #2) pen should remember already clicked oids
 #3) random sounds playing
-#4) something about dbl clicks, not sure if I understood that.
+#4) something about double touches on OIDs, not sure if I understood that.
+
+
+#this documents Albi firmware, Sonix ROM and ABI used by the devtools (still unknown, the ZC-nnnnnVnn in rom version is suspected
+#	to be compiler signature
+
+#firmware is loaded as block from 0x400000. On 0x400080 is module description which then copies part of the flash to PRAM.
+#the PRAM, in disassembly starting from 0x4000, starts with interrupt vectors, first of them being started after reset
+#it calls SysMain routine and then... magic. Don't forget that all addresses are WORD based.
+#unfortunately, contents of 0x0000-0x3FFF ROM and 0x280000 ROM is unknown, only function headers are documented.
+
+#the resulting disassembly is not a _pure_ disassembly, as it uses 'virtual' instructions.
+#Such instructions are just common patterns created by assembler/compiler while using
+#limited DSP instruction set. For example REG = 0xYYXX (ie. IMM16 mov instruction) which
+#is usually encoded as two REG.L=0xXX, REG.H=0xYY instructions
+
+#strings look like unicode at first, but they're mostly 8bit characters stored in WORD arrays. Chinese characters are encoded
+#    by GBK encoding (multibyte). Strings are zero-terminated (C-style)
+#
+#the compiler used for firmware creation is simplistic, so all ascii strings used as function parameters are stored without deduplication
+#    (that means, that for example strings used for opening files like "r" or "r+" are stored many times in fw.
+
+# There is 'naming' standard for functions, not yet fully implemented:
+# functions with _dup? postfix look like clear duplicates
+# functions with _implied are guessed, but the guesses are not thoroughly verified
+# functions marked 'naked_' are using register passing for in-out. That's why it's important to note that.
+#
+# other functions use ABI described below:
+# - the parameters are passed on the stack, everything in WORDs, DWORDs as two WORDs, backwards (last parameter pushed first)
+# - then functions FunctionPrologue with respective in-register parameters are called - see their prototypes below
+# - stackframe is then constructed this way:
+#   fff4 .. arg9
+#   fff5 .. arg8
+#   fff6 .. arg7
+#   fff7 .. arg6
+#   fff8 .. arg5
+#   fff9 .. arg4
+#   fffa .. arg3
+#   fffb .. arg2
+#   fffc .. arg1
+#   fffd .. return addr
+#   fffe .. return addr
+#   ffff .. previous DM[0x000]
+#   0000 .. start of local variables <<< DM[0x000] points here
+#     Y0 .. saved DM[...] memory
+#     ?? <- current Sp
+# - just before Retff FunctionEpilogue is called, DM[...] values are restored, DM[0x000] is restored
+# - value is returned in R0, or R1R0 pair (guessed, but so far nothing else seen)
+# - stack is cleaned by the caller - by Pop, Pop Pop, functions naked_pop_n_words, or direct Sp manipulation when popping 9 params.
 
 
 [MAPPING]
@@ -79,7 +118,13 @@ org 0x4000
 
 asm 0x604e
 
-word 153x
+word 45x	comment:pram unpar1 
+word 48x	comment:pram unpar2
+word 12x	comment:pram unpar3
+word 20x	comment:pram unpar4
+word 4x	comment:pram unpar5
+word 20x	comment:pram unpar6
+word 4x	comment:pram unpar7
 
 wbstr 0x6
 wbstr 0x24
@@ -450,11 +495,70 @@ jumptable 14x
 asm 0x3d76
 
 #these are temporary, not really precise for now, code analysis must be done first
-word 4096x
-word 450x
-word 560x
-#0x429758
-word 140x
+word 4096x	comment:unpartitioned1
+
+# map_id = 00 through 6f, location is in file after multiplying by 4.
+# Four values for each map_id, determined by int_format; the relevant one for BNL is the last.
+word 1x	comment:00/00-01	sym:tbl_map_id_to_location
+word 1x	comment:00/02
+word 1x	comment:00/03
+word 1x	comment:00/04 BNL
+
+word 1x	comment:01/00-01
+word 1x	comment:01/02
+word 1x	comment:01/03
+word 1x	comment:01/04 BNL
+
+word 1x	comment:02/00-01
+word 1x	comment:02/02
+word 1x	comment:02/03
+word 1x	comment:02/04 BNL
+
+word 1x	comment:03/00-01
+word 1x	comment:03/02
+word 1x	comment:03/03
+word 1x	comment:03/04 BNL
+
+word 1x	comment:04/00-01
+word 1x	comment:04/02
+word 1x	comment:04/03
+word 1x	comment:04/04 BNL
+
+word 1x	comment:05/00-01
+word 1x	comment:05/02
+word 1x	comment:05/03
+word 1x	comment:05/04 BNL
+
+word 1x	comment:06/00-01
+word 1x	comment:06/02
+word 1x	comment:06/03
+word 1x	comment:06/04 BNL
+
+word 1x	comment:07/00-01
+word 1x	comment:07/02
+word 1x	comment:07/03
+word 1x	comment:07/04 BNL
+
+word 1x	comment:08/00-01
+word 1x	comment:08/02
+word 1x	comment:08/03
+word 1x	comment:08/04 BNL
+
+word 1x	comment:09/00-01
+word 1x	comment:09/02
+word 1x	comment:09/03
+word 1x	comment:09/04 BNL
+
+word 408x	
+
+word 22x	comment:unpartitioned2
+word 234x	comment:unpartitioned3
+word 306x	sym:tbl_encrypt_permutation
+
+
+word 128x	sym:tbl_MP3_byte_offsets
+word 12x	sym:tbl_fwcode_to_mode
+
 
 wbstr 62
 wbstr 52
@@ -501,12 +605,12 @@ word 16x
 word 16x
 
 word 58x	symbol:tbl_offsets_to_3bin_mp3tbl2
-word 47x	comment:hu2
-word 78x	comment:hu3
-word 17x	comment:hu4
-word 60x	comment:hu5
+word 47x	symbol:tbl_offsets_to_3bin_unknown_place
+word 78x	comment:unpartitioned5
+word 17x	sym:tbl_dac_volume_values
+word 60x	comment:unpartitioned6
 
-wbstr 18
+wbstr 18	sym:string_sd:\Game_3
 wbstr 32
 wbstr 8
 wbstr 26
@@ -573,7 +677,17 @@ word 13x	sym:tbl_sound7
 	0x429f02	sound 2/236, 中英双语童话 [Bilingual Fairy Tales (Chinese and English)]
 	0x429f03	sound 2/237, 著名广播剧 [Famous Radio Dramas]
 
-str 16
+str 16	sym:str_Chomptechv1.0.0\0
+	0x40c80c	word 0 of str_Chomptechv1.0.0\0
+	0x40c81e	word 1 of str_Chomptechv1.0.0\0
+	0x40c837	word 2 of str_Chomptechv1.0.0\0
+	0x40c846	word 3 of str_Chomptechv1.0.0\0
+	0x40c862	word 4 of str_Chomptechv1.0.0\0
+	0x40c874	word 5 of str_Chomptechv1.0.0\0
+	0x40c890	word 6 of str_Chomptechv1.0.0\0
+	0x40c89f	word 7 of str_Chomptechv1.0.0\0
+
+
 wbstr 4
 str 56
 wbstr 4
@@ -602,14 +716,14 @@ wbstr 30
 wbstr 36
 
 word 8x
-word 9x	comment:huu14
+word 9x	comment:unpartitioned8
 
 wbstr 6
 wbstr 4
 wbstr 20
 
-word 12x	comment:hu14
-word 10x	comment:hu15
+word 12x	comment:unpartitioned9
+word 10x	comment:unpartitioned10
 wbstr 10
 wbstr 4
 wbstr 4
@@ -627,82 +741,83 @@ skip 0x2bf5e
 [SYMBOLS]
 
 #rom1
-0x00002a	local(X0)_to_RAM(Ix0)
-0x000051	local(X0,X0+1)_to_RAM(Ix0,Ix0+1)
-0x0000d7	X1_div_Y1_to_X0
+0x00002a	naked_RAM[Ix0]=local(X0)
+0x00002e	naked_RAM[Ix0]=local(X0)_dup?
+0x000051	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)
+0x0000d7	naked_X0=X1_div_Y1
 0x000305	OID_Check_ReadData
-0x00031f	OID_TransmitCmd
-0x00067d	Wakeup_OID_By_DSP
+0x00031f	naked_OID_TransmitCmd(wCmd)
+0x00067d	naked_void_Wakeup_OID_By_DSP(void)
 
-# dword subtraction block
-0x0007ed	RAM(Ix0,Ix0+1)_minus_Y1Y0_to_Y0X0_duplicite?
-0x0007fa	R1R0_minus_Y1Y0_to_Y0X0_duplicite?
-0x000808	X1X0_minus_R1R0_to_Y0X0_duplicite?
-0x00081c	X1X0_minus_RAM(Ix1,Ix1+1)_to_?Y0X0?
-0x000825	local(X0,X0+1)_minus_RAM(Ix1,Ix1+1)_to_Y0X0
-0x000828	local(X0,X0+1)_minus_local(X1,X1+1)_to_Y0X0
-0x00082a	local(X0,X0+1)_minus_Y1Y0_to_Y0X0
-0x00082d	RAM(Ix0,Ix0+1)_minus_local(X1,X1+1)_to_?Y0X0?
-0x000830	RAM(Ix0,Ix0+1)_minus_RAM(Ix1,Ix1+1)_to_Y0X0
-0x000835	RAM(Ix0,Ix0+1)_minus_Y1Y0_to_Y0X0
-0x000838	RAM(Ix0,Ix0+1)_minus_R1R0_to_Y0X0
-0x000840	R1R0_minus_RAM(Ix1,Ix1+1)_to_Y0X0
-0x000842	R1R0_minus_Y1Y0_to_Y0X0
-0x000850	X1X0_minus_R1R0_to_?Y0X0?
-0x000864	X1X0_minus_RAM(Ix1,Ix1+)_to_?Y0X0?
-0x000879	RAM(Ix0,Ix0+1)_minus_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)_implied
-0x000882	local(X0,X0+1)_minus_RAM(Ix1,Ix1+1)_to_RAM(Ix0,Ix0+1)
-0x00088a	RAM(Ix1,Ix1+1)_minus_Y1Y0_to_RAM(Ix0,Ix0+1)
-0x00088d	RAM(Ix1,Ix1+1)_minus_RAM(Ix0,Ix0+1)_to_R1R0_may_be_reverse
-0x000899	local(X0,X0+1)_minus_local(Y1,Y1+1)_to_R1R0_implied
-0x00089c	local(X0,X0+1)_minus_Y1Y0_to_R1R0_implied
-0x00089f	RAM(Ix1,Ix1+1)_minus_Y1Y0_to_R1R0
-0x0008ae	local(X0,X0+1)_minus_local(Y1,Y1+1)_to_local(X1,X1+1)
-0x0008b1	local(X0,X0+1)_minus_Y1Y0_to_local(X1,X1+1)
+# dword subtraction functions
+0x0007ed	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_Y1Y0_dup?
+0x0007fa	naked_Y0X0=R1R0_minus_Y1Y0_dup?
+0x000808	naked_Y0X0=X1X0_minus_R1R0_dup?
+0x00081c	naked_?Y0X0?=X1X0_minus_RAM[Ix1,Ix1+1]
+0x000825	naked_Y0X0=local(X0,X0+1)_minus_RAM[Ix1,Ix1+1]
+0x000828	naked_Y0X0=local(X0,X0+1)_minus_local(X1,X1+1)
+0x00082a	naked_Y0X0=local(X0,X0+1)_minus_Y1Y0
+0x00082d	naked_?Y0X0?=RAM[Ix0,Ix0+1]_minus_local(X1,X1+1)
+0x000830	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_RAM[Ix1,Ix1+1]
+0x000835	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_Y1Y0
+0x000838	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_R1R0
+0x000840	naked_Y0X0=R1R0_minus_RAM[Ix1,Ix1+1]
+0x000842	naked_Y0X0=R1R0_minus_Y1Y0
+0x000850	naked_?Y0X0?=X1X0_minus_R1R0
+0x000864	naked_?Y0X0?=X1X0_minus_RAM(Ix1,Ix1+)
+0x000879	naked_RAM[X1,X1+1]=RAM[Ix0,Ix0+1]_minus_RAM[Ix1,Ix1+1]_implied
+0x000882	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_minus_RAM[Ix1,Ix1+1]
+0x00088a	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_minus_Y1Y0
+0x00088d	naked_R1R0=RAM[Ix1,Ix1+1]_minus_RAM[Ix0,Ix0+1]_may_be_reverse
+0x000899	naked_R1R0=local(X0,X0+1)_minus_local(Y1,Y1+1)_implied
+0x00089c	naked_R1R0=local(X0,X0+1)_minus_Y1Y0_implied
+0x00089f	naked_R1R0=RAM[Ix1,Ix1+1]_minus_Y1Y0
+0x0008ae	naked_local(X1,X1+1)=local(X0,X0+1)_minus_local(Y1,Y1+1)
+0x0008b1	naked_local(X1,X1+1)=local(X0,X0+1)_minus_Y1Y0
 
-# dword AND block
-0x000905	RAM(Ix0,Ix0+1)_and_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
-0x000908	RAM(Ix1,Ix1+1)_and_R1R0_to_RAM(Ix0,Ix0+1)
-0x000910	local(X0,X0+1)_and_Y1Y0_to_RAM(Ix0,Ix0+1)
-0x000916	RAM(Ix1,Ix1+1)_and_Y1Y0_to_RAM(Ix0,Ix0+1)
-0x00091c	RAM(Ix0,Ix0+1)_and_R1R0_to_R1R0
-0x000928	local(X0,X0+1)_and_Y1Y0_to_R1R0
-0x00092b	RAM(Ix1,Ix1+1)_and_Y1Y0_to_R1R0
-0x000931	RAM(Ix0,Ix0+1)_and_R1R0_to_local(X1,X1+1)
-0x00093d	local(X0,X0+1)_and_Y1Y0_to_local(X1,X1+1)
+# dword AND functions
+0x000905	naked_RAM[X1,X1+1]=RAM[Ix0,Ix0+1]_and_RAM[Ix1,Ix1+1]
+0x000908	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_and_R1R0
+0x000910	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_and_Y1Y0
+0x000916	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_and_Y1Y0
+0x00091c	naked_R1R0=RAM[Ix0,Ix0+1]_and_R1R0
+0x000928	naked_R1R0=local(X0,X0+1)_and_Y1Y0
+0x00092b	naked_R1R0=RAM[Ix1,Ix1+1]_and_Y1Y0
+0x000931	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_and_R1R0
+0x00093d	naked_local(X1,X1+1)=local(X0,X0+1)_and_Y1Y0
 
 
-# dword addition block
-0x000952	RAM(Ix0,Ix0+1)_plus_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
-0x000955	RAM(Ix1,Ix1+1)_plus_R1R0_to_RAM(Ix0,Ix0+1)
-0x00095b	local(X0,X0+1)_plus_RAM(Ix1,Ix1+1)_to_RAM(Ix0,Ix0+1)_implied
-0x00095d	local(X0,X0+1)_plus_Y1Y0_to_RAM(Ix0,Ix0+1)
-0x000963	RAM(Ix1,Ix1+1)_plus_Y1Y0_to_RAM(Ix0,Ix0+1)
-0x000966	RAM(Ix0,Ix0+1)_plus_RAM(Ix1,Ix1+1)_to_R1R0
-0x000969	RAM(Ix0,Ix0+1)_plus_R1R0_to_R1R0
-0x00096c	local(X0,X0+1)_plus_R1R0_to_R1R0
-0x00096f	local(X0,X0+1)_plus_RAM(Ix0,Ix0+1)_to_R1R0
-0x000972	local(X0,X0+1)_plus_local(Y1,Y1+1)_to_R1R0
-0x000975	local(X0,X0+1)_plus_Y1Y0_to_R1R0
-0x000978	RAM(Ix1,Ix1+1)_plus_Y1Y0_to_R1R0
-0x00097e	RAM(Ix0,Ix0+1)_plus_R1R0_to_local(X1,X1+1)
-0x000981	local(X0,X0+1)_plus_R1R0_to_local(X1,X1+1)
-0x00098a	local(X0,X0+1)_plus_Y1Y0_to_local(X1,X1+1)
+# dword addition functions
+0x000952	naked_RAM[X1,X1+1]=RAM[Ix0,Ix0+1]_plus_RAM[Ix1,Ix1+1]
+0x000955	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_plus_R1R0
+0x00095b	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_plus_RAM[Ix1,Ix1+1]_implied
+0x00095d	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_plus_Y1Y0
+0x000963	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_plus_Y1Y0
+0x000966	naked_R1R0=RAM[Ix0,Ix0+1]_plus_RAM[Ix1,Ix1+1]
+0x000969	naked_R1R0=RAM[Ix0,Ix0+1]_plus_R1R0
+0x00096c	naked_R1R0=local(X0,X0+1)_plus_R1R0
+0x00096f	naked_R1R0=local(X0,X0+1)_plus_RAM[Ix0,Ix0+1]
+0x000972	naked_R1R0=local(X0,X0+1)_plus_local(Y1,Y1+1)
+0x000975	naked_R1R0=local(X0,X0+1)_plus_Y1Y0
+0x000978	naked_R1R0=RAM[Ix1,Ix1+1]_plus_Y1Y0
+0x00097e	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_plus_R1R0
+0x000981	naked_local(X1,X1+1)=local(X0,X0+1)_plus_R1R0
+0x00098a	naked_local(X1,X1+1)=local(X0,X0+1)_plus_Y1Y0
 
-# word bit shift block
-0x0009b6	RAM(Ix0)_lshift_X0_to_RAM(Ix1)
-0x0009c4	local(Y0)_lshift_X0_to_RAM(Ix1)
-0x0009c8	Y0_lshift_X0_to_R0
-0x000a06	R0_rshift_X0_to_RAM(Ix1)
-0x000a22	local(Y0)_rshift_X0_to_R0
+# word bit shift functions
+0x0009b6	naked_RAM[Ix1]=RAM[Ix0]_lshift_X0
+0x0009c4	naked_RAM[Ix1]=local(Y0)_lshift_X0
+0x0009c8	naked_R0=Y0_lshift_X0
+0x000a06	naked_RAM[Ix1]=R0_rshift_X0
+0x000a22	naked_R0=local(Y0)_rshift_X0
 
-# dword bit shift block
-0x000a73	R1R0_lshift_X0_to_R1R0
-0x000a92	Y1Y0_lshift_X0_to_RAM(Ix1,Ix1+1)
-0x000a99	RAM(Ix1,Ix1+1)_lshift_X0_to_RAM(Ix0,Ix0+1)
-0x000aad	RAM(Ix0,Ix0+1)_lshift_X0_to_R1R0
-0x000ad9	RAM(Ix1,Ix1+1)_rshift_X0_to_RAM(Ix0,Ix0+1)
-0x000aed	RAM(Ix0,Ix0+1)_rshift_X0_to_R1R0
+# dword bit shift functions
+0x000a73	naked_R1R0=R1R0_lshift_X0
+0x000a92	naked_RAM[Ix1,Ix1+1]=Y1Y0_lshift_X0
+0x000a99	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_lshift_X0
+0x000aad	naked_R1R0=RAM[Ix0,Ix0+1]_lshift_X0
+0x000ad9	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_rshift_X0
+0x000aed	naked_R1R0=RAM[Ix0,Ix0+1]_rshift_X0
 
 # Prepares stackframe:
 # - pushes DM(0x000) [akin to x86 push BP]
@@ -745,47 +860,49 @@ skip 0x2bf5e
 0x000b99	FunctionEpilogue(X1,Y1)
 
 
-# locals store block
-0x000bc5	R0_to_local(Y1)
-0x000bcd	X0_to_local(Y1)
-0x000bd5	Y0_to_local(Y1)
+# locals store functions
+0x000bc5	naked_local(Y1)=R0
+0x000bcd	naked_local(Y1)=X0
+0x000bd5	naked_local(Y1)=Y0
 
-# locals load block
-0x000c04	local(X0)_to_R0
-0x000c08	local(X0)_to_R1
-0x000c0c	local(X0)_to_X0
-0x000c10	local(X0)_to_X1
-0x000c14	local(X0)_to_Y0
-0x000c18	local(X0)_to_Y1
+# locals load functions
+0x000c04	naked_R0=local(X0)
+0x000c08	naked_R1=local(X0)
+0x000c0c	naked_X0=local(X0)
+0x000c10	naked_X1=local(X0)
+0x000c14	naked_Y0=local(X0)
+0x000c18	naked_Y1=local(X0)
 
-0x000c2e	local(X1,X1+1)_to_local(Y1,Y1+1)
+0x000c2e	naked_local(Y1,Y1+1)=local(X1,X1+1)
 
-# pop block
-0x000c49	pop_8_words
-0x000c4b	pop_7_words
-0x000c4d	pop_6_words
-0x000c4f	pop_5_words
-0x000c51	pop_4_words
-0x000c53	pop_3_words
+# pop stack functions
+0x000c49	naked_pop_8_words
+0x000c4b	naked_pop_7_words
+0x000c4d	naked_pop_6_words
+0x000c4f	naked_pop_5_words
+0x000c51	naked_pop_4_words
+0x000c53	naked_pop_3_words
 
-0x000c81	local(X0,X0+1)_to_X1X0
+0x000c81	naked_X1X0=local(X0,X0+1)
+0x000c1c	naked_local(Y1,Y1+1)=R0R1
 
-0x000c99	X1_mod_Y1_to_X0
+0x000c99	naked_X0=X1_mod_Y1
 
 
 #rom2
 0x28913e	FS_FileExists_maybe_stk(szPath,FLAG)_ret_errc_in_R0
-0x289fa3	X1X0_mod_Y1Y0_to_R1R0
-0x289fa5	X1X0_div_Y1Y0_to_R1R0
+0x289fa3	naked_R1R0=X1X0_mod_Y1Y0
+0x289fa5	naked_R1R0=X1X0_div_Y1Y0
 0x28b4ca	strlen_stk(szString)_ret_in_R0
-0x28bd00	Get_word_from_table_at_R1R0_to_X0
-0x28bcfd	Get_word_from_table_at_Ix0,Ix0+1_to_X0
+0x28bd00	naked_X0=Get_word_from_table_at_R1R0
+0x28bcfd	naked_X0=Get_word_from_table_at_Ix0,Ix0+1
 0x28bcdb	SD_DAC_Volume_Control_stk(wVolume)
-
+0x28beb2	MP3_or_IMAADPCM_GetStatus()
+0x28beae	MP3_or_IMAADPCM_GetStatus2()
 
 #code0
-0x006fd7	MP3_GetStatus_is_PAUSE
-0x006fe5	MP3_GetStatus_is_PLAY
+0x006fd7	naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
+0x006fe5	naked_MP3_GetStatus_is_PLAY()_return_bool_in_R0
 0x00701f	MP3_PlayProcess_Ext_probably
 0x007018	MP3_PlayProcess_Ext_probably_2
 0x0056aa	Something_with_updateA_chp
@@ -796,10 +913,10 @@ skip 0x2bf5e
 0x006eb7	lib_fgetdw_stk(wHandle,wBuffer)_return?
 
 #code1
-0x40012f	Store_negX0X1_to_Ix1
-0x400134	Store_negR0R1_to_Ix1
-0x400139	R0R1_is_negX0X1
-0x40013c	(dword)Ix0_neg_to_Ix1
+0x40012f	naked_RAM[Ix1,Ix1+1]=neg_X0X1
+0x400134	naked_RAM[Ix1,Ix1+1]=neg_R0R1
+0x400139	naked_R0R1=neg_X0X1
+0x40013c	naked_RAM[Ix1,Ix1+1]=neg_RAM[Ix0,Ix0+1]
 	
 #code2
 0x421140	handle_ignored_magic_values2_unk
@@ -820,11 +937,11 @@ skip 0x2bf5e
 0x428312	naked_void_ClearPort3Bit11(void)
 0x42830c	naked_void_ClearPort3Bit13(void)
 0x428305	naked_void_SetTimer1_to_10Hz_repeat(void)
-0x4282d6	naked_Get_huge_object[0x12]_to_R0(void)
-0x4282de	naked_Get_huge_object[0x29]_to_R0(void)
-0x4282e6	naked_Get_huge_object[0x28]_to_R0(void)
-0x4282ee	naked_Get_huge_object[0x27]_to_R0(void)
-0x4282f6	naked_Get_huge_object[0x3e]_to_R0(void)
+0x4282d6	naked_get_huge_object[0x12](void)_ret_in_R0
+0x4282de	naked_get_huge_object[0x29](void)_ret_in_R0
+0x4282e6	naked_get_huge_object[0x28](void)_ret_in_R0
+0x4282ee	naked_get_huge_object[0x27](void)_ret_in_R0
+0x4282f6	naked_get_huge_object[0x3e](void)_ret_in_R0
 0x4280b5	void_set_huge_object[0x12]_stk(iValue)
 0x420730	naked_void_Initialize_all_vars(void)
 0x4203b8	naked_void_Init_3dea_to_3de2(void)
@@ -844,42 +961,53 @@ skip 0x2bf5e
 0x426728	Read_OID_sensor
 0x426dc7	Copy_Ext_to_PRAM?
 0x426f36	Copy_WRAM_to_PRAM?
-0x4282b5	just_a_nop
+0x4282b5	naked_void_just_a_nop(void)
 0x40a467	naked_void_Init_3fdd_3fa0_3ff2_3ff3(void)
 0x428342	naked_void_Get_[3df5]_in_R0(void)
 0x428346	naked_void_Get_[3df3]_in_R0(void)
 0x42834a	naked_void_Get_volume_in_R0(void)
 0x428352	naked_void_Get_[3e01]_in_R0(void)
 0x428356	naked_void_ClearPort0Bit7_2(void)
-0x428359	Call_if_p4bit8_then_set_p0bit7
+0x428359	naked_if_p4bit8_then_set_p0bit7_2
 0x42758b	naked_void_huge_hw_init_and_3d9f_3d9b_3daf(void)
 0x42040b	naked_void_hw_adc_settings1(void)
 0x427e3d	naked_void_hw_adc_settings2(void)
 0x42041f	naked_void_kindof_set_timer0(void)
 0x42835c	Call_0002ea
-0x428290	Get_[3d6a]+0x3f_in_R0
+0x428290	naked_void_get_huge_object[0x3f]_ret_in_R0
 0x42827c	naked_void_Init_3df4_3df5_3df3(void)
-0x428286	Get_[[3d6a]]_in_R0
-0x428272	just_a_nop_2
+0x428286	naked_get_huge_object[0x0](void)_ret_in_R0
+0x428272	naked_void_just_a_nop_2(void)
 0x42822d	naked_void_Init_3fe9=ffff_3ff6_3fa6(void)
 0x4218e4	File_Open_Lib_Call_Probably_stack(szFname,szAccess)_ret_errc_in_R0
 0x427727	Set_user_volume_to_DAC_volume_stk(volume)
 0x4278d5	Set_user_volume_to_DAC_volume
-0x422324	Play_sound_from_2bin_table_stk(sound_num)
+0x422324	Play_sound_from_2bin_table_stk(wSoundNum)
 	0x42232b	DM[0x17] is sound number
 	0x42232d	265 is upper bound of sounds in 2bin
 	0x422334	multiply sound by 4 (address of DWORD in table)
 	0x422340	on stack is pointer from 0x400050 - 2bin
 
 	0x41f998	addr 40031a is pointer to table of texts
+	0x41faab	addr 40031a is pointer to table of texts
+	0x423b68	addr 400054 is pointer to 3bin
+	0x424564	addr 400054 is pointer to 3bin
+	0x424a7f	addr 400054 is pointer to 3bin
 
-0x427005	Read_word_from_3bin+dwPtr_stk(dwPtr)_return_in_R0
+0x427005	ReadWordFrom3bin+dwPtr_stk(dwPtr)_return_in_R0
 	0x423acf	3bin ptr 0x030344 2BD0
 	0x423adb	3bin ptr 0x030346 000A
-0x423abc	DoSomethingWith_3bin_mp3tbl2_stk(word)
+0x423abc	Play_sound_from_3bin_mp3table2_stk(wSoundNum)
+0x4249f8	Play_sound_from_3bin_unknown_place_stk(wSoundNum)
+0x426f7c	Play_sound_from_3bin_forked_stk(wSoundNum)_return_bool_in_R0
+	0x426f83	if over 0x190, get out 
+	0x426f8d	if over 0xc8, translate with tbl_offsets_to_3bin_mp3tbl2 table and play from 3bin_mp3table2
+	0x426fa9	if under 0xc8, translate with tbl_offsets_to_3bin_unknown_place and play from 3bin_unknown_place
+	0x426fab	tbl_offsets_to_3bin_unknown_place
+
 	0x4244bd	3bin ptr 0x030348 3b70
 	0x4244c9	3bin ptr 0x03034a 000a
-0x4244b2	DoSomethingWith_3bin_string_tbl_stk(word)
+0x4244b2	ReadStringFrom3binString_tbl_stk(wIdx)_return_R1R0
 
 	0x4201e1	3bin ptr 0x030200 0168
 	0x4201ed	3bin ptr 0x030202 0078
@@ -1026,17 +1154,17 @@ skip 0x2bf5e
 
 0x42343e	maybe_some_check_for_update_file
 0x4222e3	Compute_2bin_pointers_stk(ptr_2bin,offset_sound)
-0x40a474	void_Zero_stk(variable)_and_F0_words_after_it
+0x40a474	naked_void_Zero_stk(variable)_and_F0_words_after_it()
 0x42835f	empty_fn_01
 0x428360	empty_fn_02
 0x428361	empty_fn_03
 0x428362	empty_fn_04
 0x428364	empty_fn_05
-0x427f4e	Zero_3fb5_set_3fa1_to_3fb4_to_FFFF
-0x428120	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+9]
-0x428131	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+5]
-0x428142	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+6]
-0x428153	If_[[3d6a]]==0_ret_0_else_return_[[3d6a]+2b]
+0x427f4e	naked_void_Zero_3fb5_set_3fa1_to_3fb4_to_FFFF()
+0x428120	If_huge_object[0]==0_ret_0_else_return_huge_object[0x9]
+0x428131	If_huge_object[0]==0_ret_0_else_return_huge_object[0x5]
+0x428142	If_huge_object[0]==0_ret_0_else_return_huge_object[0x6]
+0x428153	safe_return_huge_object[int_format]
 0x427408	ensure_last_char(szDest,iCharacter)
 0x423b9d	void_large_object_3d0b_creation_3d08_to_3d0a_clear(void)
 0x427106	naked_void_setup_all_ports_and_something(void)
@@ -1047,12 +1175,15 @@ skip 0x2bf5e
 0x428245	naked_void_setup_port4_unk2(void)
 0x428251	naked_void_setup_port4_unk3(void)
 0x427dd1	naked_void_setup_port3_unk(void)
-0x41e8ba	Init_indirect_functions_in_huge_object_and_lots_of_other_stuff:
+0x41e8ba	Init_indirect_functions_in_huge_object_and_lots_of_other_stuff
 0x424256	does_file_exist_stk(szPtr)
 0x4207f4	label_when_sdcard_not_detected
 	0x424fec	in this place we have prepared fname with sd:\ prefix
 0x4203d7	naked_setup_ADC_and_wait_for_interrupt_return_in_R0?
 0x42660a	naked_looking_for_some_ADC_input_return_bool_in_R0?
+0x427e07	set_huge_object[0xc]_to_stk(wNum)_safely_return_bool_in_R0
+
+
 
 0x3680	file_dirhandle_unk1
 0x3681	file_dirhandle_unk2_dw
@@ -1222,7 +1353,7 @@ skip 0x2bf5e
 0x42612c	prepare_wrong_answers_bitset(num_answers)
 0x426199	evaluate_answer_type_2(oid)
 0x4265a9	reduce_to_within(value,size)
-0x42666a	arg1_div_arg2_to_R0
+0x42666a	R0=arg1_div_arg2
 0x4267e3	set_book_mode_by_fwcode
 0x426840	locate_question_in_bnl(q_index)
 0x426b4f	get_table_element(table,index)
@@ -1240,18 +1371,37 @@ skip 0x2bf5e
 0x427396	questions_bit_get(q_index)
 0x427554	are_all_answers_marked()
 0x42751d	clear_answers_bitset()
-0x427f65	hw_random()
+0x427f65	hw_random(void)_ret_in_R0
 0x427cca	xor_one_byte_key(data,key)
 
-# map_id = 00 through 6f, location is in file after multiplying by 4.
-# Four values for each map_id, determined by int_format; the relevant one for BNL is the last.
-0x429366	tbl_map_id_to_location
 	0x006ddf	tbl_map_id_to_location
-0x4297d8	tbl_fwcode_to_mode
 	0x426810	tbl_fwcode_to_mode
-0x429626	tbl_encrypt_permutation
-0x429758	tbl_MP3_byte_offsets
 	0x41bb9a	tbl_MP3_byte_offsets
+	0x004656	tbl_encrypt_permutation
+	0x004705	tbl_encrypt_permutation
+	0x0047a0	tbl_encrypt_permutation
+	0x004977	tbl_encrypt_permutation
+	0x0061d4	tbl_encrypt_permutation
+	0x0061eb	tbl_encrypt_permutation
+	0x4196b1	tbl_encrypt_permutation
+	0x4197bb	tbl_encrypt_permutation
+	0x41988f	tbl_encrypt_permutation
+	0x419aa1	tbl_encrypt_permutation
+	0x41b8e1	tbl_encrypt_permutation
+	0x41b8ff	tbl_encrypt_permutation
+	0x41b98a	tbl_encrypt_permutation
+	0x41b9a3	tbl_encrypt_permutation
+	0x421c2c	tbl_encrypt_permutation
+	0x421c43	tbl_encrypt_permutation
+	0x421eaf	tbl_encrypt_permutation
+	0x421ec6	tbl_encrypt_permutation
+	0x423878	tbl_encrypt_permutation
+	0x42388f	tbl_encrypt_permutation
+	0x426f96	tbl_offsets_to_3bin_mp3tbl2
+
+0x4201dd	naked_void_3bin_initialize_constants_to_vars_unknown_purpose(void)
+0x42591b	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
+	0x42591b	wHandle could be 0, it may mean playing from fw? wFlag seen 0, 1, 2
 
 0x4263b2	indirect_fn_1
 0x426418	indirect_fn_2
@@ -1317,7 +1467,6 @@ skip 0x2bf5e
 0x429fe7	string_sd:\StuRec.wav
 0x429ff6	string_sd:0:\updateA.chp_2
 0x429d64	string_sd:\Game
-0x429e91	string_sd:\Game_3
 0x429d5d	string_.txt
 0x429d62	string_backslash
 0x42a03e	string_.tn2
@@ -1333,7 +1482,6 @@ skip 0x2bf5e
 0x429ec8	string_sd:\Dict
 0x429ebb	string_txt
 0x429eaa	string_txt_2
-
 
 0x4297e4	dbgstring_playvoicetotaltimes_%d
 0x429803	dbgstring_pfjim->PlayVoiceTimes:%d
@@ -1371,8 +1519,7 @@ skip 0x2bf5e
 0x429eae	dbgstring_TxtNum:%d
 
 0x4100dd	some_indirectly_called_function_4100dd
-0x40016f	some_indirectly_called_function_40016f
-0x400184	some_indirectly_called_function_400184
+#0x400184	some_indirectly_called_function_400184
 0x400209	some_indirectly_called_function_400209
 0x41140c	some_indirectly_called_function_41140c
 0x411556	some_indirectly_called_function_411556
@@ -1643,8 +1790,8 @@ skip 0x2bf5e
 0x426c39	some_indirectly_called_function_426c39
 0x426da3	some_indirectly_called_function_426da3
 0x426dbc	some_indirectly_called_function_426dbc
-0x427453	some_indirectly_called_function_427453
-0x427467	some_indirectly_called_function_427467
+#0x427453	some_indirectly_called_function_427453
+#0x427467	some_indirectly_called_function_427467
 
 0x40bb8e	Switch_over_FWcodes_large_on_c0|a
 
@@ -1883,7 +2030,7 @@ skip 0x2bf5e
 0x40cf80	switch_handler_fwcode_83_unk|m
 0x40cf88	switch_handler_fwcode_84_unk|m
 0x40cf90	switch_handler_fwcode_85_unk|m
-        	
+
 0x40cc8a	switch_on_fwcode_e0_to_ec|m
 0x40cfb8	switch_handler_fwcode_e0_unk|m	
 0x40cfbc	switch_handler_fwcode_e1_unk|m
@@ -1933,7 +2080,7 @@ skip 0x2bf5e
 0x40d721	switch_handler_fwcode_ee_unk|c
 0x40d715	switch_handler_fwcode_ef_unk|c
 0x40d815	switch_handler_fwcode_MULTI_unk|c
-        	
+
 0x40d2ce	switch_handler_fwcode_30_volplus|c 
 0x40d2dc	switch_handler_fwcode_31_volminus|c
 0x40d2ea	switch_handler_fwcode_32_unk|c
@@ -1953,7 +2100,7 @@ skip 0x2bf5e
 0x40d4ff	switch_handler_fwcode_4c_unk|c
 0x40d516	switch_handler_fwcode_50_compare|c 
 0x40d51e	switch_handler_fwcode_51_unk|c
-        	
+
 0x40d2a5	handler_fwcode_00_unk|c
 0x40d2b2	handler_fwcode_10_bookid|c
 0x40d2c2	handler_fwcode_11_unk|c
@@ -1974,7 +2121,7 @@ skip 0x2bf5e
 0x40d58b	switch_handler_fwcode_83_unk|c
 0x40d593	switch_handler_fwcode_84_unk|c
 0x40d59b	switch_handler_fwcode_85_unk|c
-        	
+
 0x40d526	handler_fwcode_60_unk|c
 0x40d52e	handler_fwcode_61_unk|c
 0x40d532	handler_fwcode_62_unk|c
@@ -2115,8 +2262,8 @@ skip 0x2bf5e
 0x40eb06	switch_handler_fwcode_4b_unk|o
 0x40eb0a	switch_handler_fwcode_50_unk|o
 0x40eb14	switch_handler_fwcode_51_unk|o
-        	
-0x40ea00	switch_on_fwcode_c0_to_c3|o        	
+
+0x40ea00	switch_on_fwcode_c0_to_c3|o
 0x40ebc4	switch_handler_fwcode_c0_unk|o
 0x40ebce	switch_handler_fwcode_c1_unk|o
 0x40ebd8	switch_handler_fwcode_c2_unk|o
@@ -2155,7 +2302,7 @@ skip 0x2bf5e
 0x40ecc5	switch_handler_fwcode_ea_unk|o
 0x40ecc9	switch_handler_fwcode_eb_unk|o
 0x40eccd	switch_handler_fwcode_ec_unk|o
-        	
+
 0x40ed07	Switch_over_Fwcodes_stk(fwcode)|e
 
 0x40f090	switch_handler_fwcode_c0_unk|e
@@ -2195,25 +2342,19 @@ skip 0x2bf5e
 
 
 
+0x40009a	naked_R0R1=X0X1_or_Y0Y1
+0x400097	naked_R0R1=R0R1_or_Y0Y1
+0x400092	naked_RAM[Ix0,Ix0+1]=X0X1_or_Y0Y1
+0x40008d	naked_RAM[Ix0,Ix0+1]=R0R1_or_Y0Y1
+0x4000de	naked_RAM[Ix0,Ix0+1]=R0R1_or_Y0Y1_2
+0x4000e3	naked_RAM[Ix0,Ix0+1]=X0X1_or_Y0Y1_2
+0x4000e8	naked_R0R1=R0R1_or_Y0Y1_2
+0x4000eb	naked_R0R1=X0X1_or_Y0Y1_2
+0x4000a0	naked_RAM[Ix0,Ix0+1]=RAM[Ix0,Ix0+1]_or_RAM[Ix1,Ix+1]
+0x40006e	naked_if_p4bit8_then_set_p0bit7
+0x4000f1	naked_RAM[Ix0,Ix0+1]=R0R1_or_RAM[Ix1,Ix1+1]
 
-
-
-        	
-0x429e44	tbl_dac_volume_values
-
-
-0x40009a	masking_R0R1=X0X1_or_Y0Y1
-0x400097	masking_R0R1=R0R1_or_Y0Y1
-0x400092	masking_RAM_Ix0=X0X1_or_Y0Y1
-0x40008d	masking_RAM_Ix0=R0R1_or_Y0Y1
-0x4000de	masking_RAM_Ix0=R0R1_or_Y0Y1_2
-0x4000e3	masking_RAM_Ix0=X0X1_or_Y0Y1_2
-0x4000e8	masking_R0R1=R0R1_or_Y0Y1_2
-0x4000eb	masking_R0R1=X0X1_or_Y0Y1_2
-0x4000a0	mask_inplace_RAM[Ix0]_or_RAM[Ix1]
-0x40006e	if_p4bit8_then_set_p0bit7
-
-0x4000ee	RAM(Ix0,Ix0+1)_xor_RAM(Ix1,Ix1+1)_to_RAM(X1,X1+1)
+0x4000ee	naked_RAM[X1,X1+1]=RAM[Ix0,Ix0+1]_xor_RAM[Ix1,Ix1+1]
 
 0x420777	main	   
 0x286513	SD_AD_ISR	
@@ -2236,9 +2377,9 @@ skip 0x2bf5e
 0x00693e	Usr_DMA_SD2_RW_ISR
 0x006943	Usr_DMA_DEV_RW_ISR
 
-
-
-
+	0x0056bb	wbstr_r+
+	0x0056c1	wbstr_sd:0:\\updateA.chp
+	0x41de31	ascii_version
 
 
 
@@ -2248,7 +2389,7 @@ skip 0x2bf5e
 0x3dd9	volume_probably
 0x3ded	is_oid_module_initialized
 0x3dee	oid_from_sensor
-
+0x3e04	some_random_seeding
 
 
 

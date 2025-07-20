@@ -29,6 +29,7 @@ import os
 import sys
 import hashlib
 import re
+import time
 
 from collections import defaultdict
 from datetime import datetime
@@ -711,25 +712,26 @@ def dump_calls_table():
                 CALLS.write( f" '{g_symbolsValue2Name[r_PC]}'" )
         CALLS.write("\n")
         if 'prologue_type' in d_onecall:
-            CALLS.write( f"  Prologue: {(d_onecall['prologue_type'])}\n" )
+            CALLS.write( f"  Prologue method: {(d_onecall['prologue_type'])}\n" )
         if 'prologue_pars' in d_onecall and d_onecall['prologue_pars'] is not None:
-            CALLS.write( f"  Prologue parameters: {(d_onecall['prologue_pars'])}\n" )
+            CALLS.write( f"  Prologue method parameters: {(d_onecall['prologue_pars'])}\n" )
         if 'prologue_locals' in d_onecall and d_onecall['prologue_locals'] is not None:
-            CALLS.write( f"  Prologue loaded parameters: {(d_onecall['prologue_locals'])}\n" )
+            CALLS.write( f"  Prologue loaded stack parameters: {(d_onecall['prologue_locals'])}\n" )
 
         if 'pop_pars' in d_onecall:
             CALLS.write( f"  Popped {(d_onecall['pop_pars'])} parameters\n" )
 
         if 'epilogue_type' in d_onecall:
-            CALLS.write( f"  Epilogue: {(d_onecall['epilogue_type'])}\n" )
+            CALLS.write( f"  Epilogue method: {(d_onecall['epilogue_type'])}\n" )
 
         if 'epilogue_address' in d_onecall:
             eadr = d_onecall[ 'epilogue_address' ]
             CALLS.write( f"  Epilogue addr: 0x{eadr:06x}\n" )
             flen = eadr - r_PC
-            CALLS.write( f"  Length: 0x{flen:x}\n" )
-        #CALLS.write( f"{(d_onecall)}\n" )
+            CALLS.write( f"  Length: 0x{flen:x} ({flen})\n" )
 
+        if d_onecall['from']:
+            CALLS.write( f"  Called {(len(d_onecall['from']))} times\n" )
         for addr in sorted( d_onecall['from'] ):
             res = find_addr_in_routine(addr)
             CALLS.write( f"    0x{addr:06x} {res}\n" )
@@ -1247,7 +1249,7 @@ table_instruction_mutations = [
     {
 	#changes IO[Ix0] = to Ix0 =
         'from': [ { 'mnemonic': '=', 'param1t': IO, 'param1v': 'Ix0' } ],
-        'to': { 'param1': ( REG, 'Ix0' ) }
+        'to': { 'param1': ( REG, 'Ix0' ), 'comment': None }
     },
 
     {
@@ -1407,6 +1409,165 @@ table_instruction_mutations = [
 	'to': { 'mnemonic': 'Push', 'param1': ( ADDR24, lambda ctx: ( ctx['hi']<<16 | ctx['lo'] ) ), 'param2': None }
     },
 
+    {
+	#R0 = IO[WDT]
+	#R0 = BSET.14 R0
+	#IO[WDT] = R0
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': IO, 'param2v': 'WDT' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'BSET.14', 'param3t': REG, 'param3v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': IO, 'param1v': 'WDT', 'param2t': REG, 'param2v': 'R0' }
+	],
+	'to': { 'mnemonic': '@IObitSET', 'param1': ( IO, "WDT" ), 'param2': (STR, '14') }
+     },
+
+     {
+	#X0 = 0xaf1f                                        
+	#DM[0x001] = X0                                     
+	#Y0 = 0x0040                                        
+	#DM[0x002] = Y0                                     
+	#X0 = DM[0x001]                                     
+	#X1 = DM[0x002]                                     
+	#R0 = X0 + R0                                       
+	#R1 = X1 + R1 + C                                   
+	#Callff Get_word_from_table_at_R1R0_to_X0 (0x28bd00)
+	#R0 = X0                                            
+	#IO[PCL] = R0   #I/O register = Program counter low 
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X0', 'param2t': IMM16, 'store': {'lo':'param2v'} },
+		{ 'mnemonic': '=', 'param1t': DM, 'param1v': 0x001, 'param2t': REG, 'param2v': 'X0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM16, 'store': {'hi':'param2v'} },
+		{ 'mnemonic': '=', 'param1t': DM, 'param1v': 0x002, 'param2t': REG, 'param2v': 'Y0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X0', 'param2t': DM, 'param2v': 0x001 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': DM, 'param2v': 0x002 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': "X0 + R0" },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2v': "X1 + R1 + C" },
+		{ 'mnemonic': 'Callff', 'param1v': 0x28bd00 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': REG, 'param2v': 'X0' },
+		{ 'mnemonic': '=', 'param1t': IO, 'param1v': 'PCL', 'param2t': REG, 'param2v': 'R0' }
+	],
+	'to': { 'mnemonic': '@On(R1R0)Jmpff', 'param1': ( ADDR24, lambda ctx: ( ctx['hi']<<16 | ctx['lo'] ) ), 'param2': None }
+     },
+
+     {
+	#X0 = 0x003f
+	#Y0 = 0x0041
+	#R0 = X0 + R0
+	#R1 = Y0 + R1 + C
+	#Callff Get_word_from_table_at_R1R0_to_X0 (0x28bd00)
+	#IO[PCL] = X0   #I/O register = Program counter low
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X0', 'param2t': IMM16, 'store': {'lo':'param2v'} },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM16, 'store': {'hi':'param2v'} },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': "X0 + R0" },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2v': "Y0 + R1 + C" },
+		{ 'mnemonic': 'Callff', 'param1v': 0x28bd00 },
+		{ 'mnemonic': '=', 'param1t': IO, 'param1v': 'PCL', 'param2t': REG, 'param2v': 'X0' }
+	],
+	'to': { 'mnemonic': '@On(R1R0)JmpffShort', 'param1': ( ADDR24, lambda ctx: ( ctx['hi']<<16 | ctx['lo'] ) ), 'param2': None }
+     },
+
+     {
+	#X0 = IO[Sp]
+	#Y0 = 0x09
+	#X0 = X0 - Y0
+	#IO[Sp] = X0
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X0', 'param2t': IO, 'param2v': 'Sp' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM8, 'param2v': 9 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X0', 'param2v': "X0 - Y0" },
+		{ 'mnemonic': '=', 'param1t': IO, 'param1v': 'Sp', 'param2t': REG, 'param2v': 'X0' },
+	],
+	'to': { 'mnemonic': '@Pop9Words', 'param1': None, 'comment': None }
+     },
+
+     {
+	#Ix0 = ptr_to_huge_object (0x3d6a)
+	#X1 = RAM[Ix0]
+	#Y1 = 0x4c   #"L"
+	#R0 = X1 + Y1
+	#Ix0 = R0   #I/O register = Indirect Addressing Register x0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Push some_indirectly_called_function_422da4 (0x422da4)
+	#Push R0
+	#Push R1
+	#Ix1 = 0x04
+	#Retff
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x4c },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x4 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x4c ), 'param2': None, 'comment': 'seek function' }
+     },
+
+     {
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x52 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x2 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x52 ), 'param2': None, 'comment': 'fgetdw function' }
+     },
+
+     {
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x56 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x56 ), 'param2': None, 'comment': 'mp3_is_play' }
+     },
+
+     {
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x58 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x58 ), 'param2': None, 'comment': 'mp3_is_pause' }
+     }
+
 ]
 
 def mutate_one_instruction(pat,inst,ctx):
@@ -1422,7 +1583,11 @@ def mutate_one_instruction(pat,inst,ctx):
 
        if id=='param1':
            if inst_pars >= 1:
-               inst['parameters'][0] = val
+               if val == None:
+                   #shortens to 1 parameter then
+                   inst['parameters'] = []
+               else:
+                   inst['parameters'][0] = val
                continue
            raise Exception
        elif id=='param2':
@@ -1438,6 +1603,9 @@ def mutate_one_instruction(pat,inst,ctx):
            raise Exception
        elif id=='mnemonic':
            inst['mnemonic'] = val
+           continue
+       elif id=='comment':
+           inst['comment'] = val
            continue
        else:
            raise Exception( f"don't know how to mutate '{id}'" )
@@ -1468,6 +1636,14 @@ def check_instruction_match(pat,inst,ctx):
             return False
         elif id=='param2v':
             if inst_pars >= 2 and pars[1][1]==val:
+                continue
+            return False
+        elif id=='param3t':
+            if inst_pars >= 3 and pars[2][0]==val:
+                continue
+            return False
+        elif id=='param3v':
+            if inst_pars >= 3 and pars[2][1]==val:
                 continue
             return False
         elif id=='param2vc':
@@ -1515,19 +1691,32 @@ def instructions_mutator():
             #only mutations short enough
             #this is valid most of the time (will only fail at the end of the instruction block)
             if len(matcher) <= max_ahead:
-                #how many instructions must be matched for the replacement to take place
-                to_match = len(matcher)
-                #todo here is the place to check if there is jump in middle of instructions
+
+                #here is the place to check if there is jump to middle of instructions
                 #it's wrong to join instructions in that place
 
-                #todo it seems there could be optimization done here
+                #it seems there could be optimization done here
                 #IF all 'from' checks contain 'mnemonic' - and I currently can't imagine check
                 #where there is no mnemonic, we may really fast pre-check if the rule applies at all
                 #also, because we would be iterating over the instructions, we may check the previous
                 #condition, ie. 'be sure nobody jumps in the middle'
+                possible_match = True
+                for i in range(len(matcher)):
+                    if matcher[ i ]['mnemonic'] != g_instruction_store[ idx + i ]['mnemonic']:
+                        possible_match = False
+                        break
+                    if i >= 1 and g_instruction_store[idx+i]['PC'] in g_symbolsValue2Name:
+                        possible_match = False
+                        break
+
+                if possible_match == False:
+                    continue
 
                 #track context between instructions and replacements here
                 ctx = dict()
+                #how many instructions must be matched for the replacement to take place
+                to_match = len(matcher)
+
                 for i in range(len(matcher)):
                     if check_instruction_match( matcher[ i ], g_instruction_store[ idx + i ], ctx ):
                         to_match -= 1
@@ -1578,7 +1767,11 @@ def instructions_disassembly(words):
         # Jump
         elif ((high >> 4) & 0b_0000_1111) == 0b_1000:
             offset = signed12( ((high & 0b_0000_1111) << 8) + low ) # Offset is signed !
-            store_instruction( [word1], 'Jmp', [ ( ADDR24, g_PC+1+offset) ], None )
+            comment = None
+            if -10 <= offset <= 10:
+                comment = f"{offset} lines from here"
+
+            store_instruction( [word1], 'Jmp', [ ( ADDR24, g_PC+1+offset) ], comment )
         # Jump Condition
         elif ((high >> 4) & 0b_0000_1111) == 0b_1001:
             cond = high & 0b_0000_1111
@@ -1827,7 +2020,13 @@ def instructions_disassembly(words):
 
             abs_addr_low = word2
             abs_addr = (abs_addr_high << 16) | abs_addr_low
-            store_instruction( [ word1, word2], 'Jmpff', [ ( ADDR24, abs_addr ) ], None )
+
+            offset = abs_addr - g_PC
+            comment = None
+            if -10 <= offset <= 10:
+                comment = f"{offset} lines from here"
+
+            store_instruction( [ word1, word2], 'Jmpff', [ ( ADDR24, abs_addr ) ], comment )
             pointer_move(2)
         # Do0   FIXME No operation documentation??? Should fail ???
         elif high == 0b_1111_1100 and (low & 0b_1100_0000) >> 6 == 0b_00:
@@ -1923,7 +2122,9 @@ def extract_prologue_info( r_PC, idx ):
 
     g_calls[r_PC]['prologue_type'] = prologue_type
     g_calls[r_PC]['prologue_pars'] = prologue_pars
-    g_calls[r_PC]['prologue_locals'] = ", ".join(f"DM[0x{value:03x}]={reg}" for value, reg in sorted(locals.items()))
+
+    if locals:
+        g_calls[r_PC]['prologue_locals'] = ", ".join(f"DM[0x{value:03x}]={reg}" for value, reg in sorted(locals.items()))
 
 def extract_epilogue_info( PC_last_start, idx ):
     epilogue_type = "unknown";
@@ -1982,6 +2183,8 @@ def instructions_printer():
                         pop_pars = int(match.group(1))
                 elif mnem=='Pop':
                     pop_pars = 1
+                elif mnem=='@Pop9Words':
+                    pop_pars = 9
 
             if next2 is not None:
                 mnem = next2['mnemonic']
@@ -2003,5 +2206,10 @@ def instructions_printer():
 
 # === Entry point ===
 
+measure_start = time.perf_counter()
 filename = sys.argv[1] if len(sys.argv) > 1 else "mapfile.def"
 mapfile_parse( filename )
+measure_end = time.perf_counter()
+measure_delta = measure_end - measure_start
+print( f"elapsed time: {measure_delta:.1f}s" )
+

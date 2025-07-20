@@ -1554,6 +1554,26 @@ table_instruction_mutations = [
 	'from': [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x56 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0 },
+		{ 'mnemonic': 'Callff', 'param1t': ADDR24, 'param1v': 0xc1c },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(huge_object)_and_store_fnptr_to_local_0', 'param1': ( IMM8, 0x56 ), 'param2': None, 'comment': 'mp3_is_play' }
+     },
+
+     {
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x58 },
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
@@ -1566,6 +1586,42 @@ table_instruction_mutations = [
 		{ 'mnemonic': 'Retff' }
 	],
 	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x58 ), 'param2': None, 'comment': 'mp3_is_pause' }
+     },
+
+     {
+	#Ix0 = ptr_to_huge_object (0x3d6a)
+	#X1 = RAM[Ix0]
+	#Y1 = 0x5c   #"\"
+	#R0 = X1 + Y1
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Y1 = 0x00
+	#Callff naked_local(Y1,Y1+1)=R0R1 (0x000c1c)
+	#Push some_indirectly_called_function_400209
+	#Push R0
+	#Push R1
+	#Ix1 = 0x01
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x5c },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0 },
+		{ 'mnemonic': 'Callff', 'param1t': ADDR24, 'param1v': 0xc1c },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x1 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(huge_object)_and_store_fnptr_to_local_0', 'param1': ( IMM8, 0x5c ), 'param2': None, 'comment': 'Play_sound_from_2bin_table_stk(sound_num)' }
+
      }
 
 ]

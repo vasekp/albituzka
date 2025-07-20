@@ -498,58 +498,572 @@ asm 0x3d76
 word 4096x	comment:unpartitioned1
 
 # map_id = 00 through 6f, location is in file after multiplying by 4.
-# Four values for each map_id, determined by int_format; the relevant one for BNL is the last.
+# Four values for each map_id, determined by int_format; the relevant one for ALB is the last.
 word 1x	comment:00/00-01	sym:tbl_map_id_to_location
 word 1x	comment:00/02
 word 1x	comment:00/03
-word 1x	comment:00/04 BNL
+word 1x	comment:00/04 ALB 0x00 -> 0x01 -> 0x04 -> ptr OID table
 
 word 1x	comment:01/00-01
 word 1x	comment:01/02
 word 1x	comment:01/03
-word 1x	comment:01/04 BNL
+word 1x	comment:01/04 ALB 0x01 -> 0x02 -> 0x08 -> ptr MP3 table
 
 word 1x	comment:02/00-01
 word 1x	comment:02/02
 word 1x	comment:02/03
-word 1x	comment:02/04 BNL
+word 1x	comment:02/04 ALB ----
 
 word 1x	comment:03/00-01
 word 1x	comment:03/02
 word 1x	comment:03/03
-word 1x	comment:03/04 BNL
+word 1x	comment:03/04 ALB ----
 
 word 1x	comment:04/00-01
 word 1x	comment:04/02
 word 1x	comment:04/03
-word 1x	comment:04/04 BNL
+word 1x	comment:04/04 ALB 0x04 -> 0x03 -> 0x0C -> ptr soundtbl Start button first
 
 word 1x	comment:05/00-01
 word 1x	comment:05/02
 word 1x	comment:05/03
-word 1x	comment:05/04 BNL
+word 1x	comment:05/04 ALB 0x05 -> 0x04 -> 0x10 -> ptr soundtbl Start button second
 
 word 1x	comment:06/00-01
 word 1x	comment:06/02
 word 1x	comment:06/03
-word 1x	comment:06/04 BNL
+word 1x	comment:06/04 ALB 0x06 -> 0x05 -> 0x14 -> ptr soundtbl book close
 
 word 1x	comment:07/00-01
 word 1x	comment:07/02
 word 1x	comment:07/03
-word 1x	comment:07/04 BNL
+word 1x	comment:07/04 ALB 0x07 -> 0x06 -> 0x18 -> offset table base
 
 word 1x	comment:08/00-01
 word 1x	comment:08/02
 word 1x	comment:08/03
-word 1x	comment:08/04 BNL
+word 1x	comment:08/04 ALB 0x08 -> 0x07 -> 0x1c -> number of media files
 
 word 1x	comment:09/00-01
 word 1x	comment:09/02
 word 1x	comment:09/03
-word 1x	comment:09/04 BNL
+word 1x	comment:09/04 ALB 0x09 -> 0x08 -> 0x20 -> ptr soundtbl unk
 
-word 408x	
+word 1x	comment:0a/00-01
+word 1x	comment:0a/02
+word 1x	comment:0a/03
+word 1x	comment:0a/04 ALB 0x0a -> 0x09 -> 0x24 -> ptr soundtbl mode change
+
+word 1x	comment:0b/00-01
+word 1x	comment:0b/02
+word 1x	comment:0b/03
+word 1x	comment:0b/04 ALB 0x0b -> 0x0a -> 0x28 -> ???
+
+word 1x	comment:0c/00-01
+word 1x	comment:0c/02
+word 1x	comment:0c/03
+word 1x	comment:0c/04 ALB 0x0c -> 0x0b -> 0x2c -> book_modes
+
+word 1x	comment:0d/00-01
+word 1x	comment:0d/02
+word 1x	comment:0d/03
+word 1x	comment:0d/04 ALB ----
+
+word 1x	comment:0e/00-01
+word 1x	comment:0e/02
+word 1x	comment:0e/03
+word 1x	comment:0e/04 ALB 0x0e -> 0x19 -> 0x64 -> ptr soundtbl unk
+
+word 1x	comment:0f/00-01
+word 1x	comment:0f/02
+word 1x	comment:0f/03
+word 1x	comment:0f/04 ALB 0x0f -> 0x26 -> 0x98 -> ptr soundtbl unk
+
+
+
+word 1x	comment:10/00-01
+word 1x	comment:10/02
+word 1x	comment:10/03
+word 1x	comment:10/04 ALB ----
+
+word 1x	comment:11/00-01
+word 1x	comment:11/02
+word 1x	comment:11/03
+word 1x	comment:11/04 ALB ----
+
+word 1x	comment:12/00-01
+word 1x	comment:12/02
+word 1x	comment:12/03
+word 1x	comment:12/04 ALB ----
+
+word 1x	comment:13/00-01
+word 1x	comment:13/02
+word 1x	comment:13/03
+word 1x	comment:13/04 ALB ----
+
+word 1x	comment:14/00-01
+word 1x	comment:14/02
+word 1x	comment:14/03
+word 1x	comment:14/04 ALB ----
+
+word 1x	comment:15/00-01
+word 1x	comment:15/02
+word 1x	comment:15/03
+word 1x	comment:15/04 ALB ----
+
+word 1x	comment:16/00-01
+word 1x	comment:16/02
+word 1x	comment:16/03
+word 1x	comment:16/04 ALB ----
+
+word 1x	comment:17/00-01
+word 1x	comment:17/02
+word 1x	comment:17/03
+word 1x	comment:17/04 ALB ----
+
+word 1x	comment:18/00-01
+word 1x	comment:18/02
+word 1x	comment:18/03
+word 1x	comment:18/04 ALB ----
+
+word 1x	comment:19/00-01
+word 1x	comment:19/02
+word 1x	comment:19/03
+word 1x	comment:19/04 ALB ----
+
+word 1x	comment:1a/00-01
+word 1x	comment:1a/02
+word 1x	comment:1a/03
+word 1x	comment:1a/04 ALB ----
+
+word 1x	comment:1b/00-01
+word 1x	comment:1b/02
+word 1x	comment:1b/03
+word 1x	comment:1b/04 ALB ----
+
+word 1x	comment:1c/00-01
+word 1x	comment:1c/02
+word 1x	comment:1c/03
+word 1x	comment:1c/04 ALB ----
+
+word 1x	comment:1d/00-01
+word 1x	comment:1d/02
+word 1x	comment:1d/03
+word 1x	comment:1d/04 ALB ----
+
+word 1x	comment:1e/00-01
+word 1x	comment:1e/02
+word 1x	comment:1e/03
+word 1x	comment:1e/04 ALB ----
+
+word 1x	comment:1f/00-01
+word 1x	comment:1f/02
+word 1x	comment:1f/03
+word 1x	comment:1f/04 ALB ----
+
+word 1x	comment:20/00-01
+word 1x	comment:20/02
+word 1x	comment:20/03
+word 1x	comment:20/04 ALB 0x20 -> 0x20 -> 0x80 -> ptr soundtbl unk
+
+word 1x	comment:21/00-01
+word 1x	comment:21/02
+word 1x	comment:21/03
+word 1x	comment:21/04 ALB 0x21 -> 0x21 -> 0x84 -> ptr soundtbl unk
+
+word 1x	comment:22/00-01
+word 1x	comment:22/02
+word 1x	comment:22/03
+word 1x	comment:22/04 ALB 0x22 -> 0x1e -> 0x78 -> ptr soundtbl unk
+
+word 1x	comment:23/00-01
+word 1x	comment:23/02
+word 1x	comment:23/03
+word 1x	comment:23/04 ALB 0x23 -> 0x18 -> 0x60 -> ptr soundtbl unk
+
+word 1x	comment:24/00-01
+word 1x	comment:24/02
+word 1x	comment:24/03
+word 1x	comment:24/04 ALB ----
+
+word 1x	comment:25/00-01
+word 1x	comment:25/02
+word 1x	comment:25/03
+word 1x	comment:25/04 ALB ----
+
+word 1x	comment:26/00-01
+word 1x	comment:26/02
+word 1x	comment:26/03
+word 1x	comment:26/04 ALB 0x26 -> 0x25 -> 0x94 -> ptr soundtbl unk
+
+word 1x	comment:27/00-01
+word 1x	comment:27/02
+word 1x	comment:27/03
+word 1x	comment:27/04 ALB ----
+
+word 1x	comment:28/00-01
+word 1x	comment:28/02
+word 1x	comment:28/03
+word 1x	comment:28/04 ALB 0x28 -> 0x11 -> 0x44 -> ptr quiz tbl
+
+word 1x	comment:29/00-01
+word 1x	comment:29/02
+word 1x	comment:29/03
+word 1x	comment:29/04 ALB 0x29 -> 0x12 -> 0x48 -> ptr oidtbl good reply1
+
+word 1x	comment:2a/00-01
+word 1x	comment:2a/02
+word 1x	comment:2a/03
+word 1x	comment:2a/04 ALB 0x2a -> 0x13 -> 0x4c -> ptr oidtbl good reply2
+
+word 1x	comment:2b/00-01
+word 1x	comment:2b/02
+word 1x	comment:2b/03
+word 1x	comment:2b/04 ALB 0x2b -> 0x14 -> 0x50 -> ptr oidtbl bad reply1
+
+word 1x	comment:2c/00-01
+word 1x	comment:2c/02
+word 1x	comment:2c/03
+word 1x	comment:2c/04 ALB 0x2c -> 0x15 -> 0x54 -> ptr oidtbl bad reply2
+
+word 1x	comment:2d/00-01
+word 1x	comment:2d/02
+word 1x	comment:2d/03
+word 1x	comment:2d/04 ALB 0x2d -> 0x16 -> 0x58 -> ptr oidtbl unk
+
+word 1x	comment:2e/00-01
+word 1x	comment:2e/02
+word 1x	comment:2e/03
+word 1x	comment:2e/04 ALB ----
+
+word 1x	comment:2f/00-01
+word 1x	comment:2f/02
+word 1x	comment:2f/03
+word 1x	comment:2f/04 ALB 0x2f -> 0x17 -> 0x5c -> book id
+
+
+word 1x	comment:30/00-01
+word 1x	comment:30/02
+word 1x	comment:30/03
+word 1x	comment:30/04 ALB ----
+
+word 1x	comment:31/00-01
+word 1x	comment:31/02
+word 1x	comment:31/03
+word 1x	comment:31/04 ALB ----
+
+word 1x	comment:32/00-01
+word 1x	comment:32/02
+word 1x	comment:32/03
+word 1x	comment:32/04 ALB ----
+
+word 1x	comment:33/00-01
+word 1x	comment:33/02
+word 1x	comment:33/03
+word 1x	comment:33/04 ALB ----
+
+word 1x	comment:34/00-01
+word 1x	comment:34/02
+word 1x	comment:34/03
+word 1x	comment:34/04 ALB ----
+
+word 1x	comment:35/00-01
+word 1x	comment:35/02
+word 1x	comment:35/03
+word 1x	comment:35/04 ALB ----
+
+word 1x	comment:36/00-01
+word 1x	comment:36/02
+word 1x	comment:36/03
+word 1x	comment:36/04 ALB ----
+
+word 1x	comment:37/00-01
+word 1x	comment:37/02
+word 1x	comment:37/03
+word 1x	comment:37/04 ALB ----
+
+word 1x	comment:38/00-01
+word 1x	comment:38/02
+word 1x	comment:38/03
+word 1x	comment:38/04 ALB ----
+
+word 1x	comment:39/00-01
+word 1x	comment:39/02
+word 1x	comment:39/03
+word 1x	comment:39/04 ALB ----
+
+word 1x	comment:3a/00-01
+word 1x	comment:3a/02
+word 1x	comment:3a/03
+word 1x	comment:3a/04 ALB ----
+
+word 1x	comment:3b/00-01
+word 1x	comment:3b/02
+word 1x	comment:3b/03
+word 1x	comment:3b/04 ALB ----
+
+word 1x	comment:3c/00-01
+word 1x	comment:3c/02
+word 1x	comment:3c/03
+word 1x	comment:3c/04 ALB ----
+
+word 1x	comment:3d/00-01
+word 1x	comment:3d/02
+word 1x	comment:3d/03
+word 1x	comment:3d/04 ALB ----
+
+word 1x	comment:3e/00-01
+word 1x	comment:3e/02
+word 1x	comment:3e/03
+word 1x	comment:3e/04 ALB ----
+
+word 1x	comment:3f/00-01
+word 1x	comment:3f/02
+word 1x	comment:3f/03
+word 1x	comment:3f/04 ALB ----
+
+
+word 1x	comment:40/00-01
+word 1x	comment:40/02
+word 1x	comment:40/03
+word 1x	comment:40/04 ALB ----
+
+word 1x	comment:41/00-01
+word 1x	comment:41/02
+word 1x	comment:41/03
+word 1x	comment:41/04 ALB ----
+
+word 1x	comment:42/00-01
+word 1x	comment:42/02
+word 1x	comment:42/03
+word 1x	comment:42/04 ALB ----
+
+word 1x	comment:43/00-01
+word 1x	comment:43/02
+word 1x	comment:43/03
+word 1x	comment:43/04 ALB ----
+
+word 1x	comment:44/00-01
+word 1x	comment:44/02
+word 1x	comment:44/03
+word 1x	comment:44/04 ALB ----
+
+word 1x	comment:45/00-01
+word 1x	comment:45/02
+word 1x	comment:45/03
+word 1x	comment:45/04 ALB ----
+
+word 1x	comment:46/00-01
+word 1x	comment:46/02
+word 1x	comment:46/03
+word 1x	comment:46/04 ALB ----
+
+word 1x	comment:47/00-01
+word 1x	comment:47/02
+word 1x	comment:47/03
+word 1x	comment:47/04 ALB ----
+
+word 1x	comment:48/00-01
+word 1x	comment:48/02
+word 1x	comment:48/03
+word 1x	comment:48/04 ALB ----
+
+word 1x	comment:49/00-01
+word 1x	comment:49/02
+word 1x	comment:49/03
+word 1x	comment:49/04 ALB ----
+
+word 1x	comment:4a/00-01
+word 1x	comment:4a/02
+word 1x	comment:4a/03
+word 1x	comment:4a/04 ALB 0x4a -> 0x27 -> 0x9c -> ptr oidtbl unk
+
+word 1x	comment:4b/00-01
+word 1x	comment:4b/02
+word 1x	comment:4b/03
+word 1x	comment:4b/04 ALB 0x4b -> 0x28 -> 0xa0 -> ptr oidtbl unk
+
+word 1x	comment:4c/00-01
+word 1x	comment:4c/02
+word 1x	comment:4c/03
+word 1x	comment:4c/04 ALB 0x4c -> 0x29 -> 0xa4 -> ptr oidtbl unk
+
+word 1x	comment:4d/00-01
+word 1x	comment:4d/02
+word 1x	comment:4d/03
+word 1x	comment:4d/04 ALB 0x4d -> 0x2a -> 0xa8 -> ptr oidtbl quiz results
+
+word 1x	comment:4e/00-01
+word 1x	comment:4e/02
+word 1x	comment:4e/03
+word 1x	comment:4e/04 ALB 0x4e -> 0x00 -> 0x00 -> header key
+
+word 1x	comment:4f/00-01
+word 1x	comment:4f/02
+word 1x	comment:4f/03
+word 1x	comment:4f/04 ALB ----
+
+
+word 1x	comment:50/00-01
+word 1x	comment:50/02
+word 1x	comment:50/03
+word 1x	comment:50/04 ALB ----
+
+word 1x	comment:51/00-01
+word 1x	comment:51/02
+word 1x	comment:51/03
+word 1x	comment:51/04 ALB ----
+
+word 1x	comment:52/00-01
+word 1x	comment:52/02
+word 1x	comment:52/03
+word 1x	comment:52/04 ALB ----
+
+word 1x	comment:53/00-01
+word 1x	comment:53/02
+word 1x	comment:53/03
+word 1x	comment:53/04 ALB ----
+
+word 1x	comment:54/00-01
+word 1x	comment:54/02
+word 1x	comment:54/03
+word 1x	comment:54/04 ALB ----
+
+word 1x	comment:55/00-01
+word 1x	comment:55/02
+word 1x	comment:55/03
+word 1x	comment:55/04 ALB ----
+
+word 1x	comment:56/00-01
+word 1x	comment:56/02
+word 1x	comment:56/03
+word 1x	comment:56/04 ALB ----
+
+word 1x	comment:57/00-01
+word 1x	comment:57/02
+word 1x	comment:57/03
+word 1x	comment:57/04 ALB 0x57 -> 0x19 -> 0x64 -> ptr soundtbl unk
+
+word 1x	comment:58/00-01
+word 1x	comment:58/02
+word 1x	comment:58/03
+word 1x	comment:58/04 ALB 0x58 -> 0x50 -> 0x140 -> prekey
+
+word 1x	comment:59/00-01
+word 1x	comment:59/02
+word 1x	comment:59/03
+word 1x	comment:59/04 ALB ----
+
+word 1x	comment:5a/00-01
+word 1x	comment:5a/02
+word 1x	comment:5a/03
+word 1x	comment:5a/04 ALB ----
+
+word 1x	comment:5b/00-01
+word 1x	comment:5b/02
+word 1x	comment:5b/03
+word 1x	comment:5b/04 ALB ----
+
+word 1x	comment:5c/00-01
+word 1x	comment:5c/02
+word 1x	comment:5c/03
+word 1x	comment:5c/04 ALB ----
+
+word 1x	comment:5d/00-01
+word 1x	comment:5d/02
+word 1x	comment:5d/03
+word 1x	comment:5d/04 ALB 0x5d -> 0x19 -> 0x64 -> ptr soundtbl unk
+
+word 1x	comment:5e/00-01
+word 1x	comment:5e/02
+word 1x	comment:5e/03
+word 1x	comment:5e/04 ALB ----
+
+word 1x	comment:5f/00-01
+word 1x	comment:5f/02
+word 1x	comment:5f/03
+word 1x	comment:5f/04 ALB ----
+
+
+word 1x	comment:60/00-01
+word 1x	comment:60/02
+word 1x	comment:60/03
+word 1x	comment:60/04 ALB ----
+
+word 1x	comment:61/00-01
+word 1x	comment:61/02
+word 1x	comment:61/03
+word 1x	comment:61/04 ALB ----
+
+word 1x	comment:62/00-01
+word 1x	comment:62/02
+word 1x	comment:62/03
+word 1x	comment:62/04 ALB ----
+
+word 1x	comment:63/00-01
+word 1x	comment:63/02
+word 1x	comment:63/03
+word 1x	comment:63/04 ALB ----
+
+word 1x	comment:64/00-01
+word 1x	comment:64/02
+word 1x	comment:64/03
+word 1x	comment:64/04 ALB ----
+
+word 1x	comment:65/00-01
+word 1x	comment:65/02
+word 1x	comment:65/03
+word 1x	comment:65/04 ALB ----
+
+word 1x	comment:66/00-01
+word 1x	comment:66/02
+word 1x	comment:66/03
+word 1x	comment:66/04 ALB ----
+
+word 1x	comment:67/00-01
+word 1x	comment:67/02
+word 1x	comment:67/03
+word 1x	comment:67/04 ALB ----
+
+word 1x	comment:68/00-01
+word 1x	comment:68/02
+word 1x	comment:68/03
+word 1x	comment:68/04 ALB ----
+
+word 1x	comment:69/00-01
+word 1x	comment:69/02
+word 1x	comment:69/03
+word 1x	comment:69/04 ALB ----
+
+word 1x	comment:6a/00-01
+word 1x	comment:6a/02
+word 1x	comment:6a/03
+word 1x	comment:6a/04 ALB ----
+
+word 1x	comment:6b/00-01
+word 1x	comment:6b/02
+word 1x	comment:6b/03
+word 1x	comment:6b/04 ALB ----
+
+word 1x	comment:6c/00-01
+word 1x	comment:6c/02
+word 1x	comment:6c/03
+word 1x	comment:6c/04 ALB ----
+
+word 1x	comment:6d/00-01
+word 1x	comment:6d/02
+word 1x	comment:6d/03
+word 1x	comment:6d/04 ALB ----
+
+word 1x	comment:6e/00-01
+word 1x	comment:6e/02
+word 1x	comment:6e/03
+word 1x	comment:6e/04 ALB ----
+
+word 1x	comment:6f/00-01
+word 1x	comment:6f/02
+word 1x	comment:6f/03
+word 1x	comment:6f/04 ALB ----
 
 word 22x	comment:unpartitioned2
 word 234x	comment:unpartitioned3
@@ -606,7 +1120,7 @@ word 16x
 
 word 58x	symbol:tbl_offsets_to_3bin_mp3tbl2
 word 47x	symbol:tbl_offsets_to_3bin_unknown_place
-word 78x	comment:unpartitioned5
+word 78x	symbol:tbl_num_to_3bin_string
 word 17x	sym:tbl_dac_volume_values
 word 60x	comment:unpartitioned6
 
@@ -993,6 +1507,7 @@ skip 0x2bf5e
 	0x423b68	addr 400054 is pointer to 3bin
 	0x424564	addr 400054 is pointer to 3bin
 	0x424a7f	addr 400054 is pointer to 3bin
+	0x41e8f2	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
 
 0x427005	ReadWordFrom3bin+dwPtr_stk(dwPtr)_return_in_R0
 	0x423acf	3bin ptr 0x030344 2BD0
@@ -1004,6 +1519,22 @@ skip 0x2bf5e
 	0x426f8d	if over 0xc8, translate with tbl_offsets_to_3bin_mp3tbl2 table and play from 3bin_mp3table2
 	0x426fa9	if under 0xc8, translate with tbl_offsets_to_3bin_unknown_place and play from 3bin_unknown_place
 	0x426fab	tbl_offsets_to_3bin_unknown_place
+	0x40cd3b	tbl_num_to_3bin_string
+	0x40cdc5	tbl_num_to_3bin_string
+	0x40ce35	tbl_num_to_3bin_string
+	0x40cea1	tbl_num_to_3bin_string
+	0x40d331	tbl_num_to_3bin_string
+	0x40d3bb	tbl_num_to_3bin_string
+	0x40d42b	tbl_num_to_3bin_string
+	0x40d497	tbl_num_to_3bin_string
+	0x40ddef	tbl_num_to_3bin_string
+	0x40de54	tbl_num_to_3bin_string
+	0x40deb9	tbl_num_to_3bin_string
+	0x40df16	tbl_num_to_3bin_string
+	0x40e1c8	tbl_num_to_3bin_string
+	0x40e218	tbl_num_to_3bin_string
+	0x40e497	tbl_num_to_3bin_string
+
 
 	0x4244bd	3bin ptr 0x030348 3b70
 	0x4244c9	3bin ptr 0x03034a 000a
@@ -1183,7 +1714,9 @@ skip 0x2bf5e
 0x42660a	naked_looking_for_some_ADC_input_return_bool_in_R0?
 0x427e07	set_huge_object[0xc]_to_stk(wNum)_safely_return_bool_in_R0
 
-
+	0x41e932	Play_sound_from_2bin_table_stk(sound_num)
+	0x427740	tbl_dac_volume_values
+	0x4278f0	tbl_dac_volume_values
 
 0x3680	file_dirhandle_unk1
 0x3681	file_dirhandle_unk2_dw
@@ -1232,7 +1765,7 @@ skip 0x2bf5e
 #3d0b[4e] = 428365 (just retff)
 #3d0b[50] = 428365 (just retff) -> lib_fgetw
 #3d0b[52] = 428365 (just retff) -> lib_fgetdw
-#3d0b[54] = 428365 (just retff) -> 0x425919
+#3d0b[54] = 428365 (just retff) -> probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
 #3d0b[56] = 428365 (just retff) -> MP3_GetStatus_is_PLAY
 #3d0b[58] = 428365 (just retff) -> MP3_GetStatus_is_PAUSE
 #3d0b[5a] = 428365 (just retff) -> 0x427fbe
@@ -1321,7 +1854,7 @@ skip 0x2bf5e
 0x0045e1	determine_int_format_in_memory(ptr)
 0x006553	ptr_encrypt(ptr,bytekey1,bytekey2,dwkey,loc)
 0x006859	bytewise_xor2keys(key1,key2,dword)
-0x006dc0	ptr_map(map_id)
+0x006dc0	map_id2ptr_stk(map_id)_ptr_in_R0
 0x410000	quiz_state_react(oid)
 0x417277	read_quiz(quiz_index)
 0x418f6e	load_question_types_4,5,6,8,9,a,10,11()
@@ -1518,11 +2051,11 @@ skip 0x2bf5e
 0x429e9a	dbgstring_pFilePath=%s
 0x429eae	dbgstring_TxtNum:%d
 
-0x4100dd	some_indirectly_called_function_4100dd
 #0x400184	some_indirectly_called_function_400184
-0x400209	some_indirectly_called_function_400209
-0x41140c	some_indirectly_called_function_41140c
-0x411556	some_indirectly_called_function_411556
+#0x400209	some_indirectly_called_function_400209
+#0x4100dd	some_indirectly_called_function_4100dd
+#0x41140c	some_indirectly_called_function_41140c
+#0x411556	some_indirectly_called_function_411556
 0x4172a9	some_indirectly_called_function_4172a9
 0x4172c2	some_indirectly_called_function_4172c2
 0x417319	some_indirectly_called_function_417319
@@ -1601,26 +2134,26 @@ skip 0x2bf5e
 0x41956e	some_indirectly_called_function_41956e
 0x4195c9	some_indirectly_called_function_4195c9
 0x4195e2	some_indirectly_called_function_4195e2
-0x419648	some_indirectly_called_function_419648
-0x419662	some_indirectly_called_function_419662
-0x419683	some_indirectly_called_function_419683
-0x41969b	some_indirectly_called_function_41969b
-0x4196df	some_indirectly_called_function_4196df
-0x4196f7	some_indirectly_called_function_4196f7
-0x419752	some_indirectly_called_function_419752
-0x41976c	some_indirectly_called_function_41976c
-0x41978d	some_indirectly_called_function_41978d
-0x4197a5	some_indirectly_called_function_4197a5
-0x4197ee	some_indirectly_called_function_4197ee
-0x419806	some_indirectly_called_function_419806
-0x419866	some_indirectly_called_function_419866
-0x41987e	some_indirectly_called_function_41987e
-0x4198c2	some_indirectly_called_function_4198c2
-0x4198da	some_indirectly_called_function_4198da
-0x419a76	some_indirectly_called_function_419a76
-0x419a8e	some_indirectly_called_function_419a8e
-0x419ad4	some_indirectly_called_function_419ad4
-0x419aec	some_indirectly_called_function_419aec
+#0x419648	some_indirectly_called_function_419648
+#0x419662	some_indirectly_called_function_419662
+#0x419683	some_indirectly_called_function_419683
+#0x41969b	some_indirectly_called_function_41969b
+#0x4196df	some_indirectly_called_function_4196df
+#0x4196f7	some_indirectly_called_function_4196f7
+#0x419752	some_indirectly_called_function_419752
+#0x41976c	some_indirectly_called_function_41976c
+#0x41978d	some_indirectly_called_function_41978d
+#0x4197a5	some_indirectly_called_function_4197a5
+#0x4197ee	some_indirectly_called_function_4197ee
+#0x419806	some_indirectly_called_function_419806
+#0x419866	some_indirectly_called_function_419866
+#0x41987e	some_indirectly_called_function_41987e
+#0x4198c2	some_indirectly_called_function_4198c2
+#0x4198da	some_indirectly_called_function_4198da
+#0x419a76	some_indirectly_called_function_419a76
+#0x419a8e	some_indirectly_called_function_419a8e
+#0x419ad4	some_indirectly_called_function_419ad4
+#0x419aec	some_indirectly_called_function_419aec
 0x41b3aa	some_indirectly_called_function_41b3aa
 0x41b3c3	some_indirectly_called_function_41b3c3
 0x41b3dc	some_indirectly_called_function_41b3dc
@@ -1643,18 +2176,18 @@ skip 0x2bf5e
 0x41b796	some_indirectly_called_function_41b796
 0x41b7f1	some_indirectly_called_function_41b7f1
 0x41b80a	some_indirectly_called_function_41b80a
-0x41b868	some_indirectly_called_function_41b868
-0x41b880	some_indirectly_called_function_41b880
-0x41b8a6	some_indirectly_called_function_41b8a6
-0x41b8be	some_indirectly_called_function_41b8be
-0x41b93c	some_indirectly_called_function_41b93c
-0x41b954	some_indirectly_called_function_41b954
-0x41ba1b	some_indirectly_called_function_41ba1b
-0x41ba6f	some_indirectly_called_function_41ba6f
-0x41bac3	some_indirectly_called_function_41bac3
-0x41bb17	some_indirectly_called_function_41bb17
-0x41bc28	some_indirectly_called_function_41bc28
-0x41bc40	some_indirectly_called_function_41bc40
+#0x41b868	some_indirectly_called_function_41b868
+#0x41b880	some_indirectly_called_function_41b880
+#0x41b8a6	some_indirectly_called_function_41b8a6
+#0x41b8be	some_indirectly_called_function_41b8be
+#0x41b93c	some_indirectly_called_function_41b93c
+#0x41b954	some_indirectly_called_function_41b954
+#0x41ba1b	some_indirectly_called_function_41ba1b
+#0x41ba6f	some_indirectly_called_function_41ba6f
+#0x41bac3	some_indirectly_called_function_41bac3
+#0x41bb17	some_indirectly_called_function_41bb17
+#0x41bc28	some_indirectly_called_function_41bc28
+#0x41bc40	some_indirectly_called_function_41bc40
 0x41bcaf	some_indirectly_called_function_41bcaf
 0x41bcc8	some_indirectly_called_function_41bcc8
 0x41bd27	some_indirectly_called_function_41bd27
@@ -1671,7 +2204,7 @@ skip 0x2bf5e
 0x41bf9e	some_indirectly_called_function_41bf9e
 0x41bfe9	some_indirectly_called_function_41bfe9
 0x41c002	some_indirectly_called_function_41c002
-0x41d7a4	some_indirectly_called_function_41d7a4
+#0x41d7a4	some_indirectly_called_function_41d7a4
 0x28bfb6	some_indirectly_called_function_28bfb6
 0x41f1aa	some_indirectly_called_function_41f1aa
 0x41f1c5	some_indirectly_called_function_41f1c5
@@ -1686,15 +2219,15 @@ skip 0x2bf5e
 0x41f7d2	some_indirectly_called_function_41f7d2
 0x41f7eb	some_indirectly_called_function_41f7eb
 0x41f844	some_indirectly_called_function_41f844
-0x41fd27	some_indirectly_called_function_41fd27
-0x41fd3f	some_indirectly_called_function_41fd3f
-0x41fd99	some_indirectly_called_function_41fd99
-0x41fdb1	some_indirectly_called_function_41fdb1
-0x41fde4	some_indirectly_called_function_41fde4
-0x41fe06	some_indirectly_called_function_41fe06
+#0x41fd27	some_indirectly_called_function_41fd27
+#0x41fd3f	some_indirectly_called_function_41fd3f
+#0x41fd99	some_indirectly_called_function_41fd99
+#0x41fdb1	some_indirectly_called_function_41fdb1
+#0x41fde4	some_indirectly_called_function_41fde4
+#0x41fe06	some_indirectly_called_function_41fe06
 0x41fe34	some_indirectly_called_function_41fe34
-0x41fe66	some_indirectly_called_function_41fe66
-0x41fe88	some_indirectly_called_function_41fe88
+#0x41fe66	some_indirectly_called_function_41fe66
+#0x41fe88	some_indirectly_called_function_41fe88
 0x41fea9	some_indirectly_called_function_41fea9
 0x420c97	some_indirectly_called_function_420c97
 0x420cb0	some_indirectly_called_function_420cb0
@@ -1725,18 +2258,18 @@ skip 0x2bf5e
 0x42183e	some_indirectly_called_function_42183e
 0x4218af	some_indirectly_called_function_4218af
 0x4218d9	some_indirectly_called_function_4218d9
-0x421bb3	some_indirectly_called_function_421bb3 
-0x421bcd	some_indirectly_called_function_421bcd
-0x421bf4	some_indirectly_called_function_421bf4
-0x421c0c	some_indirectly_called_function_421c0c
-0x421c76	some_indirectly_called_function_421c76
-0x421c8e	some_indirectly_called_function_421c8e
-0x421e36	some_indirectly_called_function_421e36
-0x421e50	some_indirectly_called_function_421e50
-0x421e77	some_indirectly_called_function_421e77
-0x421e8f	some_indirectly_called_function_421e8f
-0x421ef9	some_indirectly_called_function_421ef9
-0x421f11	some_indirectly_called_function_421f11
+#0x421bb3	some_indirectly_called_function_421bb3 
+#0x421bcd	some_indirectly_called_function_421bcd
+#0x421bf4	some_indirectly_called_function_421bf4
+#0x421c0c	some_indirectly_called_function_421c0c
+#0x421c76	some_indirectly_called_function_421c76
+#0x421c8e	some_indirectly_called_function_421c8e
+#0x421e36	some_indirectly_called_function_421e36
+#0x421e50	some_indirectly_called_function_421e50
+#0x421e77	some_indirectly_called_function_421e77
+#0x421e8f	some_indirectly_called_function_421e8f
+#0x421ef9	some_indirectly_called_function_421ef9
+#0x421f11	some_indirectly_called_function_421f11
 0x4220aa	some_indirectly_called_function_4220aa
 0x4220c3	some_indirectly_called_function_4220c3
 0x42212f	some_indirectly_called_function_42212f
@@ -1745,11 +2278,11 @@ skip 0x2bf5e
 0x42219e	some_indirectly_called_function_42219e
 0x422993	some_indirectly_called_function_422993
 0x4229ac	some_indirectly_called_function_4229ac
-0x422da4	some_indirectly_called_function_422da4
-0x422dbc	some_indirectly_called_function_422dbc
-0x422e12	some_indirectly_called_function_422e12
-0x422e2c	some_indirectly_called_function_422e2c
-0x422e56	some_indirectly_called_function_422e56
+#0x422da4	some_indirectly_called_function_422da4
+#0x422dbc	some_indirectly_called_function_422dbc
+#0x422e12	some_indirectly_called_function_422e12
+#0x422e2c	some_indirectly_called_function_422e2c
+#0x422e56	some_indirectly_called_function_422e56
 0x423a0a	some_indirectly_called_function_423a0a
 0x423a81	some_indirectly_called_function_423a81
 0x423d96	some_indirectly_called_function_423d96
@@ -1767,13 +2300,13 @@ skip 0x2bf5e
 0x424845	some_indirectly_called_function_424845
 0x424e60	some_indirectly_called_function_424e60
 0x424e79	some_indirectly_called_function_424e79
-0x4253fe	some_indirectly_called_function_4253fe
+#0x4253fe	some_indirectly_called_function_4253fe
 0x4255df	some_indirectly_called_function_4255df
 0x4259c2	some_indirectly_called_function_4259c2
 0x4259db	some_indirectly_called_function_4259db
 0x425a3a	some_indirectly_called_function_425a3a
 0x425a53	some_indirectly_called_function_425a53
-0x425bd9	some_indirectly_called_function_425bd9
+#0x425bd9	some_indirectly_called_function_425bd9
 0x425c93	some_indirectly_called_function_425c93
 0x425caf	some_indirectly_called_function_425caf
 0x42650d	some_indirectly_called_function_42650d

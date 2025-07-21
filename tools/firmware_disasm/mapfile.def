@@ -43,16 +43,16 @@
 # other functions use ABI described below:
 # - the parameters are passed on the stack, everything in WORDs, DWORDs as two WORDs, backwards (last parameter pushed first)
 # - then functions FunctionPrologue with respective in-register parameters are called - see their prototypes below
-# - stackframe is then constructed this way:
+# - stackframe is then constructed and parameters made accessible through registers this way:
 #   fff4 .. arg9
-#   fff5 .. arg8
-#   fff6 .. arg7
-#   fff7 .. arg6
-#   fff8 .. arg5
-#   fff9 .. arg4
-#   fffa .. arg3
-#   fffb .. arg2
-#   fffc .. arg1
+#   fff5 .. arg8 -> X0
+#   fff6 .. arg7 -> X1
+#   fff7 .. arg6 -> Y0
+#   fff8 .. arg5 -> Y1
+#   fff9 .. arg4 -> R0
+#   fffa .. arg3 -> R1
+#   fffb .. arg2 -> MR0
+#   fffc .. arg1 -> MR1
 #   fffd .. return addr
 #   fffe .. return addr
 #   ffff .. previous DM[0x000]
@@ -63,7 +63,11 @@
 # - value is returned in R0, or R1R0 pair (guessed, but so far nothing else seen)
 # - stack is cleaned by the caller - by Pop, Pop Pop, functions naked_pop_n_words, or direct Sp manipulation when popping 9 params.
 # - sometimes it also looks like the number of pushed word parameters is sent in Ix1 just before call. Not sure if this is always needed,
-#    or only in variadic functions? (where it may have sense). Seen also in indirect function calls.
+#    or only in variadic functions? (where it may make sense). Seen also in indirect function calls.
+#    VP theory: it's a compiler artifact because the compiler 
+#    can't prove whether the indirectly called fn is variadic or 
+#    not, so passes its #args just in case; it does not cause any 
+#    harm and can only help.
 
 
 [MAPPING]
@@ -1831,85 +1835,85 @@ skip 0x2bf5e
 
 0x3c41	quiz_ctx
 #3c41 = length c1, stored in 3d0b[5e]
-#3c41[0] type
-#3c41[1] write only?
-#3c41[2] question count
-#3c41[3] quiz length
-#3c41[4] answer type: 0 - single, 1 - all, 2 - sequential
-#3c41[5] intro OID
-#3c41[6] write only?
-#3c41[7] write only?
-#3c41[8] after eval: 0 - error, 1 - correct, 2 - repeated. After find_wrong...: also index of wrong answer.
-#3c41[9] error counter
-#3c41[a] correct answer counter
-#3c41[b] temporary index within OID list
-#3c41[c] DW:start of list of pointers to questions
-#3c41[e] 3*DW (96 bits): questions bitset
-#3c41[14] questions asked counter
-#3c41[15] quiz state
-#3c41[16] sound choice randomizer value
-#3c41[17] DW: for type 11: timer for repeating question
-#3c41[19] DW: for type 11: question repeat timeout
-#3c41[1b] correct answer counter
-#3c41[1c] DW (32 bits): answers bitset
-#3c41[1e] DW (32 bits): wrong answers bitset
-#3c41[20] current question index
-#3c41[21] OID for types 2, 3: partial success
-#3c41[22] OID for types 2, 3: error within tolerance
-#3c41[23] OID for types 2, 3: question fail
-#3c41[24] OID for types 2, 3: question success
-#3c41[25] OID for type 2: question
-#3c41[26] for types 4+: controls sound choice: 0 - random, 1 - answer index, 2 - correct answer counter
-#3c41[27] for types 4+: 1 requires answers in order
-#3c41[28] for types 4+: separate wrong answer tolerance, default 3
-#3c41[29] answer count
-#3c41[2a] for types 4+: length of table 33
-#3c41[2b] for types 4+: length of table 35
-#3c41[2c] for types 4+: length of table 37
-#3c41[2d] for types 4+: length of table 39
-#3c41[2e] for types 4+: length of table 3b
-#3c41[2f] for types 4+: length of table 3d
-#3c41[30] for types 4+: length of table 3f
-#3c41[31] list of answers (file offset)
-#3c41[33] list of wrong answers
-#3c41[35] OIDs for correct responses + 1
-#3c41[37] OIDs for explicitly wrong answers
-#3c41[39] OIDs for repeated answers
-#3c41[3b] OIDs for other errors
-#3c41[3d] OIDs for correct answer on last question
-#3c41[3f] OIDs for error above tolerance (either kind)
-#3c41[41] wrong answer counter
-#3c41[42] temporary index within OID list
-#3c41[43+x] for types (0),1,6,9: list of question choice OIDs (up to length 0x60)
-#3c41[a3] 1 for type 8, 2 for type 5, otherwise 0 (these otherwise overwritten to type 4) - questions in order
-#3c41[a4] unused?
-#3c41[a5] for type 7: number of sub-quizzes, must be 1
-#3c41[a6] for type 7: subquiz index, must be 0
-#3c41[a7] unused?
-#3c41[a8] unused?
-#3c41[a9] unused?
-#3c41[aa] for type 7: 1 picks questions in order, 0 randomly
-#3c41[ab] for type 7: subquiz tolerance
-#3c41[ac] DW:for type 7: subquiz pointer
-#3c41[ae] for type 7: write only?
-#3c41[af] for type 7: subquiz intro OID
-#3c41[b0] for types 9,10,11: time allowance
-#3c41[b1] for type 11: write only?
-#3c41[b2] for types 9,10,11: OID for low time left
-#3c41[b3] for types 9,10,11: OID for time out
-#3c41[b4] for types 9,10: time countdown
-#3c41[b5] for types 9,10,11: countdown active?
-#3c41[b6] 1 for type a: error OID indexed by error counter
-#3c41[b7] for type 11: time countdown
-#3c41[b8] for type 11: time allowance
-#3c41[b9] for type 11: unforgiving mode?
-#3c41[ba] for type 11: 0 - normal, 1 - questions in order, 2 - questions chosen by user
-#3c41[bb] unused?
-#3c41[bc] for type 11: countdown active
-#3c41[bd] for type 11: error OID indexed by error counter
-#3c41[be] for type 11: quiz evaluation size
-#3c41[bf] for type 11: OID list for quiz evaluation
-#3c41[c0] tolerance
+#quiz_ctx[0x0] type
+#quiz_ctx[0x1] write only?
+#quiz_ctx[0x2] question count
+#quiz_ctx[0x3] quiz length
+#quiz_ctx[0x4] answer type: 0 - single, 1 - all, 2 - sequential
+#quiz_ctx[0x5] intro OID
+#quiz_ctx[0x6] write only?
+#quiz_ctx[0x7] write only?
+#quiz_ctx[0x8] after eval: 0 - error, 1 - correct, 2 - repeated. After find_wrong...: also index of wrong answer.
+#quiz_ctx[0x9] error counter
+#quiz_ctx[0xa] correct answer counter
+#quiz_ctx[0xb] temporary index within OID list
+#quiz_ctx[0xc] DW:start of list of pointers to questions
+#quiz_ctx[0xe] 3*DW (96 bits): questions bitset
+#quiz_ctx[0x14] questions asked counter
+#quiz_ctx[0x15] quiz state
+#quiz_ctx[0x16] sound choice randomizer value
+#quiz_ctx[0x17] DW: for type 11: timer for repeating question
+#quiz_ctx[0x19] DW: for type 11: question repeat timeout
+#quiz_ctx[0x1b] correct answer counter
+#quiz_ctx[0x1c] DW (32 bits): answers bitset
+#quiz_ctx[0x1e] DW (32 bits): wrong answers bitset
+#quiz_ctx[0x20] current question index
+#quiz_ctx[0x21] OID for types 2, 3: partial success
+#quiz_ctx[0x22] OID for types 2, 3: error within tolerance
+#quiz_ctx[0x23] OID for types 2, 3: question fail
+#quiz_ctx[0x24] OID for types 2, 3: question success
+#quiz_ctx[0x25] OID for type 2: question
+#quiz_ctx[0x26] for types 4+: controls sound choice: 0 - random, 1 - answer index, 2 - correct answer counter
+#quiz_ctx[0x27] for types 4+: 1 requires answers in order
+#quiz_ctx[0x28] for types 4+: separate wrong answer tolerance, default 3
+#quiz_ctx[0x29] answer count
+#quiz_ctx[0x2a] for types 4+: length of table 33
+#quiz_ctx[0x2b] for types 4+: length of table 35
+#quiz_ctx[0x2c] for types 4+: length of table 37
+#quiz_ctx[0x2d] for types 4+: length of table 39
+#quiz_ctx[0x2e] for types 4+: length of table 3b
+#quiz_ctx[0x2f] for types 4+: length of table 3d
+#quiz_ctx[0x30] for types 4+: length of table 3f
+#quiz_ctx[0x31] list of answers (file offset)
+#quiz_ctx[0x33] list of wrong answers
+#quiz_ctx[0x35] OIDs for correct responses + 1
+#quiz_ctx[0x37] OIDs for explicitly wrong answers
+#quiz_ctx[0x39] OIDs for repeated answers
+#quiz_ctx[0x3b] OIDs for other errors
+#quiz_ctx[0x3d] OIDs for correct answer on last question
+#quiz_ctx[0x3f] OIDs for error above tolerance (either kind)
+#quiz_ctx[0x41] wrong answer counter
+#quiz_ctx[0x42] temporary index within OID list
+#quiz_ctx[0x43+x] for types (0),1,6,9: list of question choice OIDs (up to length 0x60)
+#quiz_ctx[0xa3] 1 for type 8, 2 for type 5, otherwise 0 (these otherwise overwritten to type 4) - questions in order
+#quiz_ctx[0xa4] unused?
+#quiz_ctx[0xa5] for type 7: number of sub-quizzes, must be 1
+#quiz_ctx[0xa6] for type 7: subquiz index, must be 0
+#quiz_ctx[0xa7] unused?
+#quiz_ctx[0xa8] unused?
+#quiz_ctx[0xa9] unused?
+#quiz_ctx[0xaa] for type 7: 1 picks questions in order, 0 randomly
+#quiz_ctx[0xab] for type 7: subquiz tolerance
+#quiz_ctx[0xac] DW:for type 7: subquiz pointer
+#quiz_ctx[0xae] for type 7: write only?
+#quiz_ctx[0xaf] for type 7: subquiz intro OID
+#quiz_ctx[0xb0] for types 9,10,11: time allowance
+#quiz_ctx[0xb1] for type 11: write only?
+#quiz_ctx[0xb2] for types 9,10,11: OID for low time left
+#quiz_ctx[0xb3] for types 9,10,11: OID for time out
+#quiz_ctx[0xb4] for types 9,10: time countdown
+#quiz_ctx[0xb5] for types 9,10,11: countdown active?
+#quiz_ctx[0xb6] 1 for type a: error OID indexed by error counter
+#quiz_ctx[0xb7] for type 11: time countdown
+#quiz_ctx[0xb8] for type 11: time allowance
+#quiz_ctx[0xb9] for type 11: unforgiving mode?
+#quiz_ctx[0xba] for type 11: 0 - normal, 1 - questions in order, 2 - questions chosen by user
+#quiz_ctx[0xbb] unused?
+#quiz_ctx[0xbc] for type 11: countdown active
+#quiz_ctx[0xbd] for type 11: error OID indexed by error counter
+#quiz_ctx[0xbe] for type 11: quiz evaluation size
+#quiz_ctx[0xbf] for type 11: OID list for quiz evaluation
+#quiz_ctx[0xc0] tolerance
 
 0x3dcc	timer_counter_10Hz
 0x3dca	last_timer_value_bumped_every_second
@@ -1920,45 +1924,45 @@ skip 0x2bf5e
 #not sure why the indirection when it's singleton (even the singleton itself is overkill, when it could be bunch of globals)
 0x3d6a	ptr_to_book_ctx
 0x3d0b	book_ctx
-#3d0b[0] word file handle
-#3d0b[1] dword current OID
-#3d0b[3] dword last played OID
-#3d0b[5] word book mode
-#3d0b[6] temp mode (for choosing sound table from OID)
-#3d0b[7] = 02 number of temp modes to cycle through on repeated OID if book mode == 0
-#3d0b[8] = 00
-#3d0b[9] OID/tempmode sound table length
-#3d0b[a] OID/tempmode sound table start
-#3d0b[c] OID/tempmode sound table index
-#3d0b[d] last sound table start
-#3d0b[f] last sound table length
-#3d0b[12] = 00
-#3d0b[13] = 00 -> bytekey1 for ptr_encrypt (0 for BNL)
-#3d0b[14] = 00 -> bytekey2 for ptr_encrypt (0 for BNL)
-#3d0b[15] header_key
-#3d0b[17+x] 16*W MP3 key
-#3d0b[2a] current quiz index
-#3d0b[2b] int_format (4 for BNL)
-#3d0b[2c] = FFFF, FFFF -> value from 3.bin +3020f: 00010105 - magic values for determining int_format
-#3d0b[2e] = FFFF, FFFF -> value from 3.bin +30213: 07020604
-#3d0b[30] = FFFF, FFFF -> value from 3.bin +30217: 09020302
-#3d0b[32] = FFFF, FFFF -> value from 3.bin +3021b: 00000000
-#3d0b[34] = 00,05 -> bitfield for enabling vendor-locked functions according to fw config
-#3d0b[36] = 00,00 -> bitfield for enabling int_formats according to fw config (bit 7/0x80: BNL)
-#3d0b[39] pointer to OID table in file (recalculated every time in find_oid_sound_tables but stored here nevertheless)
-#3d0b[3b] oid_min
-#3d0b[3c] oid_max
-#3d0b[3d] quiz count
-#3d0b[4c] = 0x428365 (just retff) -> lib_seek_stk(wHandle,dwPtr,wWhence)_return?
-#3d0b[4e] = 0x428365 (just retff)
-#3d0b[50] = 0x428365 (just retff) -> lib_fgetw_stk(wHandle,wBuffer)_return?
-#3d0b[52] = 0x428365 (just retff) -> lib_fgetdw_stk(wHandle,wBuffer)_return?
-#3d0b[54] = 0x428365 (just retff) -> probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
-#3d0b[56] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PLAY()_return_bool_in_R0
-#3d0b[58] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
-#3d0b[5a] = 0x428365 (just retff) -> 0x427fbe
-#3d0b[5c] -> 0x422324 Play_sound_from_2bin_table_stk(sound_num)
-#3d0b[5e] = pointer to quiz structure (0x3c41)
+#book_ctx[0x0] word file handle
+#book_ctx[0x1] dword current OID
+#book_ctx[0x3] dword last played OID
+#book_ctx[0x5] word book mode
+#book_ctx[0x6] temp mode (for choosing sound table from OID)
+#book_ctx[0x7] = 02 number of temp modes to cycle through on repeated OID if book mode == 0
+#book_ctx[0x8] = 00
+#book_ctx[0x9] OID/tempmode sound table length
+#book_ctx[0xa] OID/tempmode sound table start
+#book_ctx[0xc] OID/tempmode sound table index
+#book_ctx[0xd] last sound table start
+#book_ctx[0xf] last sound table length
+#book_ctx[0x12] = 00
+#book_ctx[0x13] = 00 -> bytekey1 for ptr_encrypt (0 for BNL)
+#book_ctx[0x14] = 00 -> bytekey2 for ptr_encrypt (0 for BNL)
+#book_ctx[0x15] header_key
+#book_ctx[0x17+x] 16*W MP3 key
+#book_ctx[0x2a] current quiz index
+#book_ctx[0x2b] int_format (4 for BNL)
+#book_ctx[0x2c] = FFFF, FFFF -> value from 3.bin +3020f: 00010105 - magic values for determining int_format
+#book_ctx[0x2e] = FFFF, FFFF -> value from 3.bin +30213: 07020604
+#book_ctx[0x30] = FFFF, FFFF -> value from 3.bin +30217: 09020302
+#book_ctx[0x32] = FFFF, FFFF -> value from 3.bin +3021b: 00000000
+#book_ctx[0x34] = 00,05 -> bitfield for enabling vendor-locked functions according to fw config
+#book_ctx[0x36] = 00,00 -> bitfield for enabling int_formats according to fw config (bit 7/0x80: BNL)
+#book_ctx[0x39] pointer to OID table in file (recalculated every time in find_oid_sound_tables but stored here nevertheless)
+#book_ctx[0x3b] oid_min
+#book_ctx[0x3c] oid_max
+#book_ctx[0x3d] quiz count
+#book_ctx[0x4c] = 0x428365 (just retff) -> lib_seek_stk(wHandle,dwPtr,wWhence)_return?
+#book_ctx[0x4e] = 0x428365 (just retff)
+#book_ctx[0x50] = 0x428365 (just retff) -> lib_fgetw_stk(wHandle,wBuffer)_return?
+#book_ctx[0x52] = 0x428365 (just retff) -> lib_fgetdw_stk(wHandle,wBuffer)_return?
+#book_ctx[0x54] = 0x428365 (just retff) -> probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
+#book_ctx[0x56] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PLAY()_return_bool_in_R0
+#book_ctx[0x58] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
+#book_ctx[0x5a] = 0x428365 (just retff) -> 0x427fbe
+#book_ctx[0x5c] -> 0x422324 Play_sound_from_2bin_table_stk(sound_num)
+#book_ctx[0x5e] = pointer to quiz structure (0x3c41)
 
 0x0045e1	determine_int_format_in_memory(ptr)
 0x006553	ptr_encrypt(ptr,bytekey1,bytekey2,dwkey,loc)
@@ -1983,7 +1987,7 @@ skip 0x2bf5e
 0x421792	get_quiz_sound(map_id,pick_random)
 0x42138a	read_type_7_subquiz()
 0x4214e6	find_oid_sound_tables(oid,&sndts_start)
-0x422079	play_sound_from_table_at_book+0a(index)
+0x422079	play_sound_from_table_at_book_ctx[0xa](index)
 0x42296f	init_book_modes()
 0x422a78	evaluate_answer_types_0,3_or_question(oid)
 0x42306e	get_next_question_index()

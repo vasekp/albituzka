@@ -20,6 +20,7 @@
 # 1.1.0 jindroush 10.07.2025 added smarter instruction mutator, added mapping of output-to-file, instruction mutator now one pass,
 #                                instruction disassembler now does not modify input word list
 # 1.1.1 jindroush 21.07.2025 added more mutations, slightly better calls report
+# 1.1.2 jindroush 21.07.2025 speeding up mutations, so far twice
 #
 # known bugs/todos:
 # - empty lines between blocks are not printed in the correct way
@@ -78,6 +79,8 @@ g_last_function_start = None
 g_auto_symbols = 1
 
 g_calls = dict()
+
+g_max_mutation_len = 0
 
 # === Helpers ===
 
@@ -1235,10 +1238,12 @@ def print_stored_instruction( rec ):
 
     else:
         DIS.write( f" {mnemonic} " )
-        if params is not None and params:
-            for param in params:
-                str = format_param( param )
-                DIS.write( f"{str} " )
+        if params:
+            DIS.write(" ".join(format_param(p) for p in params))
+        #if params is not None and params:
+        #    for param in params:
+        #        str = format_param( param )
+        #        DIS.write( f"{str} " )
 
     if comment is not None:
        DIS.write( f"  #{comment}" )
@@ -1997,6 +2002,24 @@ table_instruction_mutations = [
 
 ]
 
+def preprocess_mutations():
+    global g_max_mutation_len
+
+    #get max mutation length
+    #this allows backtracking by max-1 instructions after succesful replacement
+    #it's quite less than multipass processing, it's not single pass, but close
+    g_max_mutation_len = 0
+    for mutation in table_instruction_mutations:
+
+        matcher = mutation[ 'from' ]
+
+        #part 1: get global max mutation len
+        g_max_mutation_len = max( len(matcher)-1, g_max_mutation_len )
+
+        #part 2: extract all mnemonics and cache it for faster future comparisons
+        mutation['mnemonics'] = [m['mnemonic'] for m in matcher]
+
+
 def mutate_one_instruction(pat,inst,ctx):
     pars = inst.get('parameters')
     inst_pars = 0
@@ -2097,82 +2120,75 @@ def check_instruction_match(pat,inst,ctx):
 def instructions_mutator():
     global g_instruction_store
 
-    #get max mutation length
-    #this allows backtracking by max-1 instructions after succesful replacement
-    #it's quite less than multipass processing, it's not single pass, but close
-    max_mutation_len = 0
-    for mutation in table_instruction_mutations:
-        matcher = mutation[ 'from' ]
-        max_mutation_len = max( len(matcher)-1, max_mutation_len )
-
     idx = 0
     cnt = len(g_instruction_store)
 
+    all_instr_mnemonics = [inst['mnemonic'] for inst in g_instruction_store]
+
     while idx < cnt:
+        restart_on_match = False
         max_ahead = cnt - idx
 
         for mutation in table_instruction_mutations:
             #we now have one mutation in hand
             matcher = mutation[ 'from' ]
+            matcher_from_cnt = len(matcher)
 
             #only mutations short enough
             #this is valid most of the time (will only fail at the end of the instruction block)
-            if len(matcher) <= max_ahead:
+            if matcher_from_cnt > max_ahead:
+                continue
 
-                #here is the place to check if there is jump to middle of instructions
-                #it's wrong to join instructions in that place
+            if all_instr_mnemonics[idx : idx + matcher_from_cnt] != mutation[ 'mnemonics' ]:
+                continue
 
-                #it seems there could be optimization done here
-                #IF all 'from' checks contain 'mnemonic' - and I currently can't imagine check
-                #where there is no mnemonic, we may really fast pre-check if the rule applies at all
-                #also, because we would be iterating over the instructions, we may check the previous
-                #condition, ie. 'be sure nobody jumps in the middle'
-                possible_match = True
-                for i in range(len(matcher)):
-                    if matcher[ i ]['mnemonic'] != g_instruction_store[ idx + i ]['mnemonic']:
-                        possible_match = False
-                        break
-                    if i >= 1 and g_instruction_store[idx+i]['PC'] in g_symbolsValue2Name:
-                        possible_match = False
-                        break
+            #track context between instructions and replacements here
+            ctx = dict()
+            #how many instructions must be matched for the replacement to take place
+            left_to_match = matcher_from_cnt
 
-                if possible_match == False:
-                    continue
+            for i in range(matcher_from_cnt):
+                if i >= 1 and g_instruction_store[idx+i]['PC'] in g_symbolsValue2Name:
+                    break
+                if check_instruction_match( matcher[ i ], g_instruction_store[ idx + i ], ctx ):
+                    left_to_match -= 1
+                else:
+                    break
 
-                #track context between instructions and replacements here
-                ctx = dict()
-                #how many instructions must be matched for the replacement to take place
-                to_match = len(matcher)
+            #all of the conditions matched
+            if left_to_match == 0:
+                #create new instruction, current logic is to leave the first one and replace its params
+                #not even the copy
+                inst = g_instruction_store[ idx ]
+                mutate_one_instruction( mutation[ 'to' ], inst, ctx )
 
-                for i in range(len(matcher)):
-                    if check_instruction_match( matcher[ i ], g_instruction_store[ idx + i ], ctx ):
-                        to_match -= 1
-                    else:
-                        break
+                #we store the raw instruction bytes intact
+                #mostly for checking the validity if needed
+                all_words = []
+                for i in range(matcher_from_cnt):
+                    all_words += g_instruction_store[idx+i]['words']
+                inst['words'] = all_words
 
-                #all of the conditions matched
-                if to_match == 0:
-                    #create new instruction, current logic is to leave the first one and replace its params
-                    #not even the copy
-                    inst = g_instruction_store[ idx ]
-                    mutate_one_instruction( mutation[ 'to' ], inst, ctx )
+                #remove replaced instructions
+                #logic is currently hardcoded N-to-1, and this need better explanation
+                #remove matcher_from_cnt - 1 instructions (we always do N->1)
+                del g_instruction_store[idx+1:idx+matcher_from_cnt] 
+                #also remove precached mnemonics
+                del all_instr_mnemonics[idx+1:idx+matcher_from_cnt] 
+                #replace mnemonic in first, possibly modified instruction
+                all_instr_mnemonics[idx] = inst['mnemonic']
+                #and shorten the instruction count accordingly
+                cnt -= matcher_from_cnt - 1
 
-                    #we store the raw instruction bytes intact
-                    #mostly for checking the validity if needed
-                    all_words = []
-                    for i in range(len(matcher)):
-                        all_words += g_instruction_store[idx+i]['words']
-                    inst['words'] = all_words
-
-                    #remove replaced instructions
-                    #logic is currently hardcoded N-to-1
-                    del g_instruction_store[idx+1:idx+len(matcher)] 
-                    cnt = len(g_instruction_store)
-
-                    #backtrack
-                    idx = max( 0, idx - max_mutation_len)
-                    continue
-            #endif
+                #backtrack - since we're still on idx, the longest mutation may touch it when we backtrack the longest len
+                #there may be off-by-1, but not exactly harmful
+                idx = max( 0, idx - g_max_mutation_len)
+                restart_on_match = True
+                break
+            #endif to_match
+        #endfor
+        if restart_on_match:
+            continue
         idx += 1
     return
 
@@ -2635,6 +2651,10 @@ def instructions_printer():
 
 measure_start = time.perf_counter()
 filename = sys.argv[1] if len(sys.argv) > 1 else "mapfile.def"
+
+#this is done once only, speeding things up
+preprocess_mutations()
+
 mapfile_parse( filename )
 measure_end = time.perf_counter()
 measure_delta = measure_end - measure_start

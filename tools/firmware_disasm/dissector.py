@@ -1,4 +1,5 @@
-﻿# This code is major rewrite/extension of disassembler.py from this repository
+
+# This code is major rewrite/extension of disassembler.py from this repository
 # https://github.com/marian-m12l/s9ke-toolchain
 # this is not a generic disassembler, it's more a reverser's helper tool to quickly understand code/memory layout
 #
@@ -18,6 +19,7 @@
 # 1.0.2 jindroush 05.07.2025 added second pass for autosymbol creation
 # 1.1.0 jindroush 10.07.2025 added smarter instruction mutator, added mapping of output-to-file, instruction mutator now one pass,
 #                                instruction disassembler now does not modify input word list
+# 1.1.1 jindroush 21.07.2025 added more mutations, slightly better calls report
 #
 # known bugs/todos:
 # - empty lines between blocks are not printed in the correct way
@@ -154,7 +156,13 @@ def pointer_move(length):
     g_pointer += length
     g_PC += length // 2
 
-def print_line_header( r_PC=None, pointer=None ):
+def print_line_header(r_PC=None, pointer=None):
+    if r_PC is not None:
+        DIS.write(f"[{pointer:06x}] 0x{r_PC:06x} ")
+    else:
+        DIS.write(f"[{g_pointer:06x}] 0x{g_PC:06x} ")
+
+def XXXprint_line_header( r_PC=None, pointer=None ):
     global g_PC, g_pointer
     if r_PC is None: r_PC = g_PC 
     if pointer is None: pointer = g_pointer
@@ -337,21 +345,24 @@ def asm_preparse(param1, param2_dict, lineno):
     length = parse_int_or_hex(param1, lineno)
 
     if length % 2 != 0:
-        raise Exception("asm_execute: length must be even")
+        raise Exception("asm_preparse: length must be even")
 
     data = g_handle_input.read(length)
     if len(data) != length:
-        raise Exception("asm_execute: not enough data")
+        raise Exception("asm_preparse: not enough data")
 
     words = []
     for i in range(0, length, 2):
         word = int.from_bytes(data[i:i+2], 'little')
         words.append(word)
 
-    word1 = words.pop(0)
-    word2 = None
+    idx = 0
+    idx_end = len(words)
 
-    while word1 is not None:
+    while idx < idx_end:
+        word1 = words[idx]
+        idx += 1
+
         high = word1 >> 8;
         low = word1 & 0xFF;
 
@@ -371,7 +382,10 @@ def asm_preparse(param1, param2_dict, lineno):
         # Callff (2-words instruction)
         elif high == 0b_1111_1101:
             abs_addr_high = low
-            word2 = words.pop(0)
+
+            word2 = words[ idx ]
+            idx += 1
+
             abs_addr_low = word2
             abs_addr = (abs_addr_high << 16) | abs_addr_low
             add_auto_symbol( "callff_dst", abs_addr )
@@ -379,25 +393,25 @@ def asm_preparse(param1, param2_dict, lineno):
                 g_calls[abs_addr] = dict()
                 g_calls[abs_addr]['from'] = []
             g_calls[ abs_addr ]['from'].append(g_PC)
+            pointer_move(2)
+
         # Jumpff (2-words instruction)
         elif high == 0b_1111_1110:
             abs_addr_high = low
-            word2 = words.pop(0)
+
+            word2 = words[ idx ]
+            idx += 1
+
             abs_addr_low = word2
             abs_addr = (abs_addr_high << 16) | abs_addr_low
             add_auto_symbol( "jmpff_dst", abs_addr )
+            pointer_move(2)
+
         else:
             pass
 
         pointer_move(2)
-        if word2 is not None:
-           pointer_move(2)
 
-        if not words:
-            word1 = None
-        else:
-            word1 = words.pop(0)
-        word2 = None
     #loop ends
 
     return {'length': length, 'consumed_bytes': 0 }
@@ -861,9 +875,10 @@ def mapfile_parse(filename):
                 if g_PC in g_symbolsValue2Name:
                     DIS.write( f"{(g_symbolsValue2Name[g_PC])}:\n" )
             execute(param_dict)
-            if g_handle_input.tell() != g_pointer:
-                cur = g_handle_input.tell()
-                raise Exception( f"file pointer mismatch! {cur:08X} vs {g_pointer:08X}, last executed '{keyword}' with {param_dict}" )
+            #the following is debug-only
+            #if g_handle_input.tell() != g_pointer:
+            #    cur = g_handle_input.tell()
+            #    raise Exception( f"file pointer mismatch! {cur:08X} vs {g_pointer:08X}, last executed '{keyword}' with {param_dict}" )
             g_previous_processed = keyword
         else:
             print(f"[Line {lineno}] Warning: no execute function for '{keyword}'")
@@ -1081,7 +1096,19 @@ def reset_instructions():
     global g_instruction_store
     g_instruction_store = []
 
+
 def store_instruction( word_array, mnemonic, parameters, comment ):
+    global g_instruction_store
+    g_instruction_store.append({
+        'words': word_array,
+        'mnemonic': mnemonic,
+        'parameters': parameters,
+        'comment': comment,
+        'PC': g_PC,
+        'pointer': g_pointer,
+    })
+
+def XXXstore_instruction( word_array, mnemonic, parameters, comment ):
     global g_instruction_store
 
     rec = dict()
@@ -1485,7 +1512,7 @@ table_instruction_mutations = [
      },
 
      {
-	#Ix0 = ptr_to_huge_object (0x3d6a)
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
 	#X1 = RAM[Ix0]
 	#Y1 = 0x4c   #"L"
 	#R0 = X1 + Y1
@@ -1511,8 +1538,117 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x4 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x4c ), 'param2': None, 'comment': 'seek function' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)', 'param1': ( IMM8, 0x4c ), 'param2': None, 'comment': 'seek function' }
      },
+
+     {
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
+	#R0 = RAM[Ix0]
+	#Ix0 = R0
+	#R1 = RAM[Ix0]
+	#Push R1
+	#Y0 = 0x4c   #"L"
+	#R0 = R0 + Y0
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Push some_indirectly_called_function_4172a9 (0x4172a9)
+	#Push R0
+	#Push R1
+	#Ix1 = 0x04
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM8, 'param2v': 0x4c },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'R0 + Y0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x4 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_with_fhandle_to_book_pushed', 'param1': ( IMM8, 0x4c ), 'param2': None, 'comment': 'seek function' }
+
+     },
+
+     {
+	#THIS IS NOT GENERIC, BUT WORKS IN OUR CASE!
+	#Ix0 = R0
+	#R1 = RAM[Ix0]
+	#Push R1
+	#Y0 = 0x4c   #"L"
+	#R0 = R0 + Y0
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Push some_indirectly_called_function_419222
+	#Push R0
+	#Push R1
+	#Ix1 = 0x04
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM8, 'param2v': 0x4c },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'R0 + Y0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x4 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_incomplete_with_fhandle_phushed', 'param1': ( IMM8, 0x4c ), 'param2': None, 'comment': 'seek function' }
+
+    },
+
+    {
+	#THIS IS NOT GENERIC, BUT WORKS IN OUR CASE!
+	#Ix0 = X0
+	#R0 = RAM[Ix0]
+	#Push R0
+	#Y1 = 0x4c   #"L"
+	#R0 = X0 + Y1
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Push some_indirectly_called_function_419340
+	#Push R0
+	#Push R1
+	#Ix1 = 0x04
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'X0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x4c },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X0 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x4 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_incomplete_with_fhandle_phushed', 'param1': ( IMM8, 0x4c ), 'param2': None, 'comment': 'seek function' }
+
+    },
+
 
      {
 	'from': [
@@ -1529,7 +1665,111 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x2 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x52 ), 'param2': None, 'comment': 'fgetdw function' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)', 'param1': ( IMM8, 0x52 ), 'param2': None, 'comment': 'fgetdw function' }
+     },
+
+     {
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
+	#R0 = RAM[Ix0]
+	#Ix0 = R0
+	#R1 = RAM[Ix0]
+	#Push R1
+	#Y0 = 0x52   #"R"
+	#R0 = R0 + Y0
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Push some_indirectly_called_function_4172c2 (0x4172c2)
+	#Push R0
+	#Push R1 
+	#Ix1 = 0x02
+	#Retff
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM8, 'param2v': 0x52 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'R0 + Y0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x2 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_with_fhandle_to_book_pushed', 'param1': ( IMM8, 0x52 ), 'param2': None, 'comment': 'fgetdw function' }
+     },
+
+     {
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
+	#X1 = RAM[Ix0]
+	#Y1 = 0x50   #"P"
+	#R0 = X1 + Y1
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Push some_indirectly_called_function_417389 (0x417389)
+	#Push R0
+	#Push R1
+	#Ix1 = 0x02
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x50 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x2 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)', 'param1': ( IMM8, 0x50 ), 'param2': None, 'comment': 'fgetw function' }
+     },
+
+     {
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
+	#R0 = RAM[Ix0]
+	#Ix0 = R0
+	#R1 = RAM[Ix0]
+	#Push R1
+	#Y0 = 0x50   #"P"
+	#R0 = R0 + Y0
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Push some_indirectly_called_function_417389 (0x417389)
+	#Push R0
+	#Push R1
+	#Ix1 = 0x02
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM8, 'param2v': 0x50 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'R0 + Y0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x2 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_with_fhandle_to_book_pushed', 'param1': ( IMM8, 0x50 ), 'param2': None, 'comment': 'fgetw function' }
      },
 
      {
@@ -1547,7 +1787,7 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x56 ), 'param2': None, 'comment': 'mp3_is_play' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)', 'param1': ( IMM8, 0x56 ), 'param2': None, 'comment': 'mp3_is_play' }
      },
 
      {
@@ -1567,7 +1807,84 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(huge_object)_and_store_fnptr_to_local_0', 'param1': ( IMM8, 0x56 ), 'param2': None, 'comment': 'mp3_is_play' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_0', 'param1': ( IMM8, 0x56 ), 'param2': None, 'comment': 'mp3_is_play' }
+     },
+
+     {
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
+	#X1 = RAM[Ix0]
+	#Y1 = 0x56   #"V"
+	#R0 = X1 + Y1
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Y1 = 0x02
+	#Callff naked_local(Y1,Y1+1)=R1R0 (0x000c1c)
+	#Push some_indirectly_called_function_423a81
+	#Push R0
+	#Push R1
+	#Ix1 = 0x00
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x56 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 2 },
+		{ 'mnemonic': 'Callff', 'param1t': ADDR24, 'param1v': 0xc1c },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_2', 'param1': ( IMM8, 0x56 ), 'param2': None, 'comment': 'mp3_is_play' }
+
+     },
+
+     {
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
+	#R0 = RAM[Ix0]
+	#Ix0 = R0
+	#R1 = RAM[Ix0]
+	#Push R1
+	#Y0 = 0x54   #"T"
+	#R0 = R0 + Y0
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Y1 = 0x06
+	#Callff naked_local(Y1,Y1+1)=R1R0 (0x000c1c)
+	#Push some_indirectly_called_function_41f2c2
+	#Push R0
+	#Push R1
+	#Ix1 = 0x06
+	#Retff
+
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y0', 'param2t': IMM8, 'param2v': 0x54 },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'R0 + Y0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 6 },
+		{ 'mnemonic': 'Callff', 'param1t': ADDR24, 'param1v': 0xc1c },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x6 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_store_fnptr_to_local_6_push_fhandle', 'param1': ( IMM8, 0x54 ), 'param2': None, 'comment': 'probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)' }
      },
 
      {
@@ -1585,11 +1902,65 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(huge_object)', 'param1': ( IMM8, 0x58 ), 'param2': None, 'comment': 'mp3_is_pause' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)', 'param1': ( IMM8, 0x58 ), 'param2': None, 'comment': 'mp3_is_pause' }
      },
 
      {
-	#Ix0 = ptr_to_huge_object (0x3d6a)
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
+	#X1 = RAM[Ix0]
+	#Y1 = 0x5a   #"Z"
+	#R0 = X1 + Y1
+	#Ix0 = R0
+	#R0 = RAM[Ix0, 1]
+	#R1 = RAM[Ix0, 1]
+	#Y1 = 0x02
+	#Callff naked_local(Y1,Y1+1)=R1R0 (0x000c1c)
+	#Push some_indirectly_called_function_423a0a
+	#Push R0
+	#Push R1
+	#Ix1 = 0x00
+	#Retff
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x5a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 2 },
+		{ 'mnemonic': 'Callff', 'param1t': ADDR24, 'param1v': 0xc1c },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_2', 'param1': ( IMM8, 0x5a ), 'param2': None, 'comment': '0x427fbe not yet named/understood' }
+     },
+
+     {
+	'from': [
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': IMM16, 'param2v': 0x3d6a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'X1', 'param2t': RAM, 'param2v': 'Ix0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 0x5a },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2v': 'X1 + Y1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix0', 'param2t': REG, 'param2v': 'R0' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R0', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'R1', 'param2t': RAM, 'param2v': 'Ix0, 1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Y1', 'param2t': IMM8, 'param2v': 5 },
+		{ 'mnemonic': 'Callff', 'param1t': ADDR24, 'param1v': 0xc1c },
+		{ 'mnemonic': 'Push', 'param1t': ADDR24 },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R0' },
+		{ 'mnemonic': 'Push', 'param1t': REG, 'param1v': 'R1' },
+		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
+		{ 'mnemonic': 'Retff' }
+	],
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_5', 'param1': ( IMM8, 0x5a ), 'param2': None, 'comment': '0x427fbe not yet named/understood' }
+     },
+	
+     {
+	#Ix0 = ptr_to_book_ctx (0x3d6a)
 	#X1 = RAM[Ix0]
 	#Y1 = 0x5c   #"\"
 	#R0 = X1 + Y1
@@ -1620,7 +1991,7 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x1 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(huge_object)_and_store_fnptr_to_local_0', 'param1': ( IMM8, 0x5c ), 'param2': None, 'comment': 'Play_sound_from_2bin_table_stk(sound_num)' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_0', 'param1': ( IMM8, 0x5c ), 'param2': None, 'comment': 'Play_sound_from_2bin_table_stk(sound_num)' }
 
      }
 
@@ -1825,7 +2196,7 @@ def instructions_disassembly(words):
             offset = signed12( ((high & 0b_0000_1111) << 8) + low ) # Offset is signed !
             comment = None
             if -10 <= offset <= 10:
-                comment = f"{offset} lines from here"
+                comment = f"{offset} words from here"
 
             store_instruction( [word1], 'Jmp', [ ( ADDR24, g_PC+1+offset) ], comment )
         # Jump Condition
@@ -1835,7 +2206,7 @@ def instructions_disassembly(words):
             mnemonic = 'J' + condsuffix(cond)
             comment = None
             if -10 <= offset <= 10:
-                comment = f"{offset} lines from here"
+                comment = f"{offset} words from here"
             store_instruction( [word1], mnemonic, [ ( ADDR24, g_PC+1+offset) ], comment )
         # RW Mem (direct)
         elif( high & 0b_1110_0000 ) == 0b_1010_0000:
@@ -2080,7 +2451,7 @@ def instructions_disassembly(words):
             offset = abs_addr - g_PC
             comment = None
             if -10 <= offset <= 10:
-                comment = f"{offset} lines from here"
+                comment = f"{offset} words from here"
 
             store_instruction( [ word1, word2], 'Jmpff', [ ( ADDR24, abs_addr ) ], comment )
             pointer_move(2)

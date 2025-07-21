@@ -1,7 +1,7 @@
 #disassembly mapping description
 # authors: jindroush, vasekp
 
-#this is memory map for newest known Albi firmware for Sonix SN95302 (ZC-p20115V01,20240530V023) from 2024
+#this is a memory map for newest known Albi firmware for Sonix SN95302 (ZC-p20115V01,20240530V023) from 2024
 #publishing date of firmware: in fw 30.05.2024, on web 28.08.2024
 
 #some Albi books were mentioned to have 'new' features
@@ -15,7 +15,7 @@
 
 
 #this documents Albi firmware, Sonix ROM and ABI used by the devtools (still unknown, the ZC-nnnnnVnn in rom version is suspected
-#	to be compiler signature
+#to be compiler signature
 
 #firmware is loaded as block from 0x400000. On 0x400080 is module description which then copies part of the flash to PRAM.
 #the PRAM, in disassembly starting from 0x4000, starts with interrupt vectors, first of them being started after reset
@@ -30,13 +30,15 @@
 #strings look like unicode at first, but they're mostly 8bit characters stored in WORD arrays. Chinese characters are encoded
 #    by GBK encoding (multibyte). Strings are zero-terminated (C-style)
 #
-#the compiler used for firmware creation is simplistic, so all ascii strings used as function parameters are stored without deduplication
-#    (that means, that for example strings used for opening files like "r" or "r+" are stored many times in fw.
+#the compiler used for firmware creation is simplistic, so all strings used as function parameters are stored without deduplication
+#    (that means, that for example strings used for opening files like "r" or "r+" are stored many times in fw. Or they're not using
+#    const or similar modifier.
 
-# There is 'naming' standard for functions, not yet fully implemented:
+# There is 'naming standard' for functions, not yet fully implemented:
 # functions with _dup? postfix look like clear duplicates
 # functions with _implied are guessed, but the guesses are not thoroughly verified
-# functions marked 'naked_' are using register passing for in-out. That's why it's important to note that.
+# functions marked 'naked_' are using register passing for in-out. That's why it's important to note that, and to be clearly distinct
+#  from stack-passed/function prologue functions
 #
 # other functions use ABI described below:
 # - the parameters are passed on the stack, everything in WORDs, DWORDs as two WORDs, backwards (last parameter pushed first)
@@ -54,12 +56,14 @@
 #   fffd .. return addr
 #   fffe .. return addr
 #   ffff .. previous DM[0x000]
-#   0000 .. start of local variables <<< DM[0x000] points here
+#   0000 .. start of local variables <<< new DM[0x000] points here
 #     Y0 .. saved DM[...] memory
 #     ?? <- current Sp
-# - just before Retff FunctionEpilogue is called, DM[...] values are restored, DM[0x000] is restored
+# - just before Retff FunctionEpilogue is called, DM[...] values are restored, DM[0x000] is restored, Sp points to return address
 # - value is returned in R0, or R1R0 pair (guessed, but so far nothing else seen)
 # - stack is cleaned by the caller - by Pop, Pop Pop, functions naked_pop_n_words, or direct Sp manipulation when popping 9 params.
+# - sometimes it also looks like the number of pushed word parameters is sent in Ix1 just before call. Not sure if this is always needed,
+#    or only in variadic functions? (where it may have sense). Seen also in indirect function calls.
 
 
 [MAPPING]
@@ -109,7 +113,7 @@ asm 1254
 #version
 wbstr 0x34	comment:version	sym:ascii_version
 #pointer to next table
-dword 1x
+pointer 1x
 #string table and strings
 skip 0xde2e
 
@@ -1498,12 +1502,12 @@ skip 0x2bf5e
 0x428312	naked_void_ClearPort3Bit11(void)
 0x42830c	naked_void_ClearPort3Bit13(void)
 0x428305	naked_void_SetTimer1_to_10Hz_repeat(void)
-0x4282d6	naked_get_huge_object[0x12](void)_ret_in_R0
-0x4282de	naked_get_huge_object[0x29](void)_ret_in_R0
-0x4282e6	naked_get_huge_object[0x28](void)_ret_in_R0
-0x4282ee	naked_get_huge_object[0x27](void)_ret_in_R0
-0x4282f6	naked_get_huge_object[0x3e](void)_ret_in_R0
-0x4280b5	void_set_huge_object[0x12]_stk(iValue)
+0x4282d6	naked_get_book_ctx[0x12](void)_ret_in_R0
+0x4282de	naked_get_book_ctx[0x29](void)_ret_in_R0
+0x4282e6	naked_get_book_ctx[0x28](void)_ret_in_R0
+0x4282ee	naked_get_book_ctx[0x27](void)_ret_in_R0
+0x4282f6	naked_get_book_ctx[0x3e](void)_ret_in_R0
+0x4280b5	void_set_book_ctx[0x12]_stk(iValue)
 0x420730	naked_void_Initialize_all_vars(void)
 0x4203b8	naked_void_Init_3dea_to_3de2(void)
 0x427b11	Init_3ddd_to_3dd8
@@ -1522,7 +1526,7 @@ skip 0x2bf5e
 0x426728	Read_OID_sensor
 0x426dc7	Copy_Ext_to_PRAM?
 0x426f36	Copy_WRAM_to_PRAM?
-0x4282b5	naked_void_just_a_nop(void)
+0x4282b5	naked_void_nop_dbgprint(...)
 0x40a467	naked_void_Init_3fdd_3fa0_3ff2_3ff3(void)
 0x428342	naked_void_Get_[3df5]_in_R0(void)
 0x428346	naked_void_Get_[3df3]_in_R0(void)
@@ -1535,9 +1539,9 @@ skip 0x2bf5e
 0x427e3d	naked_void_hw_adc_settings2(void)
 0x42041f	naked_void_kindof_set_timer0(void)
 0x42835c	Call_0002ea
-0x428290	naked_void_get_huge_object[0x3f]_ret_in_R0
+0x428290	naked_void_get_book_ctx[0x3f]_ret_in_R0
 0x42827c	naked_void_Init_3df4_3df5_3df3(void)
-0x428286	naked_get_huge_object[0x0](void)_ret_in_R0
+0x428286	naked_get_book_ctx[0x0](void)_ret_in_R0
 0x428272	naked_void_just_a_nop_2(void)
 0x42822d	naked_void_Init_3fe9=ffff_3ff6_3fa6(void)
 0x4218e4	File_Open_Lib_Call_Probably_stack(szFname,szAccess)_ret_errc_in_R0
@@ -1771,9 +1775,9 @@ skip 0x2bf5e
 0x428362	empty_fn_04
 0x428364	empty_fn_05
 0x427f4e	naked_void_Zero_3fb5_set_3fa1_to_3fb4_to_FFFF()
-0x428120	If_huge_object[0]==0_ret_0_else_return_huge_object[0x9]
-0x428131	If_huge_object[0]==0_ret_0_else_return_huge_object[0x5]
-0x428142	If_huge_object[0]==0_ret_0_else_return_huge_object[0x6]
+0x428120	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x9]
+0x428131	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x5]
+0x428142	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x6]
 0x427408	ensure_last_char(szDest,iCharacter)
 0x423b9d	void_large_object_3d0b_creation_3d08_to_3d0a_clear(void)
 0x427106	naked_void_setup_all_ports_and_something(void)
@@ -1784,13 +1788,13 @@ skip 0x2bf5e
 0x428245	naked_void_setup_port4_unk2(void)
 0x428251	naked_void_setup_port4_unk3(void)
 0x427dd1	naked_void_setup_port3_unk(void)
-0x41e8ba	Init_indirect_functions_in_huge_object_and_lots_of_other_stuff
+0x41e8ba	Init_indirect_functions_in_book_ctx_and_lots_of_other_stuff
 0x424256	does_file_exist_stk(szPtr)
 0x4207f4	label_when_sdcard_not_detected
 	0x424fec	in this place we have prepared fname with sd:\ prefix
 0x4203d7	naked_setup_ADC_and_wait_for_interrupt_return_in_R0?
 0x42660a	naked_looking_for_some_ADC_input_return_bool_in_R0?
-0x427e07	set_huge_object[0xc]_to_stk(wNum)_safely_return_bool_in_R0
+0x427e07	set_book_ctx[0xc]_to_stk(wNum)_safely_return_bool_in_R0
 
 	0x41e932	Play_sound_from_2bin_table_stk(sound_num)
 	0x427740	tbl_dac_volume_values
@@ -1825,7 +1829,7 @@ skip 0x2bf5e
 0x3dc0	fw_config_3021b__00000000
 0x3dc2	fw_config_302fc__000045f2
 
-0x3c41	quiz_struct
+0x3c41	quiz_ctx
 #3c41 = length c1, stored in 3d0b[5e]
 #3c41[0] type
 #3c41[1] write only?
@@ -1913,13 +1917,13 @@ skip 0x2bf5e
 0x3dc6	aux_timer_target
 0x3dc4	aux_timer_counter_10Hz
 
-0x3d0b	huge_object
-0x3d6a	ptr_to_huge_object
-#3d0b = length 5f, stored in 3d6a
-#3d0b[0] file handle
-#3d0b[1] current OID
-#3d0b[3] last played OID
-#3d0b[5] book mode
+#not sure why the indirection when it's singleton (even the singleton itself is overkill, when it could be bunch of globals)
+0x3d6a	ptr_to_book_ctx
+0x3d0b	book_ctx
+#3d0b[0] word file handle
+#3d0b[1] dword current OID
+#3d0b[3] dword last played OID
+#3d0b[5] word book mode
 #3d0b[6] temp mode (for choosing sound table from OID)
 #3d0b[7] = 02 number of temp modes to cycle through on repeated OID if book mode == 0
 #3d0b[8] = 00
@@ -1945,14 +1949,14 @@ skip 0x2bf5e
 #3d0b[3b] oid_min
 #3d0b[3c] oid_max
 #3d0b[3d] quiz count
-#3d0b[4c] = 428365 (just retff) -> lib_seek
-#3d0b[4e] = 428365 (just retff)
-#3d0b[50] = 428365 (just retff) -> lib_fgetw
-#3d0b[52] = 428365 (just retff) -> lib_fgetdw
-#3d0b[54] = 428365 (just retff) -> probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
-#3d0b[56] = 428365 (just retff) -> MP3_GetStatus_is_PLAY
-#3d0b[58] = 428365 (just retff) -> MP3_GetStatus_is_PAUSE
-#3d0b[5a] = 428365 (just retff) -> 0x427fbe
+#3d0b[4c] = 0x428365 (just retff) -> lib_seek_stk(wHandle,dwPtr,wWhence)_return?
+#3d0b[4e] = 0x428365 (just retff)
+#3d0b[50] = 0x428365 (just retff) -> lib_fgetw_stk(wHandle,wBuffer)_return?
+#3d0b[52] = 0x428365 (just retff) -> lib_fgetdw_stk(wHandle,wBuffer)_return?
+#3d0b[54] = 0x428365 (just retff) -> probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
+#3d0b[56] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PLAY()_return_bool_in_R0
+#3d0b[58] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
+#3d0b[5a] = 0x428365 (just retff) -> 0x427fbe
 #3d0b[5c] -> 0x422324 Play_sound_from_2bin_table_stk(sound_num)
 #3d0b[5e] = pointer to quiz structure (0x3c41)
 
@@ -2007,7 +2011,7 @@ skip 0x2bf5e
 0x4267e3	set_book_mode_by_fwcode
 0x426840	locate_question_in_bnl(q_index)
 0x426b4f	get_table_element(table,index)
-0x426ba1	init_quiz_struct()
+0x426ba1	init_quiz_ctx()
 0x426bf3	get_question_header_word+2(q_index)
 0x426d7b	get_question_header_word+0(q_index)
 0x426e12	find_question_by_oid(oid)
@@ -2025,7 +2029,7 @@ skip 0x2bf5e
 0x42751d	clear_answers_bitset()
 0x4275c1	next_book_mode()
 0x4279e0	locate_type7_curr_subquiz_question(index)
-0x427bc1	set_quiz_struct_pointer()
+0x427bc1	set_quiz_ctx_pointer()
 0x427f65	hw_random(void)_ret_in_R0
 0x427cca	xor_one_byte_key(data,key)
 0x4280a2	init_quiz_state_0()
@@ -2187,84 +2191,84 @@ skip 0x2bf5e
 #0x4100dd	some_indirectly_called_function_4100dd
 #0x41140c	some_indirectly_called_function_41140c
 #0x411556	some_indirectly_called_function_411556
-0x4172a9	some_indirectly_called_function_4172a9
-0x4172c2	some_indirectly_called_function_4172c2
-0x417319	some_indirectly_called_function_417319
-0x417332	some_indirectly_called_function_417332
-0x417370	some_indirectly_called_function_417370
-0x417389	some_indirectly_called_function_417389
-0x417482	some_indirectly_called_function_417482
-0x4174d1	some_indirectly_called_function_4174d1
-0x4174ea	some_indirectly_called_function_4174ea
-0x417503	some_indirectly_called_function_417503
-0x417546	some_indirectly_called_function_417546
-0x41755f	some_indirectly_called_function_41755f
-0x41758f	some_indirectly_called_function_41758f
-0x4175a8	some_indirectly_called_function_4175a8
-0x4175d1	some_indirectly_called_function_4175d1
-0x417632	some_indirectly_called_function_417632
-0x417680	some_indirectly_called_function_417680
-0x4176c5	some_indirectly_called_function_4176c5
-0x417703	some_indirectly_called_function_417703
-0x41772a	some_indirectly_called_function_41772a
-0x417760	some_indirectly_called_function_417760
-0x4177a0	some_indirectly_called_function_4177a0
-0x4177c7	some_indirectly_called_function_4177c7
-0x4177ee	some_indirectly_called_function_4177ee
+#0x4172a9	some_indirectly_called_function_4172a9
+#0x4172c2	some_indirectly_called_function_4172c2
+#0x417319	some_indirectly_called_function_417319
+#0x417332	some_indirectly_called_function_417332
+#0x417370	some_indirectly_called_function_417370
+#0x417389	some_indirectly_called_function_417389
+#0x417482	some_indirectly_called_function_417482
+#0x4174d1	some_indirectly_called_function_4174d1
+#0x4174ea	some_indirectly_called_function_4174ea
+#0x417503	some_indirectly_called_function_417503
+#0x417546	some_indirectly_called_function_417546
+#0x41755f	some_indirectly_called_function_41755f
+#0x41758f	some_indirectly_called_function_41758f
+#0x4175a8	some_indirectly_called_function_4175a8
+#0x4175d1	some_indirectly_called_function_4175d1
+#0x417632	some_indirectly_called_function_417632
+#0x417680	some_indirectly_called_function_417680
+#0x4176c5	some_indirectly_called_function_4176c5
+#0x417703	some_indirectly_called_function_417703
+#0x41772a	some_indirectly_called_function_41772a
+#0x417760	some_indirectly_called_function_417760
+#0x4177a0	some_indirectly_called_function_4177a0
+#0x4177c7	some_indirectly_called_function_4177c7
+#0x4177ee	some_indirectly_called_function_4177ee
 0x417869	some_indirectly_called_function_417869
-0x417882	some_indirectly_called_function_417882
-0x4178a0	some_indirectly_called_function_4178a0
-0x4178b9	some_indirectly_called_function_4178b9
-0x417902	some_indirectly_called_function_417902
-0x417950	some_indirectly_called_function_417950
-0x417995	some_indirectly_called_function_417995
-0x4179ea	some_indirectly_called_function_4179ea
-0x417a3a	some_indirectly_called_function_417a3a
-0x417a53	some_indirectly_called_function_417a53
-0x417a71	some_indirectly_called_function_417a71
-0x417a9c	some_indirectly_called_function_417a9c
-0x417ac5	some_indirectly_called_function_417ac5
-0x417af1	some_indirectly_called_function_417af1
-0x417b18	some_indirectly_called_function_417b18
-0x417b3f	some_indirectly_called_function_417b3f
-0x417b66	some_indirectly_called_function_417b66
-0x417bce	some_indirectly_called_function_417bce
-0x417be7	some_indirectly_called_function_417be7
-0x417c05	some_indirectly_called_function_417c05
-0x417c1e	some_indirectly_called_function_417c1e
-0x417c64	some_indirectly_called_function_417c64
-0x417c8b	some_indirectly_called_function_417c8b
-0x417cb2	some_indirectly_called_function_417cb2
-0x417cd9	some_indirectly_called_function_417cd9
-0x417d00	some_indirectly_called_function_417d00
-0x417d34	some_indirectly_called_function_417d34
-0x417d4d	some_indirectly_called_function_417d4d
-0x417d74	some_indirectly_called_function_417d74
-0x418fb6	some_indirectly_called_function_418fb6
-0x418fe5	some_indirectly_called_function_418fe5
-0x418ffe	some_indirectly_called_function_418ffe
-0x419025	some_indirectly_called_function_419025
-0x41904c	some_indirectly_called_function_41904c
-0x4190cb	some_indirectly_called_function_4190cb
-0x41912a	some_indirectly_called_function_41912a
-0x419151	some_indirectly_called_function_419151
-0x419184	some_indirectly_called_function_419184
-0x419222	some_indirectly_called_function_419222
-0x41923b	some_indirectly_called_function_41923b
+#0x417882	some_indirectly_called_function_417882
+#0x4178a0	some_indirectly_called_function_4178a0
+#0x4178b9	some_indirectly_called_function_4178b9
+#0x417902	some_indirectly_called_function_417902
+#0x417950	some_indirectly_called_function_417950
+#0x417995	some_indirectly_called_function_417995
+#0x4179ea	some_indirectly_called_function_4179ea
+#0x417a3a	some_indirectly_called_function_417a3a
+#0x417a53	some_indirectly_called_function_417a53
+#0x417a71	some_indirectly_called_function_417a71
+#0x417a9c	some_indirectly_called_function_417a9c
+#0x417ac5	some_indirectly_called_function_417ac5
+#0x417af1	some_indirectly_called_function_417af1
+#0x417b18	some_indirectly_called_function_417b18
+#0x417b3f	some_indirectly_called_function_417b3f
+#0x417b66	some_indirectly_called_function_417b66
+#0x417bce	some_indirectly_called_function_417bce
+#0x417be7	some_indirectly_called_function_417be7
+#0x417c05	some_indirectly_called_function_417c05
+#0x417c1e	some_indirectly_called_function_417c1e
+#0x417c64	some_indirectly_called_function_417c64
+#0x417c8b	some_indirectly_called_function_417c8b
+#0x417cb2	some_indirectly_called_function_417cb2
+#0x417cd9	some_indirectly_called_function_417cd9
+#0x417d00	some_indirectly_called_function_417d00
+#0x417d34	some_indirectly_called_function_417d34
+#0x417d4d	some_indirectly_called_function_417d4d
+#0x417d74	some_indirectly_called_function_417d74
+#0x418fb6	some_indirectly_called_function_418fb6
+#0x418fe5	some_indirectly_called_function_418fe5
+#0x418ffe	some_indirectly_called_function_418ffe
+#0x419025	some_indirectly_called_function_419025
+#0x41904c	some_indirectly_called_function_41904c
+#0x4190cb	some_indirectly_called_function_4190cb
+#0x41912a	some_indirectly_called_function_41912a
+#0x419151	some_indirectly_called_function_419151
+#0x419184	some_indirectly_called_function_419184
+#0x419222	some_indirectly_called_function_419222
+#0x41923b	some_indirectly_called_function_41923b
 0x4192bd	some_indirectly_called_function_4192bd
-0x4192d6	some_indirectly_called_function_4192d6
+#0x4192d6	some_indirectly_called_function_4192d6
 0x419340	some_indirectly_called_function_419340
-0x419359	some_indirectly_called_function_419359
+#0x419359	some_indirectly_called_function_419359
 0x4193cb	some_indirectly_called_function_4193cb
-0x4193e4	some_indirectly_called_function_4193e4
+#0x4193e4	some_indirectly_called_function_4193e4
 0x419456	some_indirectly_called_function_419456
-0x41946f	some_indirectly_called_function_41946f
+#0x41946f	some_indirectly_called_function_41946f
 0x4194ca	some_indirectly_called_function_4194ca
-0x4194e3	some_indirectly_called_function_4194e3
+#0x4194e3	some_indirectly_called_function_4194e3
 0x419555	some_indirectly_called_function_419555
-0x41956e	some_indirectly_called_function_41956e
+#0x41956e	some_indirectly_called_function_41956e
 0x4195c9	some_indirectly_called_function_4195c9
-0x4195e2	some_indirectly_called_function_4195e2
+#0x4195e2	some_indirectly_called_function_4195e2
 #0x419648	some_indirectly_called_function_419648
 #0x419662	some_indirectly_called_function_419662
 #0x419683	some_indirectly_called_function_419683
@@ -2285,28 +2289,28 @@ skip 0x2bf5e
 #0x419a8e	some_indirectly_called_function_419a8e
 #0x419ad4	some_indirectly_called_function_419ad4
 #0x419aec	some_indirectly_called_function_419aec
-0x41b3aa	some_indirectly_called_function_41b3aa
-0x41b3c3	some_indirectly_called_function_41b3c3
-0x41b3dc	some_indirectly_called_function_41b3dc
-0x41b3f9	some_indirectly_called_function_41b3f9
-0x41b420	some_indirectly_called_function_41b420
-0x41b447	some_indirectly_called_function_41b447
-0x41b46e	some_indirectly_called_function_41b46e
-0x41b4b7	some_indirectly_called_function_41b4b7
+#0x41b3aa	some_indirectly_called_function_41b3aa
+#0x41b3c3	some_indirectly_called_function_41b3c3
+#0x41b3dc	some_indirectly_called_function_41b3dc
+#0x41b3f9	some_indirectly_called_function_41b3f9
+#0x41b420	some_indirectly_called_function_41b420
+#0x41b447	some_indirectly_called_function_41b447
+#0x41b46e	some_indirectly_called_function_41b46e
+#0x41b4b7	some_indirectly_called_function_41b4b7
 0x41b539	some_indirectly_called_function_41b539
-0x41b552	some_indirectly_called_function_41b552
+#0x41b552	some_indirectly_called_function_41b552
 0x41b5ad	some_indirectly_called_function_41b5ad
-0x41b5c6	some_indirectly_called_function_41b5c6
+#0x41b5c6	some_indirectly_called_function_41b5c6
 0x41b621	some_indirectly_called_function_41b621
-0x41b63a	some_indirectly_called_function_41b63a
+#0x41b63a	some_indirectly_called_function_41b63a
 0x41b695	some_indirectly_called_function_41b695
-0x41b6ae	some_indirectly_called_function_41b6ae
+#0x41b6ae	some_indirectly_called_function_41b6ae
 0x41b709	some_indirectly_called_function_41b709
-0x41b722	some_indirectly_called_function_41b722
+#0x41b722	some_indirectly_called_function_41b722
 0x41b77d	some_indirectly_called_function_41b77d
-0x41b796	some_indirectly_called_function_41b796
+#0x41b796	some_indirectly_called_function_41b796
 0x41b7f1	some_indirectly_called_function_41b7f1
-0x41b80a	some_indirectly_called_function_41b80a
+#0x41b80a	some_indirectly_called_function_41b80a
 #0x41b868	some_indirectly_called_function_41b868
 #0x41b880	some_indirectly_called_function_41b880
 #0x41b8a6	some_indirectly_called_function_41b8a6
@@ -2319,76 +2323,76 @@ skip 0x2bf5e
 #0x41bb17	some_indirectly_called_function_41bb17
 #0x41bc28	some_indirectly_called_function_41bc28
 #0x41bc40	some_indirectly_called_function_41bc40
-0x41bcaf	some_indirectly_called_function_41bcaf
-0x41bcc8	some_indirectly_called_function_41bcc8
-0x41bd27	some_indirectly_called_function_41bd27
-0x41bd40	some_indirectly_called_function_41bd40
-0x41bd79	some_indirectly_called_function_41bd79
-0x41bd92	some_indirectly_called_function_41bd92
-0x41bdd3	some_indirectly_called_function_41bdd3
-0x41bdec	some_indirectly_called_function_41bdec
-0x41be45	some_indirectly_called_function_41be45
-0x41be5e	some_indirectly_called_function_41be5e
-0x41bf28	some_indirectly_called_function_41bf28
-0x41bf41	some_indirectly_called_function_41bf41
-0x41bf85	some_indirectly_called_function_41bf85
-0x41bf9e	some_indirectly_called_function_41bf9e
-0x41bfe9	some_indirectly_called_function_41bfe9
-0x41c002	some_indirectly_called_function_41c002
+#0x41bcaf	some_indirectly_called_function_41bcaf
+#0x41bcc8	some_indirectly_called_function_41bcc8
+#0x41bd27	some_indirectly_called_function_41bd27
+#0x41bd40	some_indirectly_called_function_41bd40
+#0x41bd79	some_indirectly_called_function_41bd79
+#0x41bd92	some_indirectly_called_function_41bd92
+#0x41bdd3	some_indirectly_called_function_41bdd3
+#0x41bdec	some_indirectly_called_function_41bdec
+#0x41be45	some_indirectly_called_function_41be45
+#0x41be5e	some_indirectly_called_function_41be5e
+#0x41bf28	some_indirectly_called_function_41bf28
+#0x41bf41	some_indirectly_called_function_41bf41
+#0x41bf85	some_indirectly_called_function_41bf85
+#0x41bf9e	some_indirectly_called_function_41bf9e
+#0x41bfe9	some_indirectly_called_function_41bfe9
+#0x41c002	some_indirectly_called_function_41c002
 #0x41d7a4	some_indirectly_called_function_41d7a4
 0x28bfb6	some_indirectly_called_function_28bfb6
-0x41f1aa	some_indirectly_called_function_41f1aa
-0x41f1c5	some_indirectly_called_function_41f1c5
-0x41f227	some_indirectly_called_function_41f227
-0x41f242	some_indirectly_called_function_41f242
-0x41f26b	some_indirectly_called_function_41f26b
-0x41f2c2	some_indirectly_called_function_41f2c2
-0x41f2e5	some_indirectly_called_function_41f2e5
-0x41f300	some_indirectly_called_function_41f300
-0x41f329	some_indirectly_called_function_41f329
-0x41f369	some_indirectly_called_function_41f369
-0x41f7d2	some_indirectly_called_function_41f7d2
-0x41f7eb	some_indirectly_called_function_41f7eb
-0x41f844	some_indirectly_called_function_41f844
+#0x41f1aa	some_indirectly_called_function_41f1aa
+#0x41f1c5	some_indirectly_called_function_41f1c5
+#0x41f227	some_indirectly_called_function_41f227
+#0x41f242	some_indirectly_called_function_41f242
+#0x41f26b	some_indirectly_called_function_41f26b
+#0x41f2c2	some_indirectly_called_function_41f2c2
+#0x41f2e5	some_indirectly_called_function_41f2e5
+#0x41f300	some_indirectly_called_function_41f300
+#0x41f329	some_indirectly_called_function_41f329
+#0x41f369	some_indirectly_called_function_41f369
+#0x41f7d2	some_indirectly_called_function_41f7d2
+#0x41f7eb	some_indirectly_called_function_41f7eb
+#0x41f844	some_indirectly_called_function_41f844
 #0x41fd27	some_indirectly_called_function_41fd27
 #0x41fd3f	some_indirectly_called_function_41fd3f
 #0x41fd99	some_indirectly_called_function_41fd99
 #0x41fdb1	some_indirectly_called_function_41fdb1
 #0x41fde4	some_indirectly_called_function_41fde4
 #0x41fe06	some_indirectly_called_function_41fe06
-0x41fe34	some_indirectly_called_function_41fe34
+#0x41fe34	some_indirectly_called_function_41fe34
 #0x41fe66	some_indirectly_called_function_41fe66
 #0x41fe88	some_indirectly_called_function_41fe88
-0x41fea9	some_indirectly_called_function_41fea9
-0x420c97	some_indirectly_called_function_420c97
-0x420cb0	some_indirectly_called_function_420cb0
-0x420cec	some_indirectly_called_function_420cec
-0x420d05	some_indirectly_called_function_420d05
-0x420d48	some_indirectly_called_function_420d48
-0x420d61	some_indirectly_called_function_420d61
-0x420fc1	some_indirectly_called_function_420fc1
-0x420fda	some_indirectly_called_function_420fda
-0x42102f	some_indirectly_called_function_42102f
-0x421048	some_indirectly_called_function_421048
-0x4213c0	some_indirectly_called_function_4213c0
-0x4213d9	some_indirectly_called_function_4213d9
-0x4213f2	some_indirectly_called_function_4213f2
-0x42140b	some_indirectly_called_function_42140b
-0x421467	some_indirectly_called_function_421467
-0x4214ac	some_indirectly_called_function_4214ac
-0x4214d3	some_indirectly_called_function_4214d3
-0x421521	some_indirectly_called_function_421521
-0x42153a	some_indirectly_called_function_42153a
-0x421597	some_indirectly_called_function_421597
-0x4215b0	some_indirectly_called_function_4215b0
-0x42160c	some_indirectly_called_function_42160c
-0x421625	some_indirectly_called_function_421625
-0x4217bc	some_indirectly_called_function_4217bc
-0x4217d5	some_indirectly_called_function_4217d5
-0x421825	some_indirectly_called_function_421825
-0x42183e	some_indirectly_called_function_42183e
-0x4218af	some_indirectly_called_function_4218af
-0x4218d9	some_indirectly_called_function_4218d9
+#0x41fea9	some_indirectly_called_function_41fea9
+#0x420c97	some_indirectly_called_function_420c97
+#0x420cb0	some_indirectly_called_function_420cb0
+#0x420cec	some_indirectly_called_function_420cec
+#0x420d05	some_indirectly_called_function_420d05
+#0x420d48	some_indirectly_called_function_420d48
+#0x420d61	some_indirectly_called_function_420d61
+#0x420fc1	some_indirectly_called_function_420fc1
+#0x420fda	some_indirectly_called_function_420fda
+#0x42102f	some_indirectly_called_function_42102f
+#0x421048	some_indirectly_called_function_421048
+#0x4213c0	some_indirectly_called_function_4213c0
+#0x4213d9	some_indirectly_called_function_4213d9
+#0x4213f2	some_indirectly_called_function_4213f2
+#0x42140b	some_indirectly_called_function_42140b
+#0x421467	some_indirectly_called_function_421467
+#0x4214ac	some_indirectly_called_function_4214ac
+#0x4214d3	some_indirectly_called_function_4214d3
+#0x421521	some_indirectly_called_function_421521
+#0x42153a	some_indirectly_called_function_42153a
+#0x421597	some_indirectly_called_function_421597
+#0x4215b0	some_indirectly_called_function_4215b0
+#0x42160c	some_indirectly_called_function_42160c
+#0x421625	some_indirectly_called_function_421625
+#0x4217bc	some_indirectly_called_function_4217bc
+#0x4217d5	some_indirectly_called_function_4217d5
+#0x421825	some_indirectly_called_function_421825
+#0x42183e	some_indirectly_called_function_42183e
+#0x4218af	some_indirectly_called_function_4218af
+#0x4218d9	some_indirectly_called_function_4218d9
 #0x421bb3	some_indirectly_called_function_421bb3 
 #0x421bcd	some_indirectly_called_function_421bcd
 #0x421bf4	some_indirectly_called_function_421bf4
@@ -2401,59 +2405,59 @@ skip 0x2bf5e
 #0x421e8f	some_indirectly_called_function_421e8f
 #0x421ef9	some_indirectly_called_function_421ef9
 #0x421f11	some_indirectly_called_function_421f11
-0x4220aa	some_indirectly_called_function_4220aa
-0x4220c3	some_indirectly_called_function_4220c3
-0x42212f	some_indirectly_called_function_42212f
-0x422148	some_indirectly_called_function_422148
-0x422185	some_indirectly_called_function_422185
-0x42219e	some_indirectly_called_function_42219e
-0x422993	some_indirectly_called_function_422993
-0x4229ac	some_indirectly_called_function_4229ac
+#0x4220aa	some_indirectly_called_function_4220aa
+#0x4220c3	some_indirectly_called_function_4220c3
+#0x42212f	some_indirectly_called_function_42212f
+#0x422148	some_indirectly_called_function_422148
+#0x422185	some_indirectly_called_function_422185
+#0x42219e	some_indirectly_called_function_42219e
+#0x422993	some_indirectly_called_function_422993
+#0x4229ac	some_indirectly_called_function_4229ac
 #0x422da4	some_indirectly_called_function_422da4
 #0x422dbc	some_indirectly_called_function_422dbc
 #0x422e12	some_indirectly_called_function_422e12
 #0x422e2c	some_indirectly_called_function_422e2c
 #0x422e56	some_indirectly_called_function_422e56
-0x423a0a	some_indirectly_called_function_423a0a
-0x423a81	some_indirectly_called_function_423a81
-0x423d96	some_indirectly_called_function_423d96
-0x423daf	some_indirectly_called_function_423daf
-0x423e26	some_indirectly_called_function_423e26
-0x423e6c	some_indirectly_called_function_423e6c
-0x423ed9	some_indirectly_called_function_423ed9
-0x424025	some_indirectly_called_function_424025
-0x42403e	some_indirectly_called_function_42403e
-0x4240f8	some_indirectly_called_function_4240f8
-0x424111	some_indirectly_called_function_424111
-0x4241ca	some_indirectly_called_function_4241ca
-0x42420a	some_indirectly_called_function_42420a
-0x4247eb	some_indirectly_called_function_4247eb
-0x424845	some_indirectly_called_function_424845
-0x424e60	some_indirectly_called_function_424e60
-0x424e79	some_indirectly_called_function_424e79
+#0x423a0a	some_indirectly_called_function_423a0a
+#0x423a81	some_indirectly_called_function_423a81
+#0x423d96	some_indirectly_called_function_423d96
+#0x423daf	some_indirectly_called_function_423daf
+#0x423e26	some_indirectly_called_function_423e26
+#0x423e6c	some_indirectly_called_function_423e6c
+#0x423ed9	some_indirectly_called_function_423ed9
+#0x424025	some_indirectly_called_function_424025
+#0x42403e	some_indirectly_called_function_42403e
+#0x4240f8	some_indirectly_called_function_4240f8
+#0x424111	some_indirectly_called_function_424111
+#0x4241ca	some_indirectly_called_function_4241ca
+#0x42420a	some_indirectly_called_function_42420a
+#0x4247eb	some_indirectly_called_function_4247eb
+#0x424845	some_indirectly_called_function_424845
+#0x424e60	some_indirectly_called_function_424e60
+#0x424e79	some_indirectly_called_function_424e79
 #0x4253fe	some_indirectly_called_function_4253fe
-0x4255df	some_indirectly_called_function_4255df
-0x4259c2	some_indirectly_called_function_4259c2
-0x4259db	some_indirectly_called_function_4259db
-0x425a3a	some_indirectly_called_function_425a3a
-0x425a53	some_indirectly_called_function_425a53
+#0x4255df	some_indirectly_called_function_4255df
+#0x4259c2	some_indirectly_called_function_4259c2
+#0x4259db	some_indirectly_called_function_4259db
+#0x425a3a	some_indirectly_called_function_425a3a
+#0x425a53	some_indirectly_called_function_425a53
 #0x425bd9	some_indirectly_called_function_425bd9
-0x425c93	some_indirectly_called_function_425c93
-0x425caf	some_indirectly_called_function_425caf
+#0x425c93	some_indirectly_called_function_425c93
+#0x425caf	some_indirectly_called_function_425caf
 0x42650d	some_indirectly_called_function_42650d
 0x426526	some_indirectly_called_function_426526
 0x42653d	some_indirectly_called_function_42653d
-0x426575	some_indirectly_called_function_426575
-0x42658e	some_indirectly_called_function_42658e
-0x426877	some_indirectly_called_function_426877
-0x426890	some_indirectly_called_function_426890
+#0x426575	some_indirectly_called_function_426575
+#0x42658e	some_indirectly_called_function_42658e
+#0x426877	some_indirectly_called_function_426877
+#0x426890	some_indirectly_called_function_426890
 0x426b1f	some_indirectly_called_function_426b1f
-0x426b7e	some_indirectly_called_function_426b7e
-0x426b97	some_indirectly_called_function_426b97
-0x426c20	some_indirectly_called_function_426c20
-0x426c39	some_indirectly_called_function_426c39
-0x426da3	some_indirectly_called_function_426da3
-0x426dbc	some_indirectly_called_function_426dbc
+#0x426b7e	some_indirectly_called_function_426b7e
+#0x426b97	some_indirectly_called_function_426b97
+#0x426c20	some_indirectly_called_function_426c20
+#0x426c39	some_indirectly_called_function_426c39
+#0x426da3	some_indirectly_called_function_426da3
+#0x426dbc	some_indirectly_called_function_426dbc
 #0x427453	some_indirectly_called_function_427453
 #0x427467	some_indirectly_called_function_427467
 

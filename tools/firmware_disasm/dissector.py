@@ -1102,10 +1102,12 @@ def reset_instructions():
 
 def store_instruction( word_array, mnemonic, parameters, comment ):
     global g_instruction_store
+    parameters = parameters or [] 
     g_instruction_store.append({
         'words': word_array,
         'mnemonic': mnemonic,
         'parameters': parameters,
+        'param_count': len( parameters ),
         'comment': comment,
         'PC': g_PC,
         'pointer': g_pointer,
@@ -2011,13 +2013,25 @@ def preprocess_mutations():
     g_max_mutation_len = 0
     for mutation in table_instruction_mutations:
 
-        matcher = mutation[ 'from' ]
+        matchers = mutation[ 'from' ]
+        matchers_cnt = len(matchers)
 
         #part 1: get global max mutation len
-        g_max_mutation_len = max( len(matcher)-1, g_max_mutation_len )
+        g_max_mutation_len = max( matchers_cnt - 1, g_max_mutation_len )
 
-        #part 2: extract all mnemonics and cache it for faster future comparisons
-        mutation['mnemonics'] = [m['mnemonic'] for m in matcher]
+        #part 2: number of matchers for fast prechecks
+        mutation['matchers_cnt'] = matchers_cnt
+
+        #part 3: extract all mnemonics and cache it for faster future comparisons
+        mutation['mnemonics'] = [m['mnemonic'] for m in matchers]
+
+        #part 4: cache maximum number of parameters to inspect
+        for matcher in matchers:
+            max_param = 0
+            for key in matcher:
+                if key.startswith('param'):
+                    max_param = max( max_param, int(key[5]) )
+            matcher['max_param'] = max_param
 
 
 def mutate_one_instruction(pat,inst,ctx):
@@ -2062,44 +2076,44 @@ def mutate_one_instruction(pat,inst,ctx):
     return
 
 def check_instruction_match(pat,inst,ctx):
-    pars = inst.get('parameters')
-    inst_pars = 0
-    if pars is not None:
-        inst_pars = len(pars)
+    inst_pars = inst['param_count']
+    if pat['max_param'] > inst_pars:
+        return False
 
+    pars = inst['parameters']
     for id, val in pat.items():
         if id=='mnemonic':
             if inst['mnemonic']==val:
                 continue
             return False
+        elif id=='max_param':
+            continue
         elif id=='param1t':
-            if inst_pars >= 1 and pars[0][0]==val:
+            if pars[0][0]==val:
                 continue
             return False
         elif id=='param1v':
-            if inst_pars >= 1 and pars[0][1]==val:
+            if pars[0][1]==val:
                 continue
             return False
         elif id=='param2t':
-            if inst_pars >= 2 and pars[1][0]==val:
+            if pars[1][0]==val:
                 continue
             return False
         elif id=='param2v':
-            if inst_pars >= 2 and pars[1][1]==val:
+            if pars[1][1]==val:
                 continue
             return False
         elif id=='param3t':
-            if inst_pars >= 3 and pars[2][0]==val:
+            if pars[2][0]==val:
                 continue
             return False
         elif id=='param3v':
-            if inst_pars >= 3 and pars[2][1]==val:
+            if pars[2][1]==val:
                 continue
             return False
         elif id=='param2vc':
-            if inst_pars >= 2:
-                if not val(pars[1][1]):
-                    return False
+            if val(pars[1][1]):
                 continue
             return False
         elif id=='store':
@@ -2125,14 +2139,16 @@ def instructions_mutator():
 
     all_instr_mnemonics = [inst['mnemonic'] for inst in g_instruction_store]
 
+    #track context between instructions and replacements here
+    ctx = dict()
+
     while idx < cnt:
         restart_on_match = False
         max_ahead = cnt - idx
 
         for mutation in table_instruction_mutations:
             #we now have one mutation in hand
-            matcher = mutation[ 'from' ]
-            matcher_from_cnt = len(matcher)
+            matcher_from_cnt = mutation['matchers_cnt']
 
             #only mutations short enough
             #this is valid most of the time (will only fail at the end of the instruction block)
@@ -2142,50 +2158,53 @@ def instructions_mutator():
             if all_instr_mnemonics[idx : idx + matcher_from_cnt] != mutation[ 'mnemonics' ]:
                 continue
 
-            #track context between instructions and replacements here
-            ctx = dict()
-            #how many instructions must be matched for the replacement to take place
-            left_to_match = matcher_from_cnt
+            matchers = mutation[ 'from' ]
+            ctx.clear()
+
+            not_matching = False
 
             for i in range(matcher_from_cnt):
                 if i >= 1 and g_instruction_store[idx+i]['PC'] in g_symbolsValue2Name:
+                    not_matching = True
                     break
-                if check_instruction_match( matcher[ i ], g_instruction_store[ idx + i ], ctx ):
-                    left_to_match -= 1
-                else:
+                if not check_instruction_match( matchers[ i ], g_instruction_store[ idx + i ], ctx ):
+                    not_matching = True
                     break
 
+            if not_matching:
+                #matchers/inline jump tests failed, next mutation, please
+                continue
+            
             #all of the conditions matched
-            if left_to_match == 0:
-                #create new instruction, current logic is to leave the first one and replace its params
-                #not even the copy
-                inst = g_instruction_store[ idx ]
-                mutate_one_instruction( mutation[ 'to' ], inst, ctx )
 
-                #we store the raw instruction bytes intact
-                #mostly for checking the validity if needed
-                all_words = []
-                for i in range(matcher_from_cnt):
-                    all_words += g_instruction_store[idx+i]['words']
-                inst['words'] = all_words
+            #create new instruction, current logic is to leave the first one and replace its params
+            #not even the copy
+            inst = g_instruction_store[ idx ]
+            mutate_one_instruction( mutation[ 'to' ], inst, ctx )
 
-                #remove replaced instructions
-                #logic is currently hardcoded N-to-1, and this need better explanation
-                #remove matcher_from_cnt - 1 instructions (we always do N->1)
-                del g_instruction_store[idx+1:idx+matcher_from_cnt] 
-                #also remove precached mnemonics
-                del all_instr_mnemonics[idx+1:idx+matcher_from_cnt] 
-                #replace mnemonic in first, possibly modified instruction
-                all_instr_mnemonics[idx] = inst['mnemonic']
-                #and shorten the instruction count accordingly
-                cnt -= matcher_from_cnt - 1
+            #we store the raw instruction bytes intact
+            #mostly for checking the validity if needed
+            all_words = []
+            for i in range(matcher_from_cnt):
+                all_words += g_instruction_store[idx+i]['words']
+            inst['words'] = all_words
 
-                #backtrack - since we're still on idx, the longest mutation may touch it when we backtrack the longest len
-                #there may be off-by-1, but not exactly harmful
-                idx = max( 0, idx - g_max_mutation_len)
-                restart_on_match = True
-                break
-            #endif to_match
+            #remove replaced instructions
+            #logic is currently hardcoded N-to-1, and this need better explanation
+            #remove matcher_from_cnt - 1 instructions (we always do N->1)
+            del g_instruction_store[idx+1:idx+matcher_from_cnt] 
+            #also remove precached mnemonics
+            del all_instr_mnemonics[idx+1:idx+matcher_from_cnt] 
+            #replace mnemonic in first, possibly modified instruction
+            all_instr_mnemonics[idx] = inst['mnemonic']
+            #and shorten the instruction count accordingly
+            cnt -= matcher_from_cnt - 1
+
+            #backtrack - since we're still on idx, the longest mutation may touch it when we backtrack the longest len
+            #there may be off-by-1, but not exactly harmful
+            idx = max( 0, idx - g_max_mutation_len)
+            restart_on_match = True
+            break
         #endfor
         if restart_on_match:
             continue

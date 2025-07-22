@@ -186,6 +186,7 @@ def add_auto_symbol( prefix, value ):
             g_symbolsValue2Name[value] = symbol
             if symbol not in g_symbolsName2Value:
                 g_symbolsName2Value[symbol] = value
+            return symbol
 
 def add_symbol( name, value ):
     global g_symbolsName2Value
@@ -423,17 +424,45 @@ def jumptable_preparse(param1, param2_dict, lineno):
     global g_PC
     num = parse_decimal_multiply(param1, lineno)
 
-    add_auto_symbol( "jmptbl", g_PC )
+    if 'base' in param2_dict:
+        base = parse_int_or_hex(param2_dict['base'], lineno)
+        del param2_dict['base']
+    else:
+        base = 0
 
-    for _ in range(num):
+    if 'prefix' in param2_dict:
+        prefix = "auto_" + param2_dict['prefix']
+        add_symbol(f"{prefix}_{g_PC:06x}", g_PC)
+        del param2_dict['prefix']
+    else:
+        prefix = add_auto_symbol( "jmptbl", g_PC )
+
+    dests = dict()
+
+    for index in range(num):
         data = g_handle_input.read(2)
         if len(data) != 2:
-            raise Exception("jumptable_execute: not enough data")
+            raise Exception("jumptable_preparse: not enough data")
         value = int.from_bytes(data, 'little')
         value = value | ( g_PC & 0x00FF0000 )
 
-        add_auto_symbol( "jmptbl_dst", value )
+        case = base + index
+        if value in dests:
+            dests[value].append(f"{case:x}")
+        else:
+            dests[value] = [f"{case:x}"]
         pointer_move(2)
+
+    for value, cases in dests.items():
+        num_cases = len(cases)
+        if num_cases >= 5:
+            symbol = f"{prefix}_default_{value:06x}"
+        elif num_cases > 1:
+            symbol = f"{prefix}_cases_{'_'.join(cases)}"
+        else:
+            symbol = f"{prefix}_case_{cases[0]}"
+        if not value in g_symbolsValue2Name:
+            add_symbol(symbol, value)
 
     #g_handle_input.seek( num * 2, 1 )
     return {'count': num, 'consumed_bytes': 0 }
@@ -702,7 +731,6 @@ def find_addr_in_routine(addr):
             if start in g_symbolsValue2Name:
                 sym = g_symbolsValue2Name[start]
             return f"{sym}+0x{delta:x}"
-            
     return ""
 
 def dump_symbols_table():

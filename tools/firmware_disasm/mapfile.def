@@ -2499,24 +2499,24 @@ skip 0x2bf5e
 
 0x40bbe3	Switch_on_30_to_51|a
 
-#0x40bd75	switch_handler_fwcode_30_volplus|a
-#0x40bd83	switch_handler_fwcode_31_volminus|a 
+0x40bd75	switch_handler_fwcode_30_volplus|a
+0x40bd83	switch_handler_fwcode_31_volminus|a 
 #0x40bd91	switch_handler_fwcode_32_unk|a
 #0x40bd97	switch_handler_fwcode_33_unk|a
-#0x40bd9d	switch_handler_fwcode_40_mp3|a
+0x40bd9d	switch_handler_fwcode_40_mp3|a
 #0x40bda5	switch_handler_fwcode_41_unk|a
-#0x40bda9	switch_handler_fwcode_42_mp3_pause|a
-#0x40bdad	switch_handler_fwcode_43_mp3_play|a 
-#0x40bdb1	switch_handler_fwcode_44_mp3_stop|a 
-#0x40bdb5	switch_handler_fwcode_45_mp3_next|a 
-#0x40bdb9	switch_handler_fwcode_46_mp3_prev|a 
+0x40bda9	switch_handler_fwcode_42_mp3_pause|a
+0x40bdad	switch_handler_fwcode_43_mp3_play|a 
+0x40bdb1	switch_handler_fwcode_44_mp3_stop|a 
+0x40bdb5	switch_handler_fwcode_45_mp3_next|a 
+0x40bdb9	switch_handler_fwcode_46_mp3_prev|a 
 #0x40bdbd	switch_handler_fwcode_47_unk|a
 #0x40bdc1	switch_handler_fwcode_48_unk|a
 #0x40bdc5	switch_handler_fwcode_49_unk|a
 #0x40bdc9	switch_handler_fwcode_4a_unk|a
 #0x40bdcd	switch_handler_fwcode_4b_unk|a
 #0x40bdd1	switch_handler_fwcode_4c_unk|a
-#0x40bde8	switch_handler_fwcode_50_compare|a
+0x40bde8	switch_handler_fwcode_50_compare|a
 #0x40bdf0	switch_handler_fwcode_51_unk|a
 
 0x40bc21	Switch_on_00_to_12|a
@@ -2525,7 +2525,7 @@ skip 0x2bf5e
 0x40bd69	handler_fwcode_11_unk|a
 0x40bd71	handler_fwcode_12_unk|a
 
-#0x40be0c	switch_handler_fwcode_80_stop|a
+0x40be0c	switch_handler_fwcode_80_stop|a
 #0x40be14	switch_handler_fwcode_81_unk|a
 #0x40be1c	switch_handler_fwcode_82_unk|a
 #0x40be24	switch_handler_fwcode_83_unk|a
@@ -2753,24 +2753,24 @@ skip 0x2bf5e
 #0x40d715	switch_handler_fwcode_ef_unk|c
 #0x40d815	switch_handler_fwcode_MULTI_unk|c
 
-#0x40d2ce	switch_handler_fwcode_30_volplus|c 
-#0x40d2dc	switch_handler_fwcode_31_volminus|c
+0x40d2ce	switch_handler_fwcode_30_volplus|c 
+0x40d2dc	switch_handler_fwcode_31_volminus|c
 #0x40d2ea	switch_handler_fwcode_32_unk|c
 #0x40d2f0	switch_handler_fwcode_33_unk|c
-#0x40d2f6	switch_handler_fwcode_40_mp3|c
+0x40d2f6	switch_handler_fwcode_40_mp3|c
 #0x40d2fe	switch_handler_fwcode_41_unk|c
-#0x40d37e	switch_handler_fwcode_42_mp3_pause|c
-#0x40d388	switch_handler_fwcode_43_mp3_play|c
-#0x40d408	switch_handler_fwcode_44_mp3_stop|c
-#0x40d40c	switch_handler_fwcode_45_mp3_next|c
-#0x40d478	switch_handler_fwcode_46_mp3_prev|c
+0x40d37e	switch_handler_fwcode_42_mp3_pause|c
+0x40d388	switch_handler_fwcode_43_mp3_play|c
+0x40d408	switch_handler_fwcode_44_mp3_stop|c
+0x40d40c	switch_handler_fwcode_45_mp3_next|c
+0x40d478	switch_handler_fwcode_46_mp3_prev|c
 #0x40d4e4	switch_handler_fwcode_47_unk|c
 #0x40d4e8	switch_handler_fwcode_48_unk|c
 #0x40d4ee	switch_handler_fwcode_49_unk|c
 #0x40d4f3	switch_handler_fwcode_4a_unk|c
 #0x40d4f9	switch_handler_fwcode_4b_unk|c
 #0x40d4ff	switch_handler_fwcode_4c_unk|c
-#0x40d516	switch_handler_fwcode_50_compare|c 
+0x40d516	switch_handler_fwcode_50_compare|c 
 #0x40d51e	switch_handler_fwcode_51_unk|c
 
 0x40d2a5	handler_fwcode_00_unk|c
@@ -2787,7 +2787,7 @@ skip 0x2bf5e
 #0x40d55e	switch_handler_fwcode_76_unk|c
 #0x40d565	switch_handler_fwcode_77_unk|c
 #0x40d56c	switch_handler_fwcode_78_unk|c
-#0x40d573	switch_handler_fwcode_80_stop|c
+0x40d573	switch_handler_fwcode_80_stop|c
 #0x40d57b	switch_handler_fwcode_81_unk|c
 #0x40d583	switch_handler_fwcode_82_unk|c
 #0x40d58b	switch_handler_fwcode_83_unk|c

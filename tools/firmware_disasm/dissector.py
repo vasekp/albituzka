@@ -431,8 +431,8 @@ def jumptable_preparse(param1, param2_dict, lineno):
         base = 0
 
     if 'prefix' in param2_dict:
-        prefix = param2_dict['prefix']
-        add_symbol(f"jmptbl_{prefix}_{g_PC:06x}", g_PC)
+        prefix = "auto_" + param2_dict['prefix']
+        add_symbol(f"{prefix}_{g_PC:06x}", g_PC)
         del param2_dict['prefix']
     else:
         prefix = add_auto_symbol( "jmptbl", g_PC )

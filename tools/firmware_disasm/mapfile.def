@@ -477,7 +477,7 @@ asm 0x47CA
 jumptable 4x
 
 asm 0x41F6
-jumptable 9x
+jumptable 9x	base:0xa
 
 asm 0xEC
 jumptable 12x	base:0x24
@@ -1075,9 +1075,8 @@ word 1x	comment:6f/04 ALB ----
 
 word 22x	comment:unpartitioned2
 word 234x	comment:unpartitioned3
-word 306x	sym:tbl_encrypt_permutation
-
-
+word 256x	sym:tbl_encrypt_permutation
+word 50x	sym:tbl_syssound_id_to_map_id
 word 128x	sym:tbl_MP3_byte_offsets
 word 12x	sym:tbl_fwcode_to_mode
 
@@ -1127,7 +1126,7 @@ word 16x
 word 16x
 
 word 58x	symbol:tbl_offsets_to_3bin_mp3tbl2
-word 47x	symbol:tbl_offsets_to_3bin_unknown_place
+word 47x	symbol:tbl_offsets_to_3bin_mp3tbl1
 word 78x	symbol:tbl_num_to_3bin_string
 word 17x	sym:tbl_dac_volume_values
 word 60x	comment:unpartitioned6
@@ -1568,12 +1567,13 @@ skip 0x2bf5e
 	0x423acf	3bin ptr 0x030344 2BD0
 	0x423adb	3bin ptr 0x030346 000A
 0x423abc	Play_sound_from_3bin_mp3table2_stk(wSoundNum)
-0x4249f8	Play_sound_from_3bin_unknown_place_stk(wSoundNum)
-0x426f7c	Play_sound_from_3bin_forked_stk(wSoundNum)_return_bool_in_R0
-	0x426f83	if over 0x190, get out 
-	0x426f8d	if over 0xc8, translate with tbl_offsets_to_3bin_mp3tbl2 table and play from 3bin_mp3table2
-	0x426fa9	if under 0xc8, translate with tbl_offsets_to_3bin_unknown_place and play from 3bin_unknown_place
-	0x426fab	tbl_offsets_to_3bin_unknown_place
+0x4249f8	Play_sound_from_3bin_mp3table1_stk(wSoundNum)
+0x426f7c	Play_sound_from_3bin_forked_stk(wId)_return_bool_in_R0
+	0x426f83	if over 0x190 (dec 400), get out 
+	0x426f8d	if over 0xc8 (dec 200), translate with tbl_offsets_to_3bin_mp3tbl2 table and play from 3bin_mp3table2
+	0x426fa9	if under 0xc8, translate with tbl_offsets_to_3bin_mp3tbl1 and play from 3bin_mp3table1
+	0x426f96	tbl_offsets_to_3bin_mp3tbl2
+	0x426fab	tbl_offsets_to_3bin_mp3tbl1
 	0x40cd3b	tbl_num_to_3bin_string
 	0x40cdc5	tbl_num_to_3bin_string
 	0x40ce35	tbl_num_to_3bin_string
@@ -1821,6 +1821,13 @@ skip 0x2bf5e
 #so up to 39c9
 #struct[0] bool = if it's used/opened
 
+0x3d07	ptr_last_sound
+#length 3, allocated in 0x3d08 -- 0x3d0a
+#3d07[0] = type of sound, determines meaning of the content of 3d08[1-2] as follows:
+#  1: OID, but without associated mode. The sound table is restored from book_ctx[d].
+#  2: system sound, its id.
+#  3: OID, mode 0 sound table (book_mode set to 0 on replay).
+
 0x3db3	fw_config_30200__0168
 0x3db4	fw_config_30202__0078
 0x3db5	fw_config_30204__97
@@ -1920,6 +1927,8 @@ skip 0x2bf5e
 0x3dc8	timer_counter_0.1Hz
 0x3dc6	aux_timer_target
 0x3dc4	aux_timer_counter_10Hz
+0x3dde	sys_sound_playing_bitset
+#for first 0x40 sounds (4 words)
 
 #not sure why the indirection when it's singleton (even the singleton itself is overkill, when it could be bunch of globals)
 0x3d6a	ptr_to_book_ctx
@@ -1983,6 +1992,36 @@ skip 0x2bf5e
 0x4201dd	read_fw_configuration()
 0x420da8	find_temp_bookmode_and_sound_table(sndts_start)
 0x420f2e	init_book(file)
+0x4210b0	play_system_sound(wId)
+#The id is a number between 0 and 399 (decimal) with the same meaning as in Play_sound_from_3bin_forked_stk. HOWEVER:
+#- A check is done on a yet unassigned bitfield, which skips some sounds (generally jingles - silent mode?)
+#- For some indices the call is first made to play_system_sound_from_bnl, and only when it returns 0,
+#  Play_sound_from_3bin_forked_stk is called.
+#- This allows for overriding various system sounds with a fallback to 3.bin.
+#- This is always ON for the following indices:
+#  - 2: book intro (map_id 04)
+#  - 13: mode intros (map_id 0a)
+#  - 18: unknown sound 0x58 (map_id 2d)
+#  - 24 to 28: quiz success/fail sounds (except 0xa0 "question success" and 0xa4 "repeated")
+#  - 2c: quiz wrap-up (map_id 4d)
+#  - 2f: changed to 0 (book intro 2, map_id 05) before playing
+#- It is always OFF for:
+#  - 17: error loading book
+#- Whether ON or OFF is controlled by a bit in FW config variable @ 0x30204 (OFF in our version)
+#  for all other values less than 32 (50 decimal):
+#  - 1: map_id 06: unknown sound 0x14 (leave book?)
+#  - 3: 23: 0x60 (battery low)
+#  - 4: 0f: 0x98 (error loading file)
+#  - 5: 22: 0x78 (no MP3)
+#  - 6: 21: 0x84 (?)
+#  - 7: 20: 0x80 (compare)
+#  - a: 09: 0x20 (memory full)
+#  - b: 0b: 0x28 (?)
+#  - 10: 0e: 0x64 (?)
+#  - 11: 5d: 0x64 (?)
+#  - 12: 57: 0x64 (?)
+#  - 16: 26: 0x94 (?)
+#  - and other values which are not part of int_format=4 BNL header.
 0x42163e	quiz_react_to_oid(oid)
 0x421792	get_quiz_sound(map_id,pick_random)
 0x42138a	read_type_7_subquiz()
@@ -1992,6 +2031,9 @@ skip 0x2bf5e
 0x422a78	evaluate_answer_types_0,3_or_question(oid)
 0x42306e	get_next_question_index()
 0x423164	get_first_question_index()
+0x423d5e	play_system_sound_from_bnl(wId)
+#Only called from play_system_sound(id), see documentation there.
+	0x423d6a	tbl_syssound_id_to_map_id
 0x42370d	time_step_10Hz()
 0x4239d7	play_oid(oid,sound_index)
 0x423e3a	play_oid_sound_0(oid)
@@ -2003,6 +2045,7 @@ skip 0x2bf5e
 0x425995	read_book_modes()
 0x425a0f	read_book_id()
 0x425a89	prepare_questions_bitset(num_questions)
+0x425b76	replay_last_soundtable()
 0x425c5f	find_answer_by_oid(oid)
 0x425f06	read_3bin_tbl_unk(index)
 0x425fe3	evaluate_answer_sequential(ans_index)
@@ -2010,6 +2053,7 @@ skip 0x2bf5e
 0x4260bf	prepare_answers_bitset(num_answers)
 0x42612c	prepare_wrong_answers_bitset(num_answers)
 0x426199	evaluate_answer_type_2(oid)
+0x426349	replay_last_sound()
 0x4265a9	reduce_to_within(value,size)
 0x42666a	R0=arg1_div_arg2()
 0x4267e3	set_book_mode_by_fwcode
@@ -2022,7 +2066,7 @@ skip 0x2bf5e
 0x427046	answers_bit_clear(ans_index)
 0x427086	wrong_answers_bit_clear(ans_index)
 0x4270c6	is_questions_bitset_defaulted()
-0x427145	kill_last_sound_set_mode_0()
+0x427145	set_mode_0_forget_last_oid()
 0x427237	questions_bit_set(q_index)
 0x427273	xor_two_byte_keys(key1,key2,value)
 0x427322	answers_bit_check_zero(ans_index)
@@ -2035,7 +2079,10 @@ skip 0x2bf5e
 0x4279e0	locate_type7_curr_subquiz_question(index)
 0x427bc1	set_quiz_ctx_pointer()
 0x427f65	hw_random(void)_ret_in_R0
+0x427aa5	is_system_sound_playing(wId)
 0x427cca	xor_one_byte_key(data,key)
+0x427ce9	set_last_sound(wType,dwValue)
+0x427f37	stop_and_skip_rest_of_soundtable()
 0x4280a2	init_quiz_state_0()
 0x4280fe	get_num_quizzes()
 0x428153	safe_get_int_format_fallback_on_5()
@@ -2070,7 +2117,6 @@ skip 0x2bf5e
 	0x421ec6	tbl_encrypt_permutation
 	0x423878	tbl_encrypt_permutation
 	0x42388f	tbl_encrypt_permutation
-	0x426f96	tbl_offsets_to_3bin_mp3tbl2
 
 0x42591b	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
 	0x42591b	wHandle could be 0, it may mean playing from fw? wFlag seen 0, 1, 2

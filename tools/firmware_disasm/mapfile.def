@@ -141,79 +141,79 @@ wbstr 0x24
 org 0x40a308
 
 asm 0x182e
-jumptable 8x
+jumptable 8x	base:0xa
 
 asm 0xf20
-jumptable 13x
+jumptable 13x	base:0x2d
 
 asm 0xe4
-jumptable 5x
+jumptable 5x	base:0x2
 
 asm 0x2F8
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0
 
 asm 0x4AE
-jumptable 48x
+jumptable 48x	base:0xc0	prefix:switch_handler_fwcode|a
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30	prefix:switch_handler_fwcode|a
 
 asm 0x70
-jumptable 6x
+jumptable 6x	base:0x80	prefix:switch_handler_fwcode|a
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01	prefix:switch_handler_fwcode|a
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400	prefix:switch_handler_fwcode|a
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108	prefix:switch_handler_fwcode|a
 
 asm 0xFBA
-jumptable 75x
+jumptable 75x	prefix:switch_on_penstate|a
 
 asm 0xDE8
-jumptable 34x
+jumptable 34x	base:0x30	prefix:switch_handler_fwcode|m
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0	prefix:switch_handler_fwcode|m
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70	prefix:switch_handler_fwcode|m
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0	prefix:switch_handler_fwcode|m
 
 asm 0x882
-jumptable 48x
+jumptable 48x	base:0xc0	prefix:switch_handler_fwcode|c
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30	prefix:switch_handler_fwcode|c
 
 asm 0x70
-jumptable 22x
+jumptable 22x	base:0x70	prefix:switch_handler_fwcode|c
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01	prefix:switch_handler_fwcode|c
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400	prefix:switch_handler_fwcode|c
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108	prefix:switch_handler_fwcode|c
 
 asm 0x1A70
-jumptable 75x
+jumptable 75x	prefix:switch_on_penstate|b
 
 asm 0xCC2
 jumptable 13x
@@ -222,37 +222,37 @@ asm 0xDA
 jumptable 13x
 
 asm 0x640
-jumptable 34x
+jumptable 34x	base:0x30	prefix:switch_handler_fwcode|o
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0	prefix:switch_handler_fwcode|o
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70	prefix:switch_handler_fwcode|o
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0	prefix:switch_handler_fwcode|o
 
 asm 0x57C
-jumptable 48x
+jumptable 48x	base:0xc0	prefix:switch_handler_fwcode|e
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30	prefix:switch_handler_fwcode|e
 
 asm 0x70
-jumptable 22x
+jumptable 22x	base:0x70	prefix:switch_handler_fwcode|e
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01	prefix:switch_handler_fwcode|e
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400	prefix:switch_handler_fwcode|e
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108	prefix:switch_handler_fwcode|e
 
 asm 0x3E
-jumptable 4x
+jumptable 4x	base:0x501	prefix:switch_handler_fwcode|e
 
 asm 0x10D6
 jumptable 75x
@@ -261,187 +261,187 @@ asm 0x119C
 jumptable 21x
 
 asm 0x2E5A
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0
 
 asm 0x4AE
-jumptable 48x
+jumptable 48x	base:0xc0
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x70
-jumptable 6x
+jumptable 6x	base:0x80
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108
 
 asm 0xF3E
 jumptable 75x
 
 asm 0x10EC
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0
 
 asm 0x6FE
-jumptable 48x
+jumptable 48x	base:0xc0
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x70
-jumptable 6x
+jumptable 6x	base:0x80
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108
 
 asm 0x10D8
 jumptable 75x
 
 asm 0xD82
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0
 
 asm 0x4AE
-jumptable 48x
+jumptable 48x	base:0xc0
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x70
-jumptable 6x
+jumptable 6x	base:0x80
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108
 
 asm 0xD82
 jumptable 75x
 
 asm 0xB60
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0
 
 asm 0x4CA
-jumptable 48x
+jumptable 48x	base:0xc0
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x70
-jumptable 6x
+jumptable 6x	base:0x80
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108
 
 asm 0xD82
 jumptable 75x
 
 asm 0x91A
-jumptable 48x
+jumptable 48x	base:0xc0
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x70
-jumptable 6x
+jumptable 6x	base:0x80
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108
 
 asm 0xCE2
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0
 
 asm 0x8AA
 jumptable 75x
 
 asm 0x1DB8
-jumptable 48x
+jumptable 48x	base:0xc0
 
 asm 0x38
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x70
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x72
-jumptable 22x
+jumptable 22x	base:0xf01
 
 asm 0x3E
-jumptable 9x
+jumptable 9x	base:0x400
 
 asm 0x3E
-jumptable 5x
+jumptable 5x	base:0x108
 
 asm 0x112C
 jumptable 75x
@@ -450,28 +450,28 @@ asm 0x474
 jumptable 5x
 
 asm 0x316
-jumptable 8x
+jumptable 8x	base:1
 
 asm 0x1F40
-jumptable 39x
+jumptable 39x	base:0x1a
 
 asm 0x986
-jumptable 39x
+jumptable 39x	base:0x1a
 
 asm 0x4798
-jumptable 39x
+jumptable 39x	base:0x1a
 
 asm 0xE48
-jumptable 34x
+jumptable 34x	base:0x30
 
 asm 0x38
-jumptable 4x
+jumptable 4x	base:0xc0
 
 asm 0x38
-jumptable 22x
+jumptable 22x	base:0x70
 
 asm 0x48
-jumptable 13x
+jumptable 13x	base:0xe0
 
 asm 0x47CA
 jumptable 4x
@@ -480,7 +480,7 @@ asm 0x41F6
 jumptable 9x
 
 asm 0xEC
-jumptable 12x
+jumptable 12x	base:0x24
 
 asm 0x7E40
 jumptable 4x
@@ -489,7 +489,7 @@ asm 0x932
 jumptable 8x
 
 asm 0xF08
-jumptable 5x
+jumptable 5x	base:0x404
 
 asm 0xDAC
 jumptable 14x
@@ -2467,57 +2467,57 @@ skip 0x2bf5e
 
 0x40bb8e	Switch_over_FWcodes_large_on_c0|a
 
-0x40be44	switch_handler_fwcode_c0_unk|a
-0x40be4c	switch_handler_fwcode_c1_unk|a
-0x40be54	switch_handler_fwcode_c2_unk|a
-0x40be58	switch_handler_fwcode_c3_unk|a
-0x40be5c	switch_handler_fwcode_c4_unk|a
-0x40c10d	switch_handler_fwcode_MULTI_unk|a
-0x40be73	switch_handler_fwcode_cc_unk|a
-0x40be77	switch_handler_fwcode_cd_unk|a
-0x40be7b	switch_handler_fwcode_da_unk|a
-0x40bea0	switch_handler_fwcode_db_unk|a
-0x40bec5	switch_handler_fwcode_dc_unk|a
-0x40bee1	switch_handler_fwcode_dd_unk|a
-0x40befd	switch_handler_fwcode_de_unk|a
-0x40bf19	switch_handler_fwcode_e0_unk|a
-0x40bf1d	switch_handler_fwcode_e1_unk|a
-0x40bf21	switch_handler_fwcode_e2_unk|a
-0x40bf42	switch_handler_fwcode_e3_unk|a
-0x40bf3e	switch_handler_fwcode_e4_unk|a
-0x40bf5f	switch_handler_fwcode_e5_unk|a
-0x40bf7c	switch_handler_fwcode_e6_unk|a
-0x40bff6	switch_handler_fwcode_e7_unk|a
-0x40bf9a	switch_handler_fwcode_e8_unk|a
-0x40bfb1	switch_handler_fwcode_e9_unk|a
-0x40bfc8	switch_handler_fwcode_ea_unk|a
-0x40bfdf	switch_handler_fwcode_eb_unk|a
-0x40c004	switch_handler_fwcode_ec_unk|a
-0x40c015	switch_handler_fwcode_ed_unk|a
-0x40c019	switch_handler_fwcode_ee_unk|a
-0x40bffa	switch_handler_fwcode_ef_unk|a
+#0x40be44	switch_handler_fwcode_c0_unk|a
+#0x40be4c	switch_handler_fwcode_c1_unk|a
+#0x40be54	switch_handler_fwcode_c2_unk|a
+#0x40be58	switch_handler_fwcode_c3_unk|a
+#0x40be5c	switch_handler_fwcode_c4_unk|a
+#0x40c10d	switch_handler_fwcode_MULTI_unk|a
+#0x40be73	switch_handler_fwcode_cc_unk|a
+#0x40be77	switch_handler_fwcode_cd_unk|a
+#0x40be7b	switch_handler_fwcode_da_unk|a
+#0x40bea0	switch_handler_fwcode_db_unk|a
+#0x40bec5	switch_handler_fwcode_dc_unk|a
+#0x40bee1	switch_handler_fwcode_dd_unk|a
+#0x40befd	switch_handler_fwcode_de_unk|a
+#0x40bf19	switch_handler_fwcode_e0_unk|a
+#0x40bf1d	switch_handler_fwcode_e1_unk|a
+#0x40bf21	switch_handler_fwcode_e2_unk|a
+#0x40bf42	switch_handler_fwcode_e3_unk|a
+#0x40bf3e	switch_handler_fwcode_e4_unk|a
+#0x40bf5f	switch_handler_fwcode_e5_unk|a
+#0x40bf7c	switch_handler_fwcode_e6_unk|a
+#0x40bff6	switch_handler_fwcode_e7_unk|a
+#0x40bf9a	switch_handler_fwcode_e8_unk|a
+#0x40bfb1	switch_handler_fwcode_e9_unk|a
+#0x40bfc8	switch_handler_fwcode_ea_unk|a
+#0x40bfdf	switch_handler_fwcode_eb_unk|a
+#0x40c004	switch_handler_fwcode_ec_unk|a
+#0x40c015	switch_handler_fwcode_ed_unk|a
+#0x40c019	switch_handler_fwcode_ee_unk|a
+#0x40bffa	switch_handler_fwcode_ef_unk|a
 
 0x40bbe3	Switch_on_30_to_51|a
 
-0x40bd75	switch_handler_fwcode_30_volplus|a
-0x40bd83	switch_handler_fwcode_31_volminus|a 
-0x40bd91	switch_handler_fwcode_32_unk|a
-0x40bd97	switch_handler_fwcode_33_unk|a
-0x40bd9d	switch_handler_fwcode_40_mp3|a
-0x40bda5	switch_handler_fwcode_41_unk|a
-0x40bda9	switch_handler_fwcode_42_mp3_pause|a
-0x40bdad	switch_handler_fwcode_43_mp3_play|a 
-0x40bdb1	switch_handler_fwcode_44_mp3_stop|a 
-0x40bdb5	switch_handler_fwcode_45_mp3_next|a 
-0x40bdb9	switch_handler_fwcode_46_mp3_prev|a 
-0x40bdbd	switch_handler_fwcode_47_unk|a
-0x40bdc1	switch_handler_fwcode_48_unk|a
-0x40bdc5	switch_handler_fwcode_49_unk|a
-0x40bdc9	switch_handler_fwcode_4a_unk|a
-0x40bdcd	switch_handler_fwcode_4b_unk|a
-0x40bdd1	switch_handler_fwcode_4c_unk|a
-0x40bde8	switch_handler_fwcode_50_compare|a
-0x40bdf0	switch_handler_fwcode_51_unk|a
+#0x40bd75	switch_handler_fwcode_30_volplus|a
+#0x40bd83	switch_handler_fwcode_31_volminus|a 
+#0x40bd91	switch_handler_fwcode_32_unk|a
+#0x40bd97	switch_handler_fwcode_33_unk|a
+#0x40bd9d	switch_handler_fwcode_40_mp3|a
+#0x40bda5	switch_handler_fwcode_41_unk|a
+#0x40bda9	switch_handler_fwcode_42_mp3_pause|a
+#0x40bdad	switch_handler_fwcode_43_mp3_play|a 
+#0x40bdb1	switch_handler_fwcode_44_mp3_stop|a 
+#0x40bdb5	switch_handler_fwcode_45_mp3_next|a 
+#0x40bdb9	switch_handler_fwcode_46_mp3_prev|a 
+#0x40bdbd	switch_handler_fwcode_47_unk|a
+#0x40bdc1	switch_handler_fwcode_48_unk|a
+#0x40bdc5	switch_handler_fwcode_49_unk|a
+#0x40bdc9	switch_handler_fwcode_4a_unk|a
+#0x40bdcd	switch_handler_fwcode_4b_unk|a
+#0x40bdd1	switch_handler_fwcode_4c_unk|a
+#0x40bde8	switch_handler_fwcode_50_compare|a
+#0x40bdf0	switch_handler_fwcode_51_unk|a
 
 0x40bc21	Switch_on_00_to_12|a
 0x40bd4c	handler_fwcode_00_unk|a
@@ -2525,12 +2525,12 @@ skip 0x2bf5e
 0x40bd69	handler_fwcode_11_unk|a
 0x40bd71	handler_fwcode_12_unk|a
 
-0x40be0c	switch_handler_fwcode_80_stop|a
-0x40be14	switch_handler_fwcode_81_unk|a
-0x40be1c	switch_handler_fwcode_82_unk|a
-0x40be24	switch_handler_fwcode_83_unk|a
-0x40be2c	switch_handler_fwcode_84_unk|a
-0x40be34	switch_handler_fwcode_85_unk|a
+#0x40be0c	switch_handler_fwcode_80_stop|a
+#0x40be14	switch_handler_fwcode_81_unk|a
+#0x40be1c	switch_handler_fwcode_82_unk|a
+#0x40be24	switch_handler_fwcode_83_unk|a
+#0x40be2c	switch_handler_fwcode_84_unk|a
+#0x40be34	switch_handler_fwcode_85_unk|a
 
 0x40bc5f	Switch_on_60_to_62|a
 0x40bdf8	handler_fwcode_60_unk|a
@@ -2539,32 +2539,32 @@ skip 0x2bf5e
 0x40be3c	handler_fwcode_b0_unk|a
 
 0x40bc79	Switch_on_f01_to_f16|a
-0x40c01d	switch_handler_fwcode_f01_unk|a
-0x40c021	switch_handler_fwcode_f0c_unk|a
-0x40c025	switch_handler_fwcode_f0d_unk|a
-0x40c029	switch_handler_fwcode_f0e_unk|a
-0x40c02d	switch_handler_fwcode_f0f_unk|a
-0x40c043	switch_handler_fwcode_f10_unk|a
-0x40c047	switch_handler_fwcode_f11_unk|a
-0x40c04b	switch_handler_fwcode_f12_unk|a
-0x40c04f	switch_handler_fwcode_f13_unk|a
-0x40c053	switch_handler_fwcode_f14_unk|a
-0x40c057	switch_handler_fwcode_f15_unk|a
-0x40c05b	switch_handler_fwcode_f16_unk|a
+#0x40c01d	switch_handler_fwcode_f01_unk|a
+#0x40c021	switch_handler_fwcode_f0c_unk|a
+#0x40c025	switch_handler_fwcode_f0d_unk|a
+#0x40c029	switch_handler_fwcode_f0e_unk|a
+#0x40c02d	switch_handler_fwcode_f0f_unk|a
+#0x40c043	switch_handler_fwcode_f10_unk|a
+#0x40c047	switch_handler_fwcode_f11_unk|a
+#0x40c04b	switch_handler_fwcode_f12_unk|a
+#0x40c04f	switch_handler_fwcode_f13_unk|a
+#0x40c053	switch_handler_fwcode_f14_unk|a
+#0x40c057	switch_handler_fwcode_f15_unk|a
+#0x40c05b	switch_handler_fwcode_f16_unk|a
 
 0x40bcae	Switch_on_400_to_408|a
-0x40c0a6	switch_handler_fwcode_400_unk|a
-0x40c0b6	switch_handler_fwcode_401_unk|a
-0x40c0ba	switch_handler_fwcode_402_unk|a
-0x40c096	switch_handler_fwcode_403_unk|a
-0x40c106	switch_handler_fwcode_404_to_408_unk|a
+#0x40c0a6	switch_handler_fwcode_400_unk|a
+#0x40c0b6	switch_handler_fwcode_401_unk|a
+#0x40c0ba	switch_handler_fwcode_402_unk|a
+#0x40c096	switch_handler_fwcode_403_unk|a
+#0x40c106	switch_handler_fwcode_404_to_408_unk|a
 
 0x40bcd6	Switch_on_108_to_10c|a
-0x40c0be	switch_handler_fwcode_108_unk
-0x40c0d2	switch_handler_fwcode_109_unk
-0x40c0d6	switch_handler_fwcode_10a_unk
-0x40c0da	switch_handler_fwcode_10b_unk
-0x40c0de	switch_handler_fwcode_10c_unk
+#0x40c0be	switch_handler_fwcode_108_unk
+#0x40c0d2	switch_handler_fwcode_109_unk
+#0x40c0d6	switch_handler_fwcode_10a_unk
+#0x40c0da	switch_handler_fwcode_10b_unk
+#0x40c0de	switch_handler_fwcode_10c_unk
 
 0x40bcfa	Switch_on_501_to_504|a
 0x40c0e2	handler_fwcode_501_unk|a
@@ -2583,74 +2583,74 @@ skip 0x2bf5e
 0x40c092	handler_fwcode_7001_unk|a
 
 
-0x40c528	switch_on_penstate_01_unk|a
-0x40c52e	switch_on_penstate_02_unk|a
-0x40c534	switch_on_penstate_03_unk|a
-0x40c6db	switch_on_penstate_04_unk|a
-0x40c53a	switch_on_penstate_05_unk|a
-0x40c540	switch_on_penstate_06_unk|a
-0x40c546	switch_on_penstate_08_unk|a
-0x40c560	switch_on_penstate_09_unk|a
-0x40c57b	switch_on_penstate_0a_unk|a
-0x40c580	switch_on_penstate_0b_unk|a
-0x40c586	switch_on_penstate_0c_unk|a
-0x40c58c	switch_on_penstate_0d_unk|a
-0x40c592	switch_on_penstate_0e_unk|a
-0x40c598	switch_on_penstate_0f_unk|a
-0x40c59e	switch_on_penstate_10_unk|a
-0x40c5a4	switch_on_penstate_11_unk|a
-0x40c5aa	switch_on_penstate_12_unk|a
-0x40c5b0	switch_on_penstate_13_unk|a
-0x40c5b6	switch_on_penstate_14_unk|a
-0x40c5bc	switch_on_penstate_15_unk|a
-0x40c5c2	switch_on_penstate_16_unk|a
-0x40c5c8	switch_on_penstate_17_unk|a
-0x40c5ce	switch_on_penstate_18_unk|a
-0x40c5e7	switch_on_penstate_19_unk|a
-0x40c5ed	switch_on_penstate_1a_unk|a
-0x40c5f3	switch_on_penstate_1b_unk|a
-0x40c5f9	switch_on_penstate_1c_unk|a
-0x40c5ff	switch_on_penstate_1d_unk|a
-0x40c605	switch_on_penstate_1e_unk|a
-0x40c60a	switch_on_penstate_1f_unk|a
-0x40c60f	switch_on_penstate_20_unk|a
-0x40c614	switch_on_penstate_21_unk|a
-0x40c61a	switch_on_penstate_22_unk|a
-0x40c620	switch_on_penstate_23_unk|a
-0x40c626	switch_on_penstate_24_unk|a
-0x40c62d	switch_on_penstate_25_unk|a
-0x40c633	switch_on_penstate_26_unk|a
-0x40c639	switch_on_penstate_27_unk|a
-0x40c63f	switch_on_penstate_28_unk|a
-0x40c645	switch_on_penstate_29_unk|a
-0x40c64b	switch_on_penstate_2a_unk|a
-0x40c650	switch_on_penstate_2b_unk|a
-0x40c655	switch_on_penstate_2c_unk|a
-0x40c65a	switch_on_penstate_2d_unk|a
-0x40c660	switch_on_penstate_2e_unk|a
-0x40c666	switch_on_penstate_2f_unk|a
-0x40c66c	switch_on_penstate_30_unk|a
-0x40c672	switch_on_penstate_31_unk|a
-0x40c678	switch_on_penstate_32_unk|a
+#0x40c528	switch_on_penstate_01_unk|a
+#0x40c52e	switch_on_penstate_02_unk|a
+#0x40c534	switch_on_penstate_03_unk|a
+#0x40c6db	switch_on_penstate_04_unk|a
+#0x40c53a	switch_on_penstate_05_unk|a
+#0x40c540	switch_on_penstate_06_unk|a
+#0x40c546	switch_on_penstate_08_unk|a
+#0x40c560	switch_on_penstate_09_unk|a
+#0x40c57b	switch_on_penstate_0a_unk|a
+#0x40c580	switch_on_penstate_0b_unk|a
+#0x40c586	switch_on_penstate_0c_unk|a
+#0x40c58c	switch_on_penstate_0d_unk|a
+#0x40c592	switch_on_penstate_0e_unk|a
+#0x40c598	switch_on_penstate_0f_unk|a
+#0x40c59e	switch_on_penstate_10_unk|a
+#0x40c5a4	switch_on_penstate_11_unk|a
+#0x40c5aa	switch_on_penstate_12_unk|a
+#0x40c5b0	switch_on_penstate_13_unk|a
+#0x40c5b6	switch_on_penstate_14_unk|a
+#0x40c5bc	switch_on_penstate_15_unk|a
+#0x40c5c2	switch_on_penstate_16_unk|a
+#0x40c5c8	switch_on_penstate_17_unk|a
+#0x40c5ce	switch_on_penstate_18_unk|a
+#0x40c5e7	switch_on_penstate_19_unk|a
+#0x40c5ed	switch_on_penstate_1a_unk|a
+#0x40c5f3	switch_on_penstate_1b_unk|a
+#0x40c5f9	switch_on_penstate_1c_unk|a
+#0x40c5ff	switch_on_penstate_1d_unk|a
+#0x40c605	switch_on_penstate_1e_unk|a
+#0x40c60a	switch_on_penstate_1f_unk|a
+#0x40c60f	switch_on_penstate_20_unk|a
+#0x40c614	switch_on_penstate_21_unk|a
+#0x40c61a	switch_on_penstate_22_unk|a
+#0x40c620	switch_on_penstate_23_unk|a
+#0x40c626	switch_on_penstate_24_unk|a
+#0x40c62d	switch_on_penstate_25_unk|a
+#0x40c633	switch_on_penstate_26_unk|a
+#0x40c639	switch_on_penstate_27_unk|a
+#0x40c63f	switch_on_penstate_28_unk|a
+#0x40c645	switch_on_penstate_29_unk|a
+#0x40c64b	switch_on_penstate_2a_unk|a
+#0x40c650	switch_on_penstate_2b_unk|a
+#0x40c655	switch_on_penstate_2c_unk|a
+#0x40c65a	switch_on_penstate_2d_unk|a
+#0x40c660	switch_on_penstate_2e_unk|a
+#0x40c666	switch_on_penstate_2f_unk|a
+#0x40c66c	switch_on_penstate_30_unk|a
+#0x40c672	switch_on_penstate_31_unk|a
+#0x40c678	switch_on_penstate_32_unk|a
 0x40c6de	default_on_penstate_processing|a
-0x40c67e	switch_on_penstate_34_unk|a
-0x40c684	switch_on_penstate_35_unk|a
-0x40c68a	switch_on_penstate_36_unk|a
-0x40c690	switch_on_penstate_37_unk|a
-0x40c695	switch_on_penstate_38_unk|a
-0x40c69a	switch_on_penstate_39_unk|a
-0x40c69f	switch_on_penstate_3a_unk|a
-0x40c6a4	switch_on_penstate_3b_unk|a
-0x40c6a9	switch_on_penstate_3c_unk|a
-0x40c6ae	switch_on_penstate_3d_unk|a
-0x40c6b3	switch_on_penstate_3e_unk|a
-0x40c6b8	switch_on_penstate_3f_unk|a
-0x40c6bd	switch_on_penstate_40_unk|a
-0x40c6c3	switch_on_penstate_41_unk|a
-0x40c6c8	switch_on_penstate_42_unk|a
-0x40c6cd	switch_on_penstate_43_unk|a
-0x40c522	switch_on_penstate_44_unk|a
-0x40c6d2	switch_on_penstate_4a_unk|a
+#0x40c67e	switch_on_penstate_34_unk|a
+#0x40c684	switch_on_penstate_35_unk|a
+#0x40c68a	switch_on_penstate_36_unk|a
+#0x40c690	switch_on_penstate_37_unk|a
+#0x40c695	switch_on_penstate_38_unk|a
+#0x40c69a	switch_on_penstate_39_unk|a
+#0x40c69f	switch_on_penstate_3a_unk|a
+#0x40c6a4	switch_on_penstate_3b_unk|a
+#0x40c6a9	switch_on_penstate_3c_unk|a
+#0x40c6ae	switch_on_penstate_3d_unk|a
+#0x40c6b3	switch_on_penstate_3e_unk|a
+#0x40c6b8	switch_on_penstate_3f_unk|a
+#0x40c6bd	switch_on_penstate_40_unk|a
+#0x40c6c3	switch_on_penstate_41_unk|a
+#0x40c6c8	switch_on_penstate_42_unk|a
+#0x40c6cd	switch_on_penstate_43_unk|a
+#0x40c522	switch_on_penstate_44_unk|a
+#0x40c6d2	switch_on_penstate_4a_unk|a
 
 0x40cbb9	switch_over_fwcodes_stk(fwcode)
 0x40cf1d	handler_fwcode_60_unk|m
@@ -2659,140 +2659,140 @@ skip 0x2bf5e
 0x40cccf	handler_fwcode_10_bookid|m
 0x40ccc3	handler_fwcode_11_unk|m
 
-0x40ccda	switch_handler_fwcode_30_unk|m
-0x40cce8	switch_handler_fwcode_31_unk|m
-0x40ccf6	switch_handler_fwcode_32_unk|m
-0x40ccfc	switch_handler_fwcode_33_unk|m
-0x40d0a2	switch_handler_fwcode_unk_MULTI|m
-0x40cd02	switch_handler_fwcode_40_unk|m
-0x40cd0a	switch_handler_fwcode_41_unk|m
-0x40cd88	switch_handler_fwcode_42_unk|m
-0x40cd92	switch_handler_fwcode_43_unk|m
-0x40ce12	switch_handler_fwcode_44_unk|m
-0x40ce16	switch_handler_fwcode_45_unk|m
-0x40ce82	switch_handler_fwcode_46_unk|m
-0x40ceee	switch_handler_fwcode_47_unk|m
-0x40cef6	switch_handler_fwcode_48_unk|m
-0x40cefc	switch_handler_fwcode_49_unk|m
-0x40cf02	switch_handler_fwcode_4a_unk|m
-0x40cf07	switch_handler_fwcode_4b_unk|m
-0x40cf0d	switch_handler_fwcode_50_unk|m
-0x40cf15	switch_handler_fwcode_51_unk|m
+#0x40ccda	switch_handler_fwcode_30_unk|m
+#0x40cce8	switch_handler_fwcode_31_unk|m
+#0x40ccf6	switch_handler_fwcode_32_unk|m
+#0x40ccfc	switch_handler_fwcode_33_unk|m
+#0x40d0a2	switch_handler_fwcode_unk_MULTI|m
+#0x40cd02	switch_handler_fwcode_40_unk|m
+#0x40cd0a	switch_handler_fwcode_41_unk|m
+#0x40cd88	switch_handler_fwcode_42_unk|m
+#0x40cd92	switch_handler_fwcode_43_unk|m
+#0x40ce12	switch_handler_fwcode_44_unk|m
+#0x40ce16	switch_handler_fwcode_45_unk|m
+#0x40ce82	switch_handler_fwcode_46_unk|m
+#0x40ceee	switch_handler_fwcode_47_unk|m
+#0x40cef6	switch_handler_fwcode_48_unk|m
+#0x40cefc	switch_handler_fwcode_49_unk|m
+#0x40cf02	switch_handler_fwcode_4a_unk|m
+#0x40cf07	switch_handler_fwcode_4b_unk|m
+#0x40cf0d	switch_handler_fwcode_50_unk|m
+#0x40cf15	switch_handler_fwcode_51_unk|m
 
 0x40cc38	switch_on_dwcode_c0_to_c3|m
 
-0x40cfa0	switch_handler_fwcode_c0_unk|m
-0x40cfa8	switch_handler_fwcode_c1_unk|m
-0x40cfb0	switch_handler_fwcode_c2_unk|m
-0x40cfb4	switch_handler_fwcode_c3_unk|m
+#0x40cfa0	switch_handler_fwcode_c0_unk|m
+#0x40cfa8	switch_handler_fwcode_c1_unk|m
+#0x40cfb0	switch_handler_fwcode_c2_unk|m
+#0x40cfb4	switch_handler_fwcode_c3_unk|m
 
 0x40cc58	switch_on_fwcode_70_to_85|m
-0x40cf31	switch_handler_fwcode_70_unk|m
-0x40cf35	switch_handler_fwcode_71_unk|m
-0x40cf39	switch_handler_fwcode_72_unk|m
-0x40cf40	switch_handler_fwcode_73_unk|m
-0x40cf47	switch_handler_fwcode_74_unk|m
-0x40cf4e	switch_handler_fwcode_75_unk|m
-0x40cf55	switch_handler_fwcode_76_unk|m
-0x40cf5c	switch_handler_fwcode_77_unk|m
-0x40cf63	switch_handler_fwcode_78_unk|m
-0x40cf6a	switch_handler_fwcode_80_unk|m
-0x40cf72	switch_handler_fwcode_81_unk|m
-0x40cf78	switch_handler_fwcode_82_unk|m
-0x40cf80	switch_handler_fwcode_83_unk|m
-0x40cf88	switch_handler_fwcode_84_unk|m
-0x40cf90	switch_handler_fwcode_85_unk|m
+#0x40cf31	switch_handler_fwcode_70_unk|m
+#0x40cf35	switch_handler_fwcode_71_unk|m
+#0x40cf39	switch_handler_fwcode_72_unk|m
+#0x40cf40	switch_handler_fwcode_73_unk|m
+#0x40cf47	switch_handler_fwcode_74_unk|m
+#0x40cf4e	switch_handler_fwcode_75_unk|m
+#0x40cf55	switch_handler_fwcode_76_unk|m
+#0x40cf5c	switch_handler_fwcode_77_unk|m
+#0x40cf63	switch_handler_fwcode_78_unk|m
+#0x40cf6a	switch_handler_fwcode_80_unk|m
+#0x40cf72	switch_handler_fwcode_81_unk|m
+#0x40cf78	switch_handler_fwcode_82_unk|m
+#0x40cf80	switch_handler_fwcode_83_unk|m
+#0x40cf88	switch_handler_fwcode_84_unk|m
+#0x40cf90	switch_handler_fwcode_85_unk|m
 
 0x40cc8a	switch_on_fwcode_e0_to_ec|m
-0x40cfb8	switch_handler_fwcode_e0_unk|m	
-0x40cfbc	switch_handler_fwcode_e1_unk|m
-0x40cfc0	switch_handler_fwcode_e2_unk|m
-0x40cfdd	switch_handler_fwcode_e3_unk|m
-0x40cff6	switch_handler_fwcode_e4_unk|m
-0x40cfd9	switch_handler_fwcode_e5_unk|m
-0x40d00f	switch_handler_fwcode_e6_unk|m
-0x40d05e	switch_handler_fwcode_e7_unk|m
-0x40d062	switch_handler_fwcode_e8_unk|m
-0x40d079	switch_handler_fwcode_e9_unk|m
-0x40d090	switch_handler_fwcode_ea_unk|m
-0x40d09a	switch_handler_fwcode_eb_unk|m
-0x40d09e	switch_handler_fwcode_ec_unk|m
+#0x40cfb8	switch_handler_fwcode_e0_unk|m	
+#0x40cfbc	switch_handler_fwcode_e1_unk|m
+#0x40cfc0	switch_handler_fwcode_e2_unk|m
+#0x40cfdd	switch_handler_fwcode_e3_unk|m
+#0x40cff6	switch_handler_fwcode_e4_unk|m
+#0x40cfd9	switch_handler_fwcode_e5_unk|m
+#0x40d00f	switch_handler_fwcode_e6_unk|m
+#0x40d05e	switch_handler_fwcode_e7_unk|m
+#0x40d062	switch_handler_fwcode_e8_unk|m
+#0x40d079	switch_handler_fwcode_e9_unk|m
+#0x40d090	switch_handler_fwcode_ea_unk|m
+#0x40d09a	switch_handler_fwcode_eb_unk|m
+#0x40d09e	switch_handler_fwcode_ec_unk|m
 
 0x40cccb	handler_fwcode_FF_unk|m
 0x40d0c0	end_of_fwcode_handling|m
 
 0x40d0d6	Switch_over_Fwcodes_stk(fwcode)|c
 
-0x40d5ab	switch_handler_fwcode_c0_unk|c
-0x40d5b3	switch_handler_fwcode_c1_unk|c
-0x40d5bb	switch_handler_fwcode_c2_unk|c
-0x40d5bf	switch_handler_fwcode_c3_unk|c
-0x40d5c3	switch_handler_fwcode_c4_unk|c
-0x40d5da	switch_handler_fwcode_cc_unk|c
-0x40d5de	switch_handler_fwcode_cd_unk|c
-0x40d5e2	switch_handler_fwcode_da_unk|c
-0x40d607	switch_handler_fwcode_db_unk|c
-0x40d62c	switch_handler_fwcode_dc_unk|c
-0x40d648	switch_handler_fwcode_dd_unk|c
-0x40d664	switch_handler_fwcode_de_unk|c
-0x40d680	switch_handler_fwcode_e0_unk|c
-0x40d684	switch_handler_fwcode_e1_unk|c
-0x40d688	switch_handler_fwcode_e2_unk|c
-0x40d6a9	switch_handler_fwcode_e3_unk|c
-0x40d6a5	switch_handler_fwcode_e4_unk|c
-0x40d6c6	switch_handler_fwcode_e5_unk|c
-0x40d6e3	switch_handler_fwcode_e6_unk|c
-0x40d711	switch_handler_fwcode_e7_unk|c
-0x40d701	switch_handler_fwcode_e8_unk|c
-0x40d705	switch_handler_fwcode_e9_unk|c
-0x40d709	switch_handler_fwcode_ea_unk|c
-0x40d70d	switch_handler_fwcode_eb_unk|c
-0x40d719	switch_handler_fwcode_ec_unk|c
-0x40d71d	switch_handler_fwcode_ed_unk|c
-0x40d721	switch_handler_fwcode_ee_unk|c
-0x40d715	switch_handler_fwcode_ef_unk|c
-0x40d815	switch_handler_fwcode_MULTI_unk|c
+#0x40d5ab	switch_handler_fwcode_c0_unk|c
+#0x40d5b3	switch_handler_fwcode_c1_unk|c
+#0x40d5bb	switch_handler_fwcode_c2_unk|c
+#0x40d5bf	switch_handler_fwcode_c3_unk|c
+#0x40d5c3	switch_handler_fwcode_c4_unk|c
+#0x40d5da	switch_handler_fwcode_cc_unk|c
+#0x40d5de	switch_handler_fwcode_cd_unk|c
+#0x40d5e2	switch_handler_fwcode_da_unk|c
+#0x40d607	switch_handler_fwcode_db_unk|c
+#0x40d62c	switch_handler_fwcode_dc_unk|c
+#0x40d648	switch_handler_fwcode_dd_unk|c
+#0x40d664	switch_handler_fwcode_de_unk|c
+#0x40d680	switch_handler_fwcode_e0_unk|c
+#0x40d684	switch_handler_fwcode_e1_unk|c
+#0x40d688	switch_handler_fwcode_e2_unk|c
+#0x40d6a9	switch_handler_fwcode_e3_unk|c
+#0x40d6a5	switch_handler_fwcode_e4_unk|c
+#0x40d6c6	switch_handler_fwcode_e5_unk|c
+#0x40d6e3	switch_handler_fwcode_e6_unk|c
+#0x40d711	switch_handler_fwcode_e7_unk|c
+#0x40d701	switch_handler_fwcode_e8_unk|c
+#0x40d705	switch_handler_fwcode_e9_unk|c
+#0x40d709	switch_handler_fwcode_ea_unk|c
+#0x40d70d	switch_handler_fwcode_eb_unk|c
+#0x40d719	switch_handler_fwcode_ec_unk|c
+#0x40d71d	switch_handler_fwcode_ed_unk|c
+#0x40d721	switch_handler_fwcode_ee_unk|c
+#0x40d715	switch_handler_fwcode_ef_unk|c
+#0x40d815	switch_handler_fwcode_MULTI_unk|c
 
-0x40d2ce	switch_handler_fwcode_30_volplus|c 
-0x40d2dc	switch_handler_fwcode_31_volminus|c
-0x40d2ea	switch_handler_fwcode_32_unk|c
-0x40d2f0	switch_handler_fwcode_33_unk|c
-0x40d2f6	switch_handler_fwcode_40_mp3|c
-0x40d2fe	switch_handler_fwcode_41_unk|c
-0x40d37e	switch_handler_fwcode_42_mp3_pause|c
-0x40d388	switch_handler_fwcode_43_mp3_play|c
-0x40d408	switch_handler_fwcode_44_mp3_stop|c
-0x40d40c	switch_handler_fwcode_45_mp3_next|c
-0x40d478	switch_handler_fwcode_46_mp3_prev|c
-0x40d4e4	switch_handler_fwcode_47_unk|c
-0x40d4e8	switch_handler_fwcode_48_unk|c
-0x40d4ee	switch_handler_fwcode_49_unk|c
-0x40d4f3	switch_handler_fwcode_4a_unk|c
-0x40d4f9	switch_handler_fwcode_4b_unk|c
-0x40d4ff	switch_handler_fwcode_4c_unk|c
-0x40d516	switch_handler_fwcode_50_compare|c 
-0x40d51e	switch_handler_fwcode_51_unk|c
+#0x40d2ce	switch_handler_fwcode_30_volplus|c 
+#0x40d2dc	switch_handler_fwcode_31_volminus|c
+#0x40d2ea	switch_handler_fwcode_32_unk|c
+#0x40d2f0	switch_handler_fwcode_33_unk|c
+#0x40d2f6	switch_handler_fwcode_40_mp3|c
+#0x40d2fe	switch_handler_fwcode_41_unk|c
+#0x40d37e	switch_handler_fwcode_42_mp3_pause|c
+#0x40d388	switch_handler_fwcode_43_mp3_play|c
+#0x40d408	switch_handler_fwcode_44_mp3_stop|c
+#0x40d40c	switch_handler_fwcode_45_mp3_next|c
+#0x40d478	switch_handler_fwcode_46_mp3_prev|c
+#0x40d4e4	switch_handler_fwcode_47_unk|c
+#0x40d4e8	switch_handler_fwcode_48_unk|c
+#0x40d4ee	switch_handler_fwcode_49_unk|c
+#0x40d4f3	switch_handler_fwcode_4a_unk|c
+#0x40d4f9	switch_handler_fwcode_4b_unk|c
+#0x40d4ff	switch_handler_fwcode_4c_unk|c
+#0x40d516	switch_handler_fwcode_50_compare|c 
+#0x40d51e	switch_handler_fwcode_51_unk|c
 
 0x40d2a5	handler_fwcode_00_unk|c
 0x40d2b2	handler_fwcode_10_bookid|c
 0x40d2c2	handler_fwcode_11_unk|c
 0x40d2ca	handler_fwcode_12_unk|c
 
-0x40d53a	switch_handler_fwcode_70_unk|c
-0x40d53e	switch_handler_fwcode_71_unk|c
-0x40d542	switch_handler_fwcode_72_unk|c
-0x40d549	switch_handler_fwcode_73_unk|c
-0x40d550	switch_handler_fwcode_74_unk|c
-0x40d557	switch_handler_fwcode_75_unk|c
-0x40d55e	switch_handler_fwcode_76_unk|c
-0x40d565	switch_handler_fwcode_77_unk|c
-0x40d56c	switch_handler_fwcode_78_unk|c
-0x40d573	switch_handler_fwcode_80_stop|c
-0x40d57b	switch_handler_fwcode_81_unk|c
-0x40d583	switch_handler_fwcode_82_unk|c
-0x40d58b	switch_handler_fwcode_83_unk|c
-0x40d593	switch_handler_fwcode_84_unk|c
-0x40d59b	switch_handler_fwcode_85_unk|c
+#0x40d53a	switch_handler_fwcode_70_unk|c
+#0x40d53e	switch_handler_fwcode_71_unk|c
+#0x40d542	switch_handler_fwcode_72_unk|c
+#0x40d549	switch_handler_fwcode_73_unk|c
+#0x40d550	switch_handler_fwcode_74_unk|c
+#0x40d557	switch_handler_fwcode_75_unk|c
+#0x40d55e	switch_handler_fwcode_76_unk|c
+#0x40d565	switch_handler_fwcode_77_unk|c
+#0x40d56c	switch_handler_fwcode_78_unk|c
+#0x40d573	switch_handler_fwcode_80_stop|c
+#0x40d57b	switch_handler_fwcode_81_unk|c
+#0x40d583	switch_handler_fwcode_82_unk|c
+#0x40d58b	switch_handler_fwcode_83_unk|c
+#0x40d593	switch_handler_fwcode_84_unk|c
+#0x40d59b	switch_handler_fwcode_85_unk|c
 
 0x40d526	handler_fwcode_60_unk|c
 0x40d52e	handler_fwcode_61_unk|c
@@ -2800,30 +2800,30 @@ skip 0x2bf5e
 0x40d5a3	handler_fwcode_b0_unk|c
 
 
-0x40d725	switch_handler_fwcode_f01_unk|c
-0x40d729	switch_handler_fwcode_f0c_unk|c
-0x40d72d	switch_handler_fwcode_f0d_unk|c
-0x40d731	switch_handler_fwcode_f0e_unk|c
-0x40d735	switch_handler_fwcode_f0f_unk|c
-0x40d74b	switch_handler_fwcode_f10_unk|c
-0x40d74f	switch_handler_fwcode_f11_unk|c
-0x40d753	switch_handler_fwcode_f12_unk|c
-0x40d757	switch_handler_fwcode_f13_unk|c
-0x40d75b	switch_handler_fwcode_f14_unk|c
-0x40d75f	switch_handler_fwcode_f15_unk|c
-0x40d763	switch_handler_fwcode_f16_unk|c
+#0x40d725	switch_handler_fwcode_f01_unk|c
+#0x40d729	switch_handler_fwcode_f0c_unk|c
+#0x40d72d	switch_handler_fwcode_f0d_unk|c
+#0x40d731	switch_handler_fwcode_f0e_unk|c
+#0x40d735	switch_handler_fwcode_f0f_unk|c
+#0x40d74b	switch_handler_fwcode_f10_unk|c
+#0x40d74f	switch_handler_fwcode_f11_unk|c
+#0x40d753	switch_handler_fwcode_f12_unk|c
+#0x40d757	switch_handler_fwcode_f13_unk|c
+#0x40d75b	switch_handler_fwcode_f14_unk|c
+#0x40d75f	switch_handler_fwcode_f15_unk|c
+#0x40d763	switch_handler_fwcode_f16_unk|c
 
-0x40d7ae	switch_handler_fwcode_400_unk|c
-0x40d7be	switch_handler_fwcode_401_unk|c
-0x40d7c2	switch_handler_fwcode_402_unk|c
-0x40d79e	switch_handler_fwcode_403_unk|c
-0x40d80e	switch_handler_fwcode_404_to_408_unk|c
+#0x40d7ae	switch_handler_fwcode_400_unk|c
+#0x40d7be	switch_handler_fwcode_401_unk|c
+#0x40d7c2	switch_handler_fwcode_402_unk|c
+#0x40d79e	switch_handler_fwcode_403_unk|c
+#0x40d80e	switch_handler_fwcode_404_to_408_unk|c
 
-0x40d7c6	switch_handler_fwcode_108_unk|c
-0x40d7da	switch_handler_fwcode_109_unk|c
-0x40d7de	switch_handler_fwcode_10a_unk|c
-0x40d7e2	switch_handler_fwcode_10b_unk|c
-0x40d7e6	switch_handler_fwcode_10c_unk|c
+#0x40d7c6	switch_handler_fwcode_108_unk|c
+#0x40d7da	switch_handler_fwcode_109_unk|c
+#0x40d7de	switch_handler_fwcode_10a_unk|c
+#0x40d7e2	switch_handler_fwcode_10b_unk|c
+#0x40d7e6	switch_handler_fwcode_10c_unk|c
 
 0x40d7ea	handler_fwcode_501_unk|c
 0x40d7fc	handler_fwcode_502_unk|c
@@ -2839,74 +2839,74 @@ skip 0x2bf5e
 
 
 0x40e193	default_on_penstate_processing|b
-0x40dff3	switch_on_penstate_01_unk|b
-0x40dff9	switch_on_penstate_02_unk|b
-0x40dfff	switch_on_penstate_03_unk|b
-0x40e005	switch_on_penstate_05_unk|b
-0x40e00b	switch_on_penstate_06_unk|b
-0x40e011	switch_on_penstate_08_unk|b
-0x40e02b	switch_on_penstate_09_unk|b
-0x40e046	switch_on_penstate_0a_unk|b
-0x40e04b	switch_on_penstate_0b_unk|b
-0x40e051	switch_on_penstate_0c_unk|b
-0x40e057	switch_on_penstate_0d_unk|b
-0x40e05d	switch_on_penstate_0e_unk|b
-0x40e063	switch_on_penstate_0f_unk|b
-0x40e069	switch_on_penstate_10_unk|b
-0x40e06f	switch_on_penstate_11_unk|b
-0x40e075	switch_on_penstate_12_unk|b
-0x40e07b	switch_on_penstate_13_unk|b
-0x40e081	switch_on_penstate_14_unk|b
-0x40e087	switch_on_penstate_15_unk|b
-0x40e08d	switch_on_penstate_16_unk|b
-0x40e093	switch_on_penstate_17_unk|b
-0x40e099	switch_on_penstate_18_unk|b
-0x40e09f	switch_on_penstate_19_unk|b
-0x40e0a5	switch_on_penstate_1a_unk|b
-0x40e0ab	switch_on_penstate_1b_unk|b
-0x40e0b1	switch_on_penstate_1c_unk|b
-0x40e0b7	switch_on_penstate_1d_unk|b
-0x40e0bd	switch_on_penstate_1e_unk|b
-0x40e0c2	switch_on_penstate_1f_unk|b
-0x40e0c7	switch_on_penstate_20_unk|b
-0x40e0cc	switch_on_penstate_21_unk|b
-0x40e0d2	switch_on_penstate_22_unk|b
-0x40e0d8	switch_on_penstate_23_unk|b
-0x40e0de	switch_on_penstate_24_unk|b
-0x40e0e3	switch_on_penstate_25_unk|b
-0x40e0e9	switch_on_penstate_26_unk|b
-0x40e0ef	switch_on_penstate_27_unk|b
-0x40e0f5	switch_on_penstate_28_unk|b
-0x40e0fb	switch_on_penstate_29_unk|b
-0x40e101	switch_on_penstate_2a_unk|b
-0x40e106	switch_on_penstate_2b_unk|b
-0x40e10b	switch_on_penstate_2c_unk|b
-0x40e110	switch_on_penstate_2d_unk|b
-0x40e116	switch_on_penstate_2e_unk|b
-0x40e11c	switch_on_penstate_2f_unk|b
-0x40e122	switch_on_penstate_30_unk|b
-0x40e128	switch_on_penstate_31_unk|b
-0x40e12e	switch_on_penstate_32_unk|b
-0x40e134	switch_on_penstate_34_unk|b
-0x40e13a	switch_on_penstate_35_unk|b
-0x40e140	switch_on_penstate_36_unk|b
-0x40e145	switch_on_penstate_37_unk|b
-0x40e14a	switch_on_penstate_38_unk|b
-0x40e14f	switch_on_penstate_39_unk|b
-0x40e154	switch_on_penstate_3a_unk|b
-0x40e159	switch_on_penstate_3b_unk|b
-0x40e15e	switch_on_penstate_3c_unk|b
-0x40e163	switch_on_penstate_3d_unk|b
-0x40e168	switch_on_penstate_3e_unk|b
-0x40e16d	switch_on_penstate_3f_unk|b
-0x40e172	switch_on_penstate_40_unk|b
-0x40e178	switch_on_penstate_41_unk|b
-0x40e17d	switch_on_penstate_42_unk|b
-0x40e182	switch_on_penstate_43_unk|b
-0x40dfd6	switch_on_penstate_44_unk|b
-0x40dfdc	switch_on_penstate_45_unk|b
-0x40e190	switch_on_penstate_48_unk|b
-0x40e187	switch_on_penstate_4a_unk|b
+#0x40dff3	switch_on_penstate_01_unk|b
+#0x40dff9	switch_on_penstate_02_unk|b
+#0x40dfff	switch_on_penstate_03_unk|b
+#0x40e005	switch_on_penstate_05_unk|b
+#0x40e00b	switch_on_penstate_06_unk|b
+#0x40e011	switch_on_penstate_08_unk|b
+#0x40e02b	switch_on_penstate_09_unk|b
+#0x40e046	switch_on_penstate_0a_unk|b
+#0x40e04b	switch_on_penstate_0b_unk|b
+#0x40e051	switch_on_penstate_0c_unk|b
+#0x40e057	switch_on_penstate_0d_unk|b
+#0x40e05d	switch_on_penstate_0e_unk|b
+#0x40e063	switch_on_penstate_0f_unk|b
+#0x40e069	switch_on_penstate_10_unk|b
+#0x40e06f	switch_on_penstate_11_unk|b
+#0x40e075	switch_on_penstate_12_unk|b
+#0x40e07b	switch_on_penstate_13_unk|b
+#0x40e081	switch_on_penstate_14_unk|b
+#0x40e087	switch_on_penstate_15_unk|b
+#0x40e08d	switch_on_penstate_16_unk|b
+#0x40e093	switch_on_penstate_17_unk|b
+#0x40e099	switch_on_penstate_18_unk|b
+#0x40e09f	switch_on_penstate_19_unk|b
+#0x40e0a5	switch_on_penstate_1a_unk|b
+#0x40e0ab	switch_on_penstate_1b_unk|b
+#0x40e0b1	switch_on_penstate_1c_unk|b
+#0x40e0b7	switch_on_penstate_1d_unk|b
+#0x40e0bd	switch_on_penstate_1e_unk|b
+#0x40e0c2	switch_on_penstate_1f_unk|b
+#0x40e0c7	switch_on_penstate_20_unk|b
+#0x40e0cc	switch_on_penstate_21_unk|b
+#0x40e0d2	switch_on_penstate_22_unk|b
+#0x40e0d8	switch_on_penstate_23_unk|b
+#0x40e0de	switch_on_penstate_24_unk|b
+#0x40e0e3	switch_on_penstate_25_unk|b
+#0x40e0e9	switch_on_penstate_26_unk|b
+#0x40e0ef	switch_on_penstate_27_unk|b
+#0x40e0f5	switch_on_penstate_28_unk|b
+#0x40e0fb	switch_on_penstate_29_unk|b
+#0x40e101	switch_on_penstate_2a_unk|b
+#0x40e106	switch_on_penstate_2b_unk|b
+#0x40e10b	switch_on_penstate_2c_unk|b
+#0x40e110	switch_on_penstate_2d_unk|b
+#0x40e116	switch_on_penstate_2e_unk|b
+#0x40e11c	switch_on_penstate_2f_unk|b
+#0x40e122	switch_on_penstate_30_unk|b
+#0x40e128	switch_on_penstate_31_unk|b
+#0x40e12e	switch_on_penstate_32_unk|b
+#0x40e134	switch_on_penstate_34_unk|b
+#0x40e13a	switch_on_penstate_35_unk|b
+#0x40e140	switch_on_penstate_36_unk|b
+#0x40e145	switch_on_penstate_37_unk|b
+#0x40e14a	switch_on_penstate_38_unk|b
+#0x40e14f	switch_on_penstate_39_unk|b
+#0x40e154	switch_on_penstate_3a_unk|b
+#0x40e159	switch_on_penstate_3b_unk|b
+#0x40e15e	switch_on_penstate_3c_unk|b
+#0x40e163	switch_on_penstate_3d_unk|b
+#0x40e168	switch_on_penstate_3e_unk|b
+#0x40e16d	switch_on_penstate_3f_unk|b
+#0x40e172	switch_on_penstate_40_unk|b
+#0x40e178	switch_on_penstate_41_unk|b
+#0x40e17d	switch_on_penstate_42_unk|b
+#0x40e182	switch_on_penstate_43_unk|b
+#0x40dfd6	switch_on_penstate_44_unk|b
+#0x40dfdc	switch_on_penstate_45_unk|b
+#0x40e190	switch_on_penstate_48_unk|b
+#0x40e187	switch_on_penstate_4a_unk|b
 
 0x40e97a	Switch_over_Fwcodes_stk(fwcode)|o
 0x40eb1e	handler_fwcode_60_unk|o
@@ -2916,98 +2916,98 @@ skip 0x2bf5e
 0x40ea8b	handler_fwcode_11_unk|o
 0x40ecd1	switch_on_fwcode_90_to_af|o
 
-0x40eaa6	switch_handler_fwcode_30_unk|o
-0x40eab4	switch_handler_fwcode_31_unk|o
-0x40eac2	switch_handler_fwcode_32_unk|o
-0x40eac8	switch_handler_fwcode_33_unk|o
-0x40eace	switch_handler_fwcode_40_unk|o
-0x40ead8	switch_handler_fwcode_41_unk|o
-0x40eadc	switch_handler_fwcode_42_unk|o
-0x40eae0	switch_handler_fwcode_43_unk|o
-0x40eae4	switch_handler_fwcode_44_unk|o
-0x40eae8	switch_handler_fwcode_45_unk|o
-0x40eaec	switch_handler_fwcode_46_unk|o
-0x40eaf0	switch_handler_fwcode_47_unk|o
-0x40eafa	switch_handler_fwcode_48_unk|o
-0x40eafe	switch_handler_fwcode_49_unk|o
-0x40eb02	switch_handler_fwcode_4a_unk|o
-0x40eb06	switch_handler_fwcode_4b_unk|o
-0x40eb0a	switch_handler_fwcode_50_unk|o
-0x40eb14	switch_handler_fwcode_51_unk|o
+#0x40eaa6	switch_handler_fwcode_30_unk|o
+#0x40eab4	switch_handler_fwcode_31_unk|o
+#0x40eac2	switch_handler_fwcode_32_unk|o
+#0x40eac8	switch_handler_fwcode_33_unk|o
+#0x40eace	switch_handler_fwcode_40_unk|o
+#0x40ead8	switch_handler_fwcode_41_unk|o
+#0x40eadc	switch_handler_fwcode_42_unk|o
+#0x40eae0	switch_handler_fwcode_43_unk|o
+#0x40eae4	switch_handler_fwcode_44_unk|o
+#0x40eae8	switch_handler_fwcode_45_unk|o
+#0x40eaec	switch_handler_fwcode_46_unk|o
+#0x40eaf0	switch_handler_fwcode_47_unk|o
+#0x40eafa	switch_handler_fwcode_48_unk|o
+#0x40eafe	switch_handler_fwcode_49_unk|o
+#0x40eb02	switch_handler_fwcode_4a_unk|o
+#0x40eb06	switch_handler_fwcode_4b_unk|o
+#0x40eb0a	switch_handler_fwcode_50_unk|o
+#0x40eb14	switch_handler_fwcode_51_unk|o
 
 0x40ea00	switch_on_fwcode_c0_to_c3|o
-0x40ebc4	switch_handler_fwcode_c0_unk|o
-0x40ebce	switch_handler_fwcode_c1_unk|o
-0x40ebd8	switch_handler_fwcode_c2_unk|o
-0x40ebdc	switch_handler_fwcode_c3_unk|o
+#0x40ebc4	switch_handler_fwcode_c0_unk|o
+#0x40ebce	switch_handler_fwcode_c1_unk|o
+#0x40ebd8	switch_handler_fwcode_c2_unk|o
+#0x40ebdc	switch_handler_fwcode_c3_unk|o
 
 0x40ea20	switch_on_fwcode_70_to_85|o
 
-0x40eb36	switch_handler_fwcode_70_unk|o
-0x40eb3a	switch_handler_fwcode_71_unk|o
-0x40eb3e	switch_handler_fwcode_72_unk|o
-0x40eb45	switch_handler_fwcode_73_unk|o
-0x40eb4c	switch_handler_fwcode_74_unk|o
-0x40eb53	switch_handler_fwcode_75_unk|o
-0x40eb5a	switch_handler_fwcode_76_unk|o
-0x40eb61	switch_handler_fwcode_77_unk|o
-0x40eb68	switch_handler_fwcode_78_unk|o
-0x40eb6f	switch_handler_fwcode_80_unk|o
-0x40eb8a	switch_handler_fwcode_81_unk|o
-0x40eb92	switch_handler_fwcode_82_unk|o
-0x40eb9c	switch_handler_fwcode_83_unk|o
-0x40eba6	switch_handler_fwcode_84_unk|o
-0x40ebb0	switch_handler_fwcode_85_unk|o
+#0x40eb36	switch_handler_fwcode_70_unk|o
+#0x40eb3a	switch_handler_fwcode_71_unk|o
+#0x40eb3e	switch_handler_fwcode_72_unk|o
+#0x40eb45	switch_handler_fwcode_73_unk|o
+#0x40eb4c	switch_handler_fwcode_74_unk|o
+#0x40eb53	switch_handler_fwcode_75_unk|o
+#0x40eb5a	switch_handler_fwcode_76_unk|o
+#0x40eb61	switch_handler_fwcode_77_unk|o
+#0x40eb68	switch_handler_fwcode_78_unk|o
+#0x40eb6f	switch_handler_fwcode_80_unk|o
+#0x40eb8a	switch_handler_fwcode_81_unk|o
+#0x40eb92	switch_handler_fwcode_82_unk|o
+#0x40eb9c	switch_handler_fwcode_83_unk|o
+#0x40eba6	switch_handler_fwcode_84_unk|o
+#0x40ebb0	switch_handler_fwcode_85_unk|o
 
 0x40ea52	switch_on_fwcode_b0_to_ec|o
 
-0x40ebe0	switch_handler_fwcode_e0_unk|o
-0x40ebe4	switch_handler_fwcode_e1_unk|o
-0x40ebe8	switch_handler_fwcode_e2_unk|o
-0x40ec07	switch_handler_fwcode_e3_unk|o
-0x40ec22	switch_handler_fwcode_e4_unk|o
-0x40ec03	switch_handler_fwcode_e5_unk|o
-0x40ec3d	switch_handler_fwcode_e6_unk|o
-0x40ec8f	switch_handler_fwcode_e7_unk|o
-0x40ec93	switch_handler_fwcode_e8_unk|o
-0x40ecac	switch_handler_fwcode_e9_unk|o
-0x40ecc5	switch_handler_fwcode_ea_unk|o
-0x40ecc9	switch_handler_fwcode_eb_unk|o
-0x40eccd	switch_handler_fwcode_ec_unk|o
+#0x40ebe0	switch_handler_fwcode_e0_unk|o
+#0x40ebe4	switch_handler_fwcode_e1_unk|o
+#0x40ebe8	switch_handler_fwcode_e2_unk|o
+#0x40ec07	switch_handler_fwcode_e3_unk|o
+#0x40ec22	switch_handler_fwcode_e4_unk|o
+#0x40ec03	switch_handler_fwcode_e5_unk|o
+#0x40ec3d	switch_handler_fwcode_e6_unk|o
+#0x40ec8f	switch_handler_fwcode_e7_unk|o
+#0x40ec93	switch_handler_fwcode_e8_unk|o
+#0x40ecac	switch_handler_fwcode_e9_unk|o
+#0x40ecc5	switch_handler_fwcode_ea_unk|o
+#0x40ecc9	switch_handler_fwcode_eb_unk|o
+#0x40eccd	switch_handler_fwcode_ec_unk|o
 
 0x40ed07	Switch_over_Fwcodes_stk(fwcode)|e
 
-0x40f090	switch_handler_fwcode_c0_unk|e
-0x40f09a	switch_handler_fwcode_c1_unk|e
-0x40f0a4	switch_handler_fwcode_c2_unk|e
-0x40f0a8	switch_handler_fwcode_c3_unk|e
-0x40f0ac	switch_handler_fwcode_c4_unk|e
-0x40f41c	switch_handler_fwcode_c5_unk|e
-0x40f42c	switch_handler_fwcode_c6_unk|e
-0x40f43c	switch_handler_fwcode_MULTI_unk|e
-0x40f0c5	switch_handler_fwcode_cc_unk|e
-0x40f0c9	switch_handler_fwcode_cd_unk|e
-0x40f0cd	switch_handler_fwcode_da_unk|e
-0x40f0f4	switch_handler_fwcode_db_unk|e
-0x40f11b	switch_handler_fwcode_dc_unk|e
-0x40f139	switch_handler_fwcode_dd_unk|e
-0x40f157	switch_handler_fwcode_de_unk|e
-0x40f175	switch_handler_fwcode_e0_unk|e
-0x40f179	switch_handler_fwcode_e1_unk|e
-0x40f17d	switch_handler_fwcode_e2_unk|e
-0x40f1a0	switch_handler_fwcode_e3_unk|e
-0x40f19c	switch_handler_fwcode_e4_unk|e
-0x40f1bf	switch_handler_fwcode_e5_unk|e
-0x40f1de	switch_handler_fwcode_e6_unk|e
-0x40f20e	switch_handler_fwcode_e7_unk|e
-0x40f1fe	switch_handler_fwcode_e8_unk|e
-0x40f202	switch_handler_fwcode_e9_unk|e
-0x40f206	switch_handler_fwcode_ea_unk|e
-0x40f20a	switch_handler_fwcode_eb_unk|e
-0x40f216	switch_handler_fwcode_ec_unk|e
-0x40f21a	switch_handler_fwcode_ed_unk|e
-0x40f21e	switch_handler_fwcode_ee_unk|e
-0x40f212	switch_handler_fwcode_ef_unk|e
+#0x40f090	switch_handler_fwcode_c0_unk|e
+#0x40f09a	switch_handler_fwcode_c1_unk|e
+#0x40f0a4	switch_handler_fwcode_c2_unk|e
+#0x40f0a8	switch_handler_fwcode_c3_unk|e
+#0x40f0ac	switch_handler_fwcode_c4_unk|e
+#0x40f41c	switch_handler_fwcode_c5_unk|e
+#0x40f42c	switch_handler_fwcode_c6_unk|e
+#0x40f43c	switch_handler_fwcode_MULTI_unk|e
+#0x40f0c5	switch_handler_fwcode_cc_unk|e
+#0x40f0c9	switch_handler_fwcode_cd_unk|e
+#0x40f0cd	switch_handler_fwcode_da_unk|e
+#0x40f0f4	switch_handler_fwcode_db_unk|e
+#0x40f11b	switch_handler_fwcode_dc_unk|e
+#0x40f139	switch_handler_fwcode_dd_unk|e
+#0x40f157	switch_handler_fwcode_de_unk|e
+#0x40f175	switch_handler_fwcode_e0_unk|e
+#0x40f179	switch_handler_fwcode_e1_unk|e
+#0x40f17d	switch_handler_fwcode_e2_unk|e
+#0x40f1a0	switch_handler_fwcode_e3_unk|e
+#0x40f19c	switch_handler_fwcode_e4_unk|e
+#0x40f1bf	switch_handler_fwcode_e5_unk|e
+#0x40f1de	switch_handler_fwcode_e6_unk|e
+#0x40f20e	switch_handler_fwcode_e7_unk|e
+#0x40f1fe	switch_handler_fwcode_e8_unk|e
+#0x40f202	switch_handler_fwcode_e9_unk|e
+#0x40f206	switch_handler_fwcode_ea_unk|e
+#0x40f20a	switch_handler_fwcode_eb_unk|e
+#0x40f216	switch_handler_fwcode_ec_unk|e
+#0x40f21a	switch_handler_fwcode_ed_unk|e
+#0x40f21e	switch_handler_fwcode_ee_unk|e
+#0x40f212	switch_handler_fwcode_ef_unk|e
 
 
 

@@ -1299,8 +1299,6 @@ def print_stored_instruction( rec ):
     return is_first_call_dest_instruction, is_end_of_function
 
 
-
-
 table_instruction_mutations = [
     {
 	#changes REG = R0 - R0 to REG = 0

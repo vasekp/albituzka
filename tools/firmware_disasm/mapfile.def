@@ -1244,7 +1244,7 @@ wbstr 4
 wbstr 20
 
 word 12x	comment:unpartitioned9
-word 10x	comment:unpartitioned10
+word 10x	sym:battery_thresholds
 wbstr 10
 wbstr 4
 wbstr 4
@@ -1461,6 +1461,7 @@ skip 0x2bf5e
 0x28913e	FS_FileExists_maybe_stk(szPath,FLAG)_ret_errc_in_R0
 0x289fa3	naked_R1R0=X1X0_mod_Y1Y0
 0x289fa5	naked_R1R0=X1X0_div_Y1Y0
+0x28a666	naked_R1R0=R1R0_mul_X1X0
 0x28b4ca	strlen_stk(szString)_ret_in_R0
 0x28bd00	naked_X0=Get_word_from_table_at_R1R0
 0x28bcfd	naked_X0=Get_word_from_table_at_Ix0,Ix0+1
@@ -1758,7 +1759,6 @@ skip 0x2bf5e
 	0x425574	sound 2/204, 起零 [Reset to Zero?]
 	0x42558b	sound 2/227, 開始錄音 [Start recording]
 	0x425596	sound 2/211, 三 [Three]
-	0x4257b9	sound 2/232, [jingle 8]
 	0x4258bf	sound 2/252, [Ping] Spárování proběhlo úspěšně
 	0x425c57	sound ??? TABLE/computation!
 	0x425d04	sound 2/4 [jingle 3]
@@ -1773,11 +1773,7 @@ skip 0x2bf5e
 0x42343e	maybe_some_check_for_update_file
 0x4222e3	Compute_2bin_pointers_stk(ptr_2bin,offset_sound)
 0x40a474	naked_void_Zero_stk(variable)_and_F0_words_after_it()
-0x42835f	empty_fn_01
-0x428360	empty_fn_02
-0x428361	empty_fn_03
 0x428362	empty_fn_04
-0x428364	empty_fn_05
 0x427f4e	naked_void_Zero_3fb5_set_3fa1_to_3fb4_to_FFFF()
 0x428120	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x9]
 0x428131	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x5]
@@ -1796,49 +1792,14 @@ skip 0x2bf5e
 0x424256	does_file_exist_stk(szPtr)
 0x4207f4	label_when_sdcard_not_detected
 	0x424fec	in this place we have prepared fname with sd:\ prefix
-0x4203d7	naked_setup_ADC_and_wait_for_interrupt_return_in_R0?
+0x427fea	naked_set_adc_to_battery
+0x4203d7	naked_set_adc_to_ain1__wait_for_result__return_in_R0
 0x42660a	naked_looking_for_some_ADC_input_return_bool_in_R0?
 0x427e07	set_book_ctx[0xc]_to_stk(wNum)_safely_return_bool_in_R0
 
 	0x41e932	Play_sound_from_2bin_table_stk(sound_num)
 	0x427740	tbl_dac_volume_values
 	0x4278f0	tbl_dac_volume_values
-
-0x3680	file_dirhandle_unk1
-0x3681	file_dirhandle_unk2_dw
-0x3683	file_dirhandle_unk3_dw
-0x3685	file_dirhandle_unk4_dw
-0x3687	file_dirhandle_unk5_dw
-0x3689	file_dirhandle_unk6_dw
-0x368b	file_dirhandle_unk7_dw
-0x368d	file_dirhandle_unk8_dw
-0x368f	file_dirhandle_unk9
-0x3690	file_dirhandle_is_open
-0x3691	file_dirhandle_unk10
-0x3692	file_dirhandle_unk11
-
-#3 of them? length of dirstruct 0x113
-#so up to 39c9
-#struct[0] bool = if it's used/opened
-
-0x3d07	ptr_last_sound
-#length 3, allocated in 0x3d08 -- 0x3d0a
-#3d07[0] = type of sound, determines meaning of the content of 3d08[1-2] as follows:
-#  1: OID, but without associated mode. The sound table is restored from book_ctx[d].
-#  2: system sound, its id.
-#  3: OID, mode 0 sound table (book_mode set to 0 on replay).
-
-0x3db3	fw_config_30200__0168
-0x3db4	fw_config_30202__0078
-0x3db5	fw_config_30204__97
-0x3db6	fw_config_30207__04
-0x3db7	fw_config_30208__ffff
-0x3db8	fw_config_3020b__00030400
-0x3dba	fw_config_3020f__00010105
-0x3dbc	fw_config_30213__07020604
-0x3dbe	fw_config_30217__09020302
-0x3dc0	fw_config_3021b__00000000
-0x3dc2	fw_config_302fc__000045f2
 
 0x3c41	quiz_ctx
 #3c41 = length c1, stored in 3d0b[5e]
@@ -1922,14 +1883,6 @@ skip 0x2bf5e
 #quiz_ctx[0xbf] for type 11: OID list for quiz evaluation
 #quiz_ctx[0xc0] tolerance
 
-0x3dcc	timer_counter_10Hz
-0x3dca	last_timer_value_bumped_every_second
-0x3dc8	timer_counter_0.1Hz
-0x3dc6	aux_timer_target
-0x3dc4	aux_timer_counter_10Hz
-0x3dde	sys_sound_playing_bitset
-#for first 0x40 sounds (4 words)
-
 #not sure why the indirection when it's singleton (even the singleton itself is overkill, when it could be bunch of globals)
 0x3d6a	ptr_to_book_ctx
 0x3d0b	book_ctx
@@ -1987,6 +1940,11 @@ skip 0x2bf5e
 0x41d4f6	quiz_time_step_1Hz()
 0x41eb57	start_quiz()
 0x41f179	play_bnl_mp3(index)
+0x41f561	check_battery()
+#In FW v1 this function only checks battery voltage and sets runlevel to 1 if 
+#low. In v2 it has significantly more logic, detecting sudden voltage drops and 
+#optionally (FW bit) adapting the thresholds on MP3 playing (system load?), but 
+#ultimately does the same.
 0x41f74c	evaluate_answer_types_4,5,6,7,8,9,a,10,11_or_question(oid)
 0x41fcf9	locate_oid_mode_sound_table(file,off_tables_start,mode,&sndt_length,&sndt_start)
 0x4201dd	read_fw_configuration()
@@ -2081,8 +2039,12 @@ skip 0x2bf5e
 0x427554	are_all_answers_marked()
 0x42751d	clear_answers_bitset()
 0x4275c1	next_book_mode()
+0x427759	check_inactivity_timer()
+0x427903	check_poweroff_timer()
 0x4279e0	locate_type7_curr_subquiz_question(index)
+0x427a5a	aux_timeout_reached()
 0x427bc1	set_quiz_ctx_pointer()
+0x427c8c	clear_inactivity_timers()
 0x427f65	hw_random(void)_ret_in_R0
 0x427aa5	is_system_sound_playing(wId)
 0x427cca	xor_one_byte_key(data,key)
@@ -2126,24 +2088,89 @@ skip 0x2bf5e
 0x42591b	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
 	0x42591b	wHandle could be 0, it may mean playing from fw? wFlag seen 0, 1, 2
 
-0x4263b2	indirect_fn_1
-0x426418	indirect_fn_2
-0x426446	indirect_fn2_subhandler_00
-0x42644a	indirect_fn2_subhandler_01
-0x42644e	indirect_fn2_subhandler_02
-0x426452	indirect_fn2_subhandler_03
-0x426456	indirect_fn2_subhandler_04
-0x42645a	indirect_fn2_subhandler_05
-0x42645e	indirect_fn2_subhandler_06
-0x426478	indirect_fn2_subhandler_end_of_processing
-0x426462	indirect_fn2_subhandler_08
-0x426466	indirect_fn2_subhandler_09
-0x42646a	indirect_fn2_subhandler_0a
-0x42646e	indirect_fn2_subhandler_0b
-0x426472	indirect_fn2_subhandler_0c
-0x426476	indirect_fn2_subhandler_0d
+0x4264e2	main_mode_dispatch
+	0x4264fa	main_mode_process
+	0x426513	main_mode_leave
+	0x42652a	main_mode_enter
 
-0x42647d	indirect_fn_3
+0x4263b2	main_mode_enter
+0x428029	main_mode_enter.0
+0x40fce8	main_mode_enter.1
+0x413bf0	main_mode_enter.2
+	0x413bfb	"sd:\"
+	0x413c0f	"mp3"
+	0x413c59	no sound
+	0x413c67	"Není nahraná žádná hudba."
+0x415fc6	main_mode_enter.3
+	0x415fcc	"sd:\Rec"
+	0x415fda	"wav"
+	0x416027	"sd:\Rec"
+0x41706e	main_mode_enter.4
+0x42808f	main_mode_enter.5
+0x40c6e2	main_mode_enter.6
+0x412941	main_mode_enter.8
+0x414e2c	main_mode_enter.9
+0x427ea4	main_mode_enter.a
+0x40e197	main_mode_enter.b
+0x427930	main_mode_enter.c
+	0x427951	"Nemohu přečíst..."
+0x400067	main_mode_enter.d.noop
+
+0x426418	main_mode_process
+0x4257ab	main_mode_process.0
+	0x4257b9	power on jingle
+	0x425803	"Vítej ve světě..."
+	0x42580a	"Nemohu přečíst..."
+0x40fd43	main_mode_process.1
+0x413c93	main_mode_process.2
+0x41611c	main_mode_process.3
+0x41717b	main_mode_process.4
+0x42263e	main_mode_process.5
+0x40c706	main_mode_process.6
+0x412989	main_mode_process.8
+0x414ed4	main_mode_process.9
+0x422f77	main_mode_process.a
+0x40e41d	main_mode_process.b
+0x4243ea	main_mode_process.c
+0x428360	main_mode_process.d.noop
+
+0x42647d	main_mode_leave
+0x428361	main_mode_leave.0.noop
+0x40fd10	main_mode_leave.1
+0x413c71	main_mode_leave.2
+0x4160e7	main_mode_leave.3
+0x41712e	main_mode_leave.4
+0x428364	main_mode_leave.5.noop
+0x40c6f7	main_mode_leave.6
+0x412968	main_mode_leave.8
+0x414ea3	main_mode_leave.9
+0x428067	main_mode_leave.a
+0x40e3d0	main_mode_leave.b
+0x42762b	main_mode_leave.c
+0x42835f	main_mode_leave.d.noop
+
+0x40ed07	process_oid_fwcode.1
+0x40e97a	process_button_fwcode.1
+0x413022	process_oid_fwcode.2
+0x412bc7	process_button_fwcode.2
+0x4154eb	process_oid_fwcode.3
+0x4151aa	process_button_fwcode.3
+0x4161ca	process_oid_fwcode.4
+0x41694c	process_button_fwcode.4
+#no OID/button in main_mode 5
+0x40bb8e	process_oid_fwcode.6
+0x40b85b	process_button_fwcode.6
+#main_mode 7 doesn't exist
+0x4129f9	process_oid_fwcode.8
+0x411725	process_button_fwcode.8
+0x4143de	process_oid_fwcode.9
+0x4140ab	process_button_fwcode.9
+#no OID/button in main_mode a
+0x40d0d6	process_oid_fwcode.b
+0x40cbb9	process_button_fwcode.b
+0x417da3	process_oid_fwcode.c
+0x41cb3f	process_button_fwcode.c
+#mode d is no-op
 
 0x40e644	speed_slow_two
 0x40e64e	speed_slow_one
@@ -2516,7 +2543,7 @@ skip 0x2bf5e
 #0x427453	some_indirectly_called_function_427453
 #0x427467	some_indirectly_called_function_427467
 
-0x40bb8e	Switch_over_FWcodes_large_on_c0|a
+#0x40bb8e	Switch_over_FWcodes_large_on_c0|a
 
 #0x40be44	switch_handler_fwcode_c0_unk|a
 #0x40be4c	switch_handler_fwcode_c1_unk|a
@@ -2703,7 +2730,7 @@ skip 0x2bf5e
 #0x40c522	switch_on_penstate_44_unk|a
 #0x40c6d2	switch_on_penstate_4a_unk|a
 
-0x40cbb9	switch_over_fwcodes_stk(fwcode)
+#0x40cbb9	switch_over_fwcodes_stk(fwcode)
 0x40cf1d	handler_fwcode_60_unk|m
 0x40cf25	handler_fwcode_61_unk|m
 0x40cf29	handler_fwcode_62_unk|m
@@ -2772,7 +2799,7 @@ skip 0x2bf5e
 0x40cccb	handler_fwcode_FF_unk|m
 0x40d0c0	end_of_fwcode_handling|m
 
-0x40d0d6	Switch_over_Fwcodes_stk(fwcode)|c
+#0x40d0d6	Switch_over_Fwcodes_stk(fwcode)|c
 
 #0x40d5ab	switch_handler_fwcode_c0_unk|c
 #0x40d5b3	switch_handler_fwcode_c1_unk|c
@@ -2959,7 +2986,7 @@ skip 0x2bf5e
 #0x40e190	switch_on_penstate_48_unk|b
 #0x40e187	switch_on_penstate_4a_unk|b
 
-0x40e97a	Switch_over_Fwcodes_stk(fwcode)|o
+#0x40e97a	Switch_over_Fwcodes_stk(fwcode)|o
 0x40eb1e	handler_fwcode_60_unk|o
 0x40eb28	handler_fwcode_61_unk|o
 0x40eb2c	handler_fwcode_62_unk|o
@@ -3026,7 +3053,7 @@ skip 0x2bf5e
 #0x40ecc9	switch_handler_fwcode_eb_unk|o
 #0x40eccd	switch_handler_fwcode_ec_unk|o
 
-0x40ed07	Switch_over_Fwcodes_stk(fwcode)|e
+#0x40ed07	Switch_over_Fwcodes_stk(fwcode)|e
 
 #0x40f090	switch_handler_fwcode_c0_unk|e
 #0x40f09a	switch_handler_fwcode_c1_unk|e
@@ -3059,16 +3086,6 @@ skip 0x2bf5e
 #0x40f21a	switch_handler_fwcode_ed_unk|e
 #0x40f21e	switch_handler_fwcode_ee_unk|e
 #0x40f212	switch_handler_fwcode_ef_unk|e
-
-
-
-
-
-
-
-
-
-
 
 0x40006e	naked_if_p4bit8_then_set_p0bit7
 
@@ -3121,10 +3138,68 @@ skip 0x2bf5e
 
 
 #ram
+
+0x3680	file_dirhandle_unk1
+0x3681	file_dirhandle_unk2_dw
+0x3683	file_dirhandle_unk3_dw
+0x3685	file_dirhandle_unk4_dw
+0x3687	file_dirhandle_unk5_dw
+0x3689	file_dirhandle_unk6_dw
+0x368b	file_dirhandle_unk7_dw
+0x368d	file_dirhandle_unk8_dw
+0x368f	file_dirhandle_unk9
+0x3690	file_dirhandle_is_open
+0x3691	file_dirhandle_unk10
+0x3692	file_dirhandle_unk11
+
+#3 of them? length of dirstruct 0x113
+#so up to 39c9
+#struct[0] bool = if it's used/opened
+
+0x3d07	ptr_last_sound
+#length 3, allocated in 0x3d08 -- 0x3d0a
+#3d07[0] = type of sound, determines meaning of the content of 3d08[1-2] as follows:
+#  1: OID, but without associated mode. The sound table is restored from book_ctx[d].
+#  2: system sound, its id.
+#  3: OID, mode 0 sound table (book_mode set to 0 on replay).
+
+0x3da0	battery_warning_flag
 0x3dab	penstate
+0x3dac	inactivity_timer
+0x3dad	poweroff_timer
+0x3dae	runlevel
+
+0x3db3	fw_config_30200__0168
+#time in seconds to auto shutdown
+0x3db4	fw_config_30202__0078
+#time in seconds before inactivity warning
+0x3db5	fw_config_30204__97
+0x3db6	fw_config_30207__04
+0x3db7	fw_config_30208__ffff
+0x3db8	fw_config_3020b__00030400
+#location of mp3tbl1
+0x3dba	fw_config_3020f__00010105
+0x3dbc	fw_config_30213__07020604
+0x3dbe	fw_config_30217__09020302
+0x3dc0	fw_config_3021b__00000000
+0x3dc2	fw_config_302fc__000045f2
+
+0x3dc4	aux_timer_counter_10Hz
+0x3dc6	aux_timer_target
+0x3dc8	timer_counter_0.1Hz
+0x3dca	last_timer_value_bumped_every_second
+0x3dcc	timer_counter_10Hz
+
 0x3dd9	volume_probably
+0x3dde	sys_sound_playing_bitset
+#for first 0x40 sounds (4 words)
 0x3ded	is_oid_module_initialized
 0x3dee	oid_from_sensor
+0x3dfc	battery_last_value
+0x3dfd	battery_incidents_counter
+0x3dfe	main_mode_current
+0x3dff	main_mode_requested
+0x3e02	da_fu_weng_mode
 0x3e04	some_random_seeding
 
 

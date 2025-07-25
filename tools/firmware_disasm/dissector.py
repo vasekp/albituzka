@@ -36,6 +36,7 @@ import time
 
 from collections import defaultdict
 from datetime import datetime
+import xml.etree.ElementTree as ET
 
 # === Keywords ===
 KEYWORDS = {
@@ -733,6 +734,17 @@ def find_addr_in_routine(addr):
             return f"{sym}+0x{delta:x}"
     return ""
 
+def find_addr_in_routine_simple(addr):
+    for start, info in g_calls.items():
+        end = info.get('epilogue_address', -1)
+        if start <= addr <= end:
+            delta = addr - start
+            sym = f"0x{start:06x}"
+            if start in g_symbolsValue2Name:
+                sym = g_symbolsValue2Name[start]
+            return ( start, sym )
+    return ( None, None )
+
 def dump_symbols_table():
     SYMBOLS.write( "SYMBOL TABLE:\n" )
     for value, key in sorted((v, k) for k, v in g_symbolsName2Value.items()):
@@ -781,6 +793,66 @@ def dump_calls_table():
             res = find_addr_in_routine(addr)
             CALLS.write( f"    0x{addr:06x} {res}\n" )
         CALLS.write( "\n" )
+
+def dump_callgraph():
+    if 'CALLGRAPH' not in globals():
+        return
+
+    ET.register_namespace('', "http://www.gexf.net/1.3")  # Needed for default namespace
+
+    # Root element with namespace and version
+    gexf = ET.Element("{http://www.gexf.net/1.3}gexf", version="1.3")
+
+    # <graph>
+    graph = ET.SubElement(gexf, "graph", mode="static", defaultedgetype="directed")
+
+    # <nodes>
+    nodes = ET.SubElement(graph, "nodes")
+
+    tmpnodes = dict()
+    for r_PC, d_onecall in sorted(g_calls.items()):
+        if r_PC < 0x4000 or ( 0x280000 <= r_PC < 0x400000 ):
+            continue
+
+        node_id = f"0x{r_PC:06x}"
+        node_name = None
+        if 'name' in d_onecall:
+            node_name = d_onecall['name']
+        else:
+            if r_PC in g_symbolsValue2Name:
+                node_name = g_symbolsValue2Name[r_PC]
+        if not node_name:
+            continue
+        tmpnodes[ node_id ] = node_name
+        ET.SubElement(nodes, "node", id=node_id, label=node_name)
+
+
+    edge_id = 0
+    # <edges>
+    edges = ET.SubElement(graph, "edges")
+
+    for r_PC, d_onecall in sorted(g_calls.items()):
+        target_id = f"0x{r_PC:06x}"
+        if target_id not in tmpnodes:
+            continue
+
+        #print("hu")        
+        for addr in sorted( d_onecall['from'] ):
+            ( start, sym ) = find_addr_in_routine_simple(addr)
+            if not start:
+                continue
+
+            source_id = f"0x{start:06x}"
+            if source_id not in tmpnodes:
+                continue
+
+            ET.SubElement(edges, "edge", id=str(edge_id), source=source_id, target=target_id)
+            edge_id += 1
+
+    # Write to file or stdout
+    tree = ET.ElementTree(gexf)
+    ET.indent(tree, space="\t", level=0)
+    tree.write( CALLGRAPH, encoding="unicode", xml_declaration=True)
 
 # === Main ===
 
@@ -922,7 +994,7 @@ def mapfile_parse(filename):
     dump_symbols_table()
     dump_cross_table()
     dump_calls_table()
-
+    dump_callgraph()
 
     print( "done!" )
 

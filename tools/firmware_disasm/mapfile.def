@@ -70,19 +70,28 @@
 #    harm and can only help.
 
 
+#hw notes (to be moved later to respective code section)
+#led2 blinks blue when searching for bt
+#led1 lights white when usb 5v connected
+#led3,4,5,6 connected together, turned on on beginning
+
 [MAPPING]
 
 infile update.chp
 
+#this defines mapping of internal 'handles' to filename
 outfile f_main	filename:firmware.asm
 outfile f_cross	filename:crossref.txt
 outfile f_calls	filename:calls.txt
+#outfile f_callgraph	filename:callgraph.gexf
 outfile f_sym	filename:symbols.txt
 
+#this defines facility mapping, more than one facility can go to single handle
 output dis	handle:f_main
 output cross	handle:f_cross
 output calls	handle:f_calls
 output symbols	handle:f_sym
+#output callgraph	handle:f_callgraph
 
 org 0x400000
 
@@ -1243,7 +1252,22 @@ wbstr 6
 wbstr 4
 wbstr 20
 
-word 12x	comment:unpartitioned9
+word 1x	sym:buttons_thresholds	comment:button 1 (vol+)
+word 1x	comment:button 1, low ADC value
+word 1x	comment:button 1, high ADC value
+
+word 1x	comment:button 2 (vol-)
+word 1x	comment:button 2, low ADC value
+word 1x	comment:button 2, high ADC value
+
+word 1x	comment:button 3 (repeat)
+word 1x	comment:button 3, low ADC value
+word 1x	comment:button 3, high ADC value
+
+word 1x	comment:button -
+word 1x	comment:button -
+word 1x	comment:button -
+
 word 10x	sym:battery_thresholds
 wbstr 10
 wbstr 4
@@ -1800,6 +1824,14 @@ skip 0x2bf5e
 	0x41e932	Play_sound_from_2bin_table_stk(sound_num)
 	0x427740	tbl_dac_volume_values
 	0x4278f0	tbl_dac_volume_values
+
+0x42042a	lowlevel_button_recognition(void)
+	0x420438	turn on button
+	0x420465	low ADC value for resistor ladder
+	0x420475	high ADC value for resistor ladder
+	0x420496	resulting button number
+0x4204ac	naked_first_time_button_recognition(void)
+0x41de01	entering_the_test_mode(void)
 
 0x3c41	quiz_ctx
 #3c41 = length c1, stored in 3d0b[5e]

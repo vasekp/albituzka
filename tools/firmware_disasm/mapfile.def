@@ -98,7 +98,8 @@ output symbols	handle:f_sym
 #this is content of first rom part (mapped to 0, 0x4000 words)
 org 0x000000
 asm 0x0024
-word 2x
+word 1x	comment:SYSCONF or bits
+word 1x
 asm 0x0004
 word 2x
 asm 0x0004
@@ -1374,11 +1375,11 @@ wbstr 4
 wbstr 4
 
 #this is for original firmware
-#skip 0x2bf5e
+skip 0x2bf5e
 
 #this is for patched firmware (cross-checking of created rom-dumping assembly)
-asm 0x200
-skip 0x2bd5e
+#asm 0x200
+#skip 0x2bd5e
  
 #end of mapping area
 
@@ -1386,8 +1387,14 @@ skip 0x2bd5e
 [SYMBOLS]
 
 #rom1
-0x000000	reset
 
+#reset handling
+0x000000	reset
+0x000080	naked_reset_memory_prepare
+0x000732	main_reset_handler_cont(void)
+0x0001d8	firmware_module_loader_stk(wModule)
+
+#interrupts in ROM
 0x000014	rom_intvec_AD
 0x000018	rom_intvec_T0
 0x00001c	rom_intvec_P0.0
@@ -1407,6 +1414,8 @@ skip 0x2bd5e
 0x00006C	rom_intvec_DMA_SD2_RW
 0x000078	rom_intvec_DMA_DEV_RW
 
+
+#interrupts in PRAM
 0x004000	SysMain
 0x004002	pram_intvec_AD
 0x004004	pram_intvec_T0
@@ -1427,7 +1436,7 @@ skip 0x2bd5e
 0x004022	pram_intvec_DMA_SD2_RW
 0x004024	pram_intvec_DMA_DEV_RW
 
-0x000080	naked_main_reset_handler
+
 
 
 0x00002e	naked_RAM[Ix0]=local(X0)
@@ -1595,6 +1604,19 @@ skip 0x2bd5e
 0x000042	naked_Ix1=ptr2local_var(X1)
 0x000046	naked_Ix1=ptr2local_var(Y1)
 0x00004a	naked_Ix1=ptr2local_var(X0)
+0x00006e	naked_Ix0=ptr2local_var(X0)
+0x000072	naked_Ix0=ptr2local_var(X1)
+
+0x00005e	naked_Y1Y0=local(X0,X0+1)
+0x000c81	naked_X1X0=local(X0,X0+1)_v1
+0x000c8f	naked_X1X0=local(X0,X0+1)_v2
+0x000c94	naked_X1X0=local(X0,X0+1)_v3
+0x000c8c	naked_X1X0=local(X1,X1+1)
+0x000c84	naked_Y1Y0=local(X1,X1+1)
+0x000c87	naked_Y1Y0=local(Y1,Y1+1)
+
+0x000c9d	naked_X1X0=ROM[X0:Ix0,X0:Ix0+1]
+0x000ca1	naked_Y1Y0=ROM[X1:Ix1,X1:Ix1+1]
 
 # locals store and load functions
 0x000bc5	naked_local(Y1)=R0
@@ -1624,8 +1646,7 @@ skip 0x2bd5e
 0x000c4f	naked_pop_5_words
 0x000c51	naked_pop_4_words
 0x000c53	naked_pop_3_words
-
-0x000c81	naked_X1X0=local(X0,X0+1)
+0x000c54	naked_pop_Y0_words
 
 0x000c99	naked_X0=X1_mod_Y1
 
@@ -3413,9 +3434,25 @@ skip 0x2bd5e
 
 
 #hw mapped
+0xf100	Reg_DMA_SD_W_ADDR
+0xf101	Reg_DMA_SD_W_LEN
+0xf102	Reg_DMA_SD_W_CTRL
+0xf103	Reg_DMA_SD_R_ADDR
+0xf104	Reg_DMA_SD_R_LEN
+0xf105	Reg_DMA_SD_R_CTRL
+
 0xf10f	Reg_DMA_HFD_R_ADDR
 0xf110	Reg_DMA_HFD_R_LEN
 0xf111	Reg_DMA_HFD_R_CTRL
+
+0xf121	Reg_DMA_EXTF_W_ADDR
+0xf122	Reg_DMA_EXTF_W_LEN
+0xf123	Reg_DMA_EXTF_W_CTRL
+0xf124	Reg_DMA_EXTF_R_ADDR
+0xf125	Reg_DMA_EXTF_R_LEN
+0xf126	Reg_DMA_EXTF_R_CTRL
+0xf127	Reg_DMA_EXTF_RW_ADDR_H
+0xf128	Reg_DMA_EXTF_RW_ADDR_L
 
 0xf132	Reg_DMA2_WRAM_ADDR
 0xf133	Reg_DMA2_LEN

@@ -22,7 +22,8 @@
 # 1.1.1 jindroush 21.07.2025 added more mutations, slightly better calls report
 # 1.1.2 jindroush 21.07.2025 speeding up mutations, so far twice
 # 1.1.3 jindroush 27.07.2025 added support for rom loading, rewrote file handling in all functions. Lots of rom code looks strange
-#				and needs thorough checks either in disassembler or in mapfile
+#				and needs thorough checks either in disassembler or in mapfile. Split symbols into two 'namespaces',
+#				one for addresses (24bit), one for immediates (16bit)
 #
 # known bugs/todos:
 # - empty lines between blocks are not printed in the correct way
@@ -75,8 +76,12 @@ g_PC = 0
 g_pointer = 0
 g_previous_processed = None
 
-g_symbolsName2Value = dict()
-g_symbolsValue2Name = dict()
+g_symbols24Name2Value = dict()
+g_symbols24Value2Name = dict()
+
+g_symbols16Name2Value = dict()
+g_symbols16Value2Name = dict()
+
 g_ext_comments = dict()
 
 g_crossref = defaultdict(int)
@@ -189,25 +194,41 @@ def add_auto_symbol( prefix, value ):
 
     if g_auto_symbols:
         symbol = f"auto_{prefix}_{value:06x}"
-        if value not in g_symbolsValue2Name:
-            g_symbolsValue2Name[value] = symbol
-            if symbol not in g_symbolsName2Value:
-                g_symbolsName2Value[symbol] = value
+        if value not in g_symbols24Value2Name:
+            g_symbols24Value2Name[value] = symbol
+            if symbol not in g_symbols24Name2Value:
+                g_symbols24Name2Value[symbol] = value
             return symbol
 
-def add_symbol( name, value ):
-    global g_symbolsName2Value
-    global g_symbolsValue2Name
-    if name in g_symbolsName2Value:
+def add_symbol24( name, value ):
+    global g_symbols24Name2Value
+    global g_symbols24Value2Name
+    
+    if name in g_symbols24Name2Value:
         raise Exception( f"duplicate definition of symbol {name}" )
-    if value in g_symbolsValue2Name:
-        if g_symbolsValue2Name[value].startswith('auto'):
-            del g_symbolsName2Value[g_symbolsValue2Name[value]]
+    if value in g_symbols24Value2Name:
+        if g_symbols24Value2Name[value].startswith('auto'):
+            del g_symbols24Name2Value[g_symbols24Value2Name[value]]
             
         else:
             raise Exception( f"duplicate definition of value {value:06x}/symbol {name}" )
-    g_symbolsName2Value[name] = value
-    g_symbolsValue2Name[value] = name
+    g_symbols24Name2Value[name] = value
+    g_symbols24Value2Name[value] = name
+
+def add_symbol16( name, value ):
+    global g_symbols16Name2Value
+    global g_symbols16Value2Name
+    
+    if name in g_symbols16Name2Value:
+        raise Exception( f"duplicate definition of symbol {name}" )
+    if value in g_symbols16Value2Name:
+        if g_symbols16Value2Name[value].startswith('auto'):
+            del g_symbols16Name2Value[g_symbols16Value2Name[value]]
+            
+        else:
+            raise Exception( f"duplicate definition of value {value:06x}/symbol {name}" )
+    g_symbols16Name2Value[name] = value
+    g_symbols16Value2Name[value] = name
 
 def add_ext_comment( name, value ):
     global g_ext_comments
@@ -493,7 +514,7 @@ def jumptable_preparse(param1, param2_dict, lineno):
 
     if 'prefix' in param2_dict:
         prefix = "auto_" + param2_dict['prefix']
-        add_symbol(f"{prefix}_{g_PC:06x}", g_PC)
+        add_symbol24(f"{prefix}_{g_PC:06x}", g_PC)
         del param2_dict['prefix']
     else:
         prefix = add_auto_symbol( "jmptbl", g_PC )
@@ -526,8 +547,8 @@ def jumptable_preparse(param1, param2_dict, lineno):
             symbol = f"{prefix}_cases_{'_'.join(cases)}"
         else:
             symbol = f"{prefix}_case_{cases[0]}"
-        if not value in g_symbolsValue2Name:
-            add_symbol(symbol, value)
+        if not value in g_symbols24Value2Name:
+            add_symbol24(symbol, value)
 
     #g_handle_input.seek( num * 2, 1 )
     return {'count': num, 'consumed_bytes': 0 }
@@ -729,8 +750,8 @@ def pointer_execute(params):
         value = words[idx] | ( words[idx+1]<<16 )
         print_line_header()
 
-        if value in g_symbolsValue2Name:
-            DIS.write( f".pointer {(g_symbolsValue2Name[value])} ;(0x{value:06x})" )
+        if value in g_symbols24Value2Name:
+            DIS.write( f".pointer {(g_symbols24Value2Name[value])} ;(0x{value:06x})" )
         else:
             DIS.write( f".pointer 0x{value:06x}")
 
@@ -793,8 +814,8 @@ def jumptable_execute(params):
         print_line_header()
 
         DIS.write( f"{(words[_]&0xFF):02x} {(words[_]>>8):02x}" + ( " " * 16 ) )
-        if value in g_symbolsValue2Name:
-            DIS.write( f".jumptable {(g_symbolsValue2Name[value])} ;(0x{value:06x})\n" )
+        if value in g_symbols24Value2Name:
+            DIS.write( f".jumptable {(g_symbols24Value2Name[value])} ;(0x{value:06x})\n" )
         else:
             DIS.write(f".jumptable 0x{value:06x}\n")
         g_crossref[value] += 1
@@ -807,8 +828,8 @@ def find_addr_in_routine(addr):
         if start <= addr <= end:
             delta = addr - start
             sym = f"0x{start:06x}"
-            if start in g_symbolsValue2Name:
-                sym = g_symbolsValue2Name[start]
+            if start in g_symbols24Value2Name:
+                sym = g_symbols24Value2Name[start]
             return f"{sym}+0x{delta:x}"
     return ""
 
@@ -818,22 +839,26 @@ def find_addr_in_routine_simple(addr):
         if start <= addr <= end:
             delta = addr - start
             sym = f"0x{start:06x}"
-            if start in g_symbolsValue2Name:
-                sym = g_symbolsValue2Name[start]
+            if start in g_symbols24Value2Name:
+                sym = g_symbols24Value2Name[start]
             return ( start, sym )
     return ( None, None )
 
 def dump_symbols_table():
-    SYMBOLS.write( "SYMBOL TABLE:\n" )
-    for value, key in sorted((v, k) for k, v in g_symbolsName2Value.items()):
+    SYMBOLS.write( "SYMBOL TABLE (24bit):\n" )
+    for value, key in sorted((v, k) for k, v in g_symbols24Name2Value.items()):
         SYMBOLS.write(f"0x{value:06x}  {key}\n")
+
+    SYMBOLS.write( "\n\nSYMBOL TABLE (16bit):\n" )
+    for value, key in sorted((v, k) for k, v in g_symbols16Name2Value.items()):
+        SYMBOLS.write(f"0x{value:04x}  {key}\n")
 
 def dump_cross_table():
     CROSS.write( "CROSSREF TABLE:\n" )
     for key, value in sorted((k,v) for k,v in g_crossref.items()):
         CROSS.write(f"0x{key:06x} {value:4d}" )
-        if key in g_symbolsValue2Name:
-            CROSS.write( f"\t{(g_symbolsValue2Name[key])}" )
+        if key in g_symbols24Value2Name:
+            CROSS.write( f"\t{(g_symbols24Value2Name[key])}" )
         CROSS.write("\n")
 
 def dump_calls_table():
@@ -843,8 +868,8 @@ def dump_calls_table():
         if 'name' in d_onecall:
             CALLS.write( f" '{(d_onecall['name'])}'" )
         else:
-            if r_PC in g_symbolsValue2Name:
-                CALLS.write( f" '{g_symbolsValue2Name[r_PC]}'" )
+            if r_PC in g_symbols24Value2Name:
+                CALLS.write( f" '{g_symbols24Value2Name[r_PC]}'" )
         CALLS.write("\n")
         if 'prologue_type' in d_onecall:
             CALLS.write( f"  Prologue method: {(d_onecall['prologue_type'])}\n" )
@@ -897,8 +922,8 @@ def dump_callgraph():
         if 'name' in d_onecall:
             node_name = d_onecall['name']
         else:
-            if r_PC in g_symbolsValue2Name:
-                node_name = g_symbolsValue2Name[r_PC]
+            if r_PC in g_symbols24Value2Name:
+                node_name = g_symbols24Value2Name[r_PC]
         if not node_name:
             continue
         tmpnodes[ node_id ] = node_name
@@ -976,7 +1001,7 @@ def mapfile_parse(filename):
                             raise Exception(f"[Line {lineno}] No preparse function for '{keyword}'")
 
                         if 'sym' in param2_dict:
-                            add_symbol( param2_dict['sym'], g_PC )
+                            add_symbol24( param2_dict['sym'], g_PC )
                             del param2_dict['sym']
                         
                         param_dict = preparse(param1, param2_dict, lineno)
@@ -1009,7 +1034,16 @@ def mapfile_parse(filename):
                     if not text_part.strip():
                         raise ValueError(f"[Line {lineno}] Text part is empty")
 
-                    add_symbol( text_part, addr )
+
+                    if len(hex_part)==8:
+                        addr = int(hex_part, 16)
+                        add_symbol24( text_part, addr )
+
+                    elif len(hex_part)==6:
+                        addr = int(hex_part, 16)
+                        add_symbol16( text_part, addr )
+                    else:
+                        raise ValueError(f"[Line {lineno}] Invalid length hex value: '{hex_part}'")
 
                 elif re.match(r'^\t0x[0-9a-fA-F]+\t.+$', line):
                     parts = line.split('\t')
@@ -1053,8 +1087,8 @@ def mapfile_parse(filename):
         if execute:
             if keyword not in ( 'asm', 'output', 'org', 'loadfile', 'outfile' ):
                 #todo first prints symbols then empty line, ugly, fixit
-                if g_PC in g_symbolsValue2Name:
-                    DIS.write( f"{(g_symbolsValue2Name[g_PC])}:\n" )
+                if g_PC in g_symbols24Value2Name:
+                    DIS.write( f"{(g_symbols24Value2Name[g_PC])}:\n" )
             execute(param_dict)
             #the following is debug-only
             #if g_handle_input.tell() != g_pointer:
@@ -1325,8 +1359,8 @@ def format_param( param ):
     elif type == ADDR16:
         return "0x%04x" % value
     elif type == ADDR24:
-        if value in g_symbolsValue2Name:
-            return f"{(g_symbolsValue2Name[value])} (0x{value:06x})"
+        if value in g_symbols24Value2Name:
+            return f"{(g_symbols24Value2Name[value])} (0x{value:06x})"
         return "0x%06x" % value
     elif type == STR:
         return value
@@ -1335,8 +1369,8 @@ def format_param( param ):
     elif type == IMM8:
         return "0x%02x" % value
     elif type == IMM16:
-        if value in g_symbolsValue2Name:
-            return f"{(g_symbolsValue2Name[value])} (0x{value:04x})"
+        if value in g_symbols16Value2Name:
+            return f"{(g_symbols16Value2Name[value])} (0x{value:04x})"
         return "0x%04x" % value
     elif type == RAM:
         return "RAM[%s]" % value
@@ -1370,13 +1404,13 @@ def print_stored_instruction( rec ):
 
     r_PC = rec['PC']
 
-    if r_PC in g_symbolsValue2Name:
-        DIS.write( f"{(g_symbolsValue2Name[r_PC])}:\n" )
+    if r_PC in g_symbols24Value2Name:
+        DIS.write( f"{(g_symbols24Value2Name[r_PC])}:\n" )
         if r_PC in g_calls:
             is_first_call_dest_instruction = True
             if 'name' not in g_calls[r_PC]:
                 #print(f"{r_PC:06x} {(g_symbolsValue2Name[r_PC])}")
-                g_calls[r_PC]['name'] = g_symbolsValue2Name[r_PC]
+                g_calls[r_PC]['name'] = g_symbols24Value2Name[r_PC]
 
     print_line_header( r_PC, rec['pointer'])
 
@@ -1402,7 +1436,7 @@ def print_stored_instruction( rec ):
             DIS.write( f"{str} " )
 
         #when we don't have comment on line with 16bit immediate value, and that value is not a symbol
-        if comment is None and params[0][0] == IMM16 and params[0][1] not in g_symbolsValue2Name:
+        if comment is None and params[0][0] == IMM16 and params[0][1] not in g_symbols16Value2Name:
             value = params[0][1]
             vall = value & 0xFF
             valh = value >> 8
@@ -2340,7 +2374,7 @@ def instructions_mutator():
             not_matching = False
 
             for i in range(matcher_from_cnt):
-                if i >= 1 and g_instruction_store[idx+i]['PC'] in g_symbolsValue2Name:
+                if i >= 1 and g_instruction_store[idx+i]['PC'] in g_symbols24Value2Name:
                     not_matching = True
                     break
                 if not check_instruction_match( matchers[ i ], g_instruction_store[ idx + i ], ctx ):
@@ -2745,7 +2779,7 @@ def extract_prologue_info( r_PC, idx ):
         if mnem=='Retff':
             break
         elif mnem=='Callff':
-            sym = g_symbolsValue2Name[ inst['parameters'][0][1] ]
+            sym = g_symbols24Value2Name[ inst['parameters'][0][1] ]
             if sym.startswith( 'FunctionPrologue' ):
                 prologue_type = sym
                 prologue_pars = ", ".join(f"{name}=0x{value:04x}" for name, value in sorted(registers.items()))
@@ -2776,7 +2810,7 @@ def extract_epilogue_info( PC_last_start, idx ):
     if mnem=='Retff':
         epilogue_type = 'Retff'
     elif mnem=='Jmpff':
-        sym = g_symbolsValue2Name[ inst['parameters'][0][1] ]
+        sym = g_symbols24Value2Name[ inst['parameters'][0][1] ]
         if sym.startswith( 'FunctionEpilogue' ):
             epilogue_type = sym
 
@@ -2815,7 +2849,7 @@ def instructions_printer():
             if next1 is not None:
                 mnem = next1['mnemonic']
                 if mnem=='Callff':
-                    sym = g_symbolsValue2Name[ next1['parameters'][0][1] ]
+                    sym = g_symbols24Value2Name[ next1['parameters'][0][1] ]
                     match = re.match(r'pop_(\d+)_words', sym)
                     if match:
                         pop_pars = int(match.group(1))

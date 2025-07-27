@@ -77,7 +77,9 @@
 
 [MAPPING]
 
-infile update.chp
+#order is important
+loadfile sn95302.rom
+loadfile update.chp	last:1
 
 #this defines mapping of internal 'handles' to filename
 outfile f_main	filename:firmware.asm
@@ -92,6 +94,99 @@ output cross	handle:f_cross
 output calls	handle:f_calls
 output symbols	handle:f_sym
 #output callgraph	handle:f_callgraph
+
+#this is content of first rom part (mapped to 0, 0x4000 words)
+org 0x000000
+asm 0x0024
+word 2x
+asm 0x0004
+word 2x
+asm 0x0004
+word 2x
+asm 0x0004
+word 2x
+asm 0x0004
+word 2x
+asm 0x0004
+word 2x
+asm 0x0004
+word 2x
+
+asm 14
+word 1x
+asm 4
+word 2x
+asm 4
+word 2x
+asm 4
+word 2x
+
+asm 2732
+jumptable 6x
+
+asm 3602
+word 230x
+
+asm 14
+
+word 4217x
+
+asm 10548
+jumptable 7x
+
+asm 4172
+jumptable 8x
+
+asm 0xa4c
+
+#this is content of second rom part (mapped to 0x280000, 0xc000 words)
+org 0x280000
+
+asm 28836
+jumptable 8x	base:0x23
+
+asm 4778
+jumptable 14x
+
+asm 3290
+jumptable 8x	base:0x02
+
+asm 11212
+jumptable 10x
+
+asm 2032
+jumptable 6x
+
+asm 29482
+jumptable 4x
+
+asm 17930
+word 200x
+
+wbstr 8	sym:string_sd2
+wbstr 10	sym:string_xrom
+wbstr 6	sym:string_sd
+wbstr 8	sym:string_ab+
+wbstr 8	sym:string_wb+_2
+wbstr 8
+wbstr 6
+wbstr 6
+wbstr 6
+wbstr 6
+wbstr 6
+wbstr 6
+wbstr 4
+wbstr 4
+wbstr 4
+wbstr 20
+wbstr 14
+
+word 12x
+wbstr 4
+wbstr 52
+
+word 13x
+str 8
 
 org 0x400000
 
@@ -1278,7 +1373,12 @@ pointer 3x	sym:func_ptr_table1
 wbstr 4
 wbstr 4
 
-skip 0x2bf5e
+#this is for original firmware
+#skip 0x2bf5e
+
+#this is for patched firmware (cross-checking of created rom-dumping assembly)
+asm 0x200
+skip 0x2bd5e
  
 #end of mapping area
 
@@ -1286,11 +1386,55 @@ skip 0x2bf5e
 [SYMBOLS]
 
 #rom1
+0x000000	reset
+
+0x000014	rom_intvec_AD
+0x000018	rom_intvec_T0
+0x00001c	rom_intvec_P0.0
+0x000020	rom_intvec_T1
+0x000024	rom_intvec_P0.1
+0x000028	rom_intvec_T2
+0x00002C	rom_intvec_P0.2
+0x000034	rom_intvec_DA
+0x000038	rom_intvec_SPI
+0x00003C	rom_intvec_MSP
+0x000040	rom_intvec_I2S
+0x000050	rom_intvec_USB
+0x000058	rom_intvec_RTC
+0x00005C	rom_intvec_SD
+0x000064	rom_intvec_DMA_SD_RW
+0x000068	rom_intvec_SAR_AD
+0x00006C	rom_intvec_DMA_SD2_RW
+0x000078	rom_intvec_DMA_DEV_RW
+
+0x004000	SysMain
+0x004002	pram_intvec_AD
+0x004004	pram_intvec_T0
+0x004006	pram_intvec_P0.0
+0x004008	pram_intvec_T1
+0x00400a	pram_intvec_P0.1
+0x00400c	pram_intvec_T2
+0x00400e	pram_intvec_P0.2
+0x004010	pram_intvec_DA
+0x004012	pram_intvec_SPI
+0x004014	pram_intvec_MSP
+0x004016	pram_intvec_I2S
+0x004018	pram_intvec_USB
+0x00401a	pram_intvec_RTC
+0x00401c	pram_intvec_SD
+0x00401e	pram_intvec_DMA_SD_RW
+0x004020	pram_intvec_SAR_AD
+0x004022	pram_intvec_DMA_SD2_RW
+0x004024	pram_intvec_DMA_DEV_RW
+
+0x000080	naked_main_reset_handler
+
+
 0x00002e	naked_RAM[Ix0]=local(X0)
 0x000051	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)
 0x0000d7	naked_X0=X1_div_Y1
 0x000305	OID_Check_ReadData
-0x00031f	naked_OID_TransmitCmd(wCmd)
+0x00031f	OID_TransmitCmd_stk(wCmd)
 0x00067d	naked_void_Wakeup_OID_By_DSP(void)
 
 # dword subtraction functions
@@ -1448,10 +1592,15 @@ skip 0x2bf5e
 0x000b9f	FunctionEpilogue(Y1)
 0x000b99	FunctionEpilogue(X1,Y1)
 
+0x000042	naked_Ix1=ptr2local_var(X1)
+0x000046	naked_Ix1=ptr2local_var(Y1)
+0x00004a	naked_Ix1=ptr2local_var(X0)
 
 # locals store and load functions
 0x000bc5	naked_local(Y1)=R0
+0x000bc9	naked_local(Y1)=R1
 0x000bcd	naked_local(Y1)=X0
+0x000bd1	naked_local(Y1)=X1
 0x000bd5	naked_local(Y1)=Y0
 0x000bd9	naked_local(Y1)=RAM[Ix0]
 0x000be1	naked_local(Y1)=local(X1)
@@ -1486,6 +1635,7 @@ skip 0x2bf5e
 0x289fa3	naked_R1R0=X1X0_mod_Y1Y0
 0x289fa5	naked_R1R0=X1X0_div_Y1Y0
 0x28a666	naked_R1R0=R1R0_mul_X1X0
+0x28a668	naked_R1R0=Y1Y0_mul_X1X0
 0x28b4ca	strlen_stk(szString)_ret_in_R0
 0x28bd00	naked_X0=Get_word_from_table_at_R1R0
 0x28bcfd	naked_X0=Get_word_from_table_at_Ix0,Ix0+1
@@ -1573,6 +1723,7 @@ skip 0x2bf5e
 0x428272	naked_void_just_a_nop_2(void)
 0x42822d	naked_void_Init_3fe9=ffff_3ff6_3fa6(void)
 0x4218e4	File_Open_Lib_Call_Probably_stack(szFname,szAccess)_ret_errc_in_R0
+0x4277e9	File_Close_Lib_Probably_stk(wHandle)
 0x427727	Set_user_volume_to_DAC_volume_stk(volume)
 0x4278d5	Set_user_volume_to_DAC_volume
 0x422324	Play_sound_from_2bin_table_stk(wSoundNum)
@@ -1832,6 +1983,31 @@ skip 0x2bf5e
 	0x420496	resulting button number
 0x4204ac	naked_first_time_button_recognition(void)
 0x41de01	entering_the_test_mode(void)
+0x41e0b9	test_mode_exiting
+0x41de26	test_mode_version_looping
+	0x41de2c	22 bytes from 0x400300 points to 023 (version number)
+	0x41de56	copying 4 bytes to 0x3fa1
+	0x41de64	from this point the copied version number in 0x3fa1 is read aloud
+0x41de14	test_mode_stage_0_say_version
+0x41de5d	test_mode_check_for_stage_1_plus
+0x41de64	test_mode_stage_1_say_number
+0x41deee	test_mode_check_for_stage_2_plus
+0x41def6	test_mode_stage_2_test_tip
+0x41df10	test_mode_check_for_stage_3_plus
+0x41df18	test_mode_stage_5
+0x41df20	test_mode_check_for_stage_8_plus
+0x41df28	test_mode_stage_8_test_sdcard
+0x41df48	test_mode_check_for_stage_9_plus
+0x41df50	test_mode_stage_10
+0x41e006	test_mode_check_for_stage_11_plus
+0x41e00e	test_mode_stage_11_nothing
+0x41e010	test_mode_check_for_stage_13_plus
+0x41e018	test_mode_stage_13
+0x41e06f	test_mode_check_for_stage_14_plus
+0x41e077	test_mode_stage_14_testrec_saving
+0x41e088	test_mode_check_for_stage_15_plus
+0x41e090	test_mode_stage_15_testrec_playing_back_to
+
 
 0x3c41	quiz_ctx
 #3c41 = length c1, stored in 3d0b[5e]

@@ -21,6 +21,8 @@
 #                                instruction disassembler now does not modify input word list
 # 1.1.1 jindroush 21.07.2025 added more mutations, slightly better calls report
 # 1.1.2 jindroush 21.07.2025 speeding up mutations, so far twice
+# 1.1.3 jindroush 27.07.2025 added support for rom loading, rewrote file handling in all functions. Lots of rom code looks strange
+#				and needs thorough checks either in disassembler or in mapfile
 #
 # known bugs/todos:
 # - empty lines between blocks are not printed in the correct way
@@ -40,7 +42,7 @@ import xml.etree.ElementTree as ET
 
 # === Keywords ===
 KEYWORDS = {
-    'infile',		#defines input filename
+    'loadfile',		#defines load filename
     'outfile',		#defines output filename
     'output',		#defines binding between output facility and output handle
     'org',		#changes origin of code
@@ -58,7 +60,11 @@ KEYWORDS = {
 # === Globals ===
 
 g_mapfile = None
-g_handle_input = None
+
+g_input_files = dict()
+g_words = []
+g_words_cnt = None
+g_words_ptr = None
 
 g_outfiles = dict()
 g_output_handles = dict()
@@ -235,13 +241,40 @@ def escape_unicode_string(s):
 
 # === Pre-parse functions ===
 
-def infile_preparse(param1, param2_dict, lineno):
-    global g_handle_input
+def loadfile_preparse(param1, param2_dict, lineno):
+    global g_words, g_words_idx, g_words_cnt, g_infiles
+
     if not os.path.isfile(param1):
         raise Exception(f"[Line {lineno}] File '{param1}' does not exist.")
+    lastpar = 0
 
-    g_handle_input = open(param1, 'rb')
-    return {'filename': param1, 'consumed_bytes': 0 }
+    try:
+        f = open(param1, 'rb')
+        md5 = hashlib.md5(f.read()).hexdigest()
+        f.seek(0,0)
+        length = os.path.getsize(param1)
+        data = f.read(length)
+        for i in range(0, length, 2):
+            word = int.from_bytes(data[i:i+2], 'little')
+            g_words.append(word)
+        f.close()
+        rec = dict()
+        rec['filename'] = param1
+        rec['md5'] = md5
+        rec['len'] = length
+
+        if 'last' in param2_dict:
+            lastpar = param2_dict['last']
+            del param2_dict['last']
+
+        g_input_files[param1] = rec
+    except:
+        raise Exception(f"Reading from file '{param1} failed!")
+
+    g_words_idx = 0
+    g_words_cnt = len( g_words )
+
+    return { 'filename': param1, 'last': lastpar, 'consumed_bytes': 0 }
 
 def outfile_preparse( param1, param2_dict, lineno ):
     global g_outfiles, g_output_handles
@@ -275,6 +308,8 @@ def org_preparse(param1, param2_dict, lineno):
     return {'address': num, 'consumed_bytes': 0 }
 
 def wstr_preparse(param1, param2_dict, lineno):
+    global g_words_idx
+
     num = parse_int_or_hex(param1, lineno)
     ldict = {'length': num, 'consumed_bytes': num }
 
@@ -282,10 +317,15 @@ def wstr_preparse(param1, param2_dict, lineno):
         ldict['comment'] = param2_dict['comment']
         del param2_dict['comment']
 
-    g_handle_input.seek( num, 1 )
+    if num % 2 != 0:
+        raise Exception("str_preparse: length must be even")
+
+    g_words_idx += num // 2
     return ldict
 
 def wbstr_preparse(param1, param2_dict, lineno):
+    global g_words_idx
+
     num = parse_int_or_hex(param1, lineno)
     ldict = {'length': num, 'consumed_bytes': num }
 
@@ -293,10 +333,14 @@ def wbstr_preparse(param1, param2_dict, lineno):
         ldict['comment'] = param2_dict['comment']
         del param2_dict['comment']
 
-    g_handle_input.seek( num, 1 )
+    if num % 2 != 0:
+        raise Exception("str_preparse: length must be even")
+
+    g_words_idx += num // 2
     return ldict
 
 def str_preparse(param1, param2_dict, lineno):
+    global g_words_idx
     num = parse_int_or_hex(param1, lineno)
 
     ldict = {'length': num, 'consumed_bytes': num }
@@ -305,15 +349,26 @@ def str_preparse(param1, param2_dict, lineno):
         ldict['comment'] = param2_dict['comment']
         del param2_dict['comment']
 
-    g_handle_input.seek( num, 1 )
+    if num % 2 != 0:
+        raise Exception("str_preparse: length must be even")
+
+    g_words_idx += num // 2
     return ldict
 
 def skip_preparse(param1, param2_dict, lineno):
+    global g_words_idx
     num = parse_int_or_hex(param1, lineno)
-    g_handle_input.seek( num, 1 )
+
+    if num % 2 != 0:
+        raise Exception("skip_preparse: length must be even")
+
+    g_words_idx += num // 2
+
     return {'length': num, 'consumed_bytes': num }
 
 def word_preparse(param1, param2_dict, lineno):
+    global g_words_idx
+
     num = parse_decimal_multiply(param1, lineno)
     ldict = {'count': num, 'consumed_bytes': num * 2 }
 
@@ -321,10 +376,12 @@ def word_preparse(param1, param2_dict, lineno):
         ldict['comment'] = param2_dict['comment']
         del param2_dict['comment']
 
-    g_handle_input.seek( num * 2, 1 )
+    g_words_idx += num
     return ldict
 
 def dword_preparse(param1, param2_dict, lineno):
+    global g_words_idx
+
     num = parse_decimal_multiply(param1, lineno)
     ldict = {'count': num, 'consumed_bytes': num * 4 }
 
@@ -332,10 +389,11 @@ def dword_preparse(param1, param2_dict, lineno):
         ldict['comment'] = param2_dict['comment']
         del param2_dict['comment']
 
-    g_handle_input.seek( num*4, 1 )
+    g_words_idx += num * 2
     return ldict
 
 def pointer_preparse(param1, param2_dict, lineno):
+    global g_words_idx
     num = parse_decimal_multiply(param1, lineno)
     ldict = {'count': num, 'consumed_bytes': num * 4 }
 
@@ -343,26 +401,27 @@ def pointer_preparse(param1, param2_dict, lineno):
         ldict['comment'] = param2_dict['comment']
         del param2_dict['comment']
 
-    g_handle_input.seek( num*4, 1 )
+    g_words_idx += num * 2
     return ldict
 
 def asm_preparse(param1, param2_dict, lineno):
+    global g_words_idx
+
     length = parse_int_or_hex(param1, lineno)
 
     if length % 2 != 0:
         raise Exception("asm_preparse: length must be even")
+    #print( f"asm preparse PC:{g_PC:06x} wptr:{g_words_idx:06x} fwd:{(g_words[g_words_idx]):04x} / {length}" )
+    word_length = (length) // 2  # ceil division
 
-    data = g_handle_input.read(length)
-    if len(data) != length:
-        raise Exception("asm_preparse: not enough data")
-
-    words = []
-    for i in range(0, length, 2):
-        word = int.from_bytes(data[i:i+2], 'little')
-        words.append(word)
+    if g_words_idx + word_length <= g_words_cnt:
+        words = g_words[g_words_idx : g_words_idx + word_length]
+    else:
+        raise ValueError("Attempt to read past end of g_words")
+    g_words_idx += word_length
 
     idx = 0
-    idx_end = len(words)
+    idx_end = word_length
 
     while idx < idx_end:
         word1 = words[idx]
@@ -422,7 +481,8 @@ def asm_preparse(param1, param2_dict, lineno):
     return {'length': length, 'consumed_bytes': 0 }
 
 def jumptable_preparse(param1, param2_dict, lineno):
-    global g_PC
+    global g_PC, g_words_idx
+
     num = parse_decimal_multiply(param1, lineno)
 
     if 'base' in param2_dict:
@@ -440,11 +500,15 @@ def jumptable_preparse(param1, param2_dict, lineno):
 
     dests = dict()
 
+
+    if g_words_idx + num <= g_words_cnt:
+        words = g_words[g_words_idx : g_words_idx + num]
+    else:
+        raise ValueError("Attempt to read past end of g_words")
+    g_words_idx += num
+
     for index in range(num):
-        data = g_handle_input.read(2)
-        if len(data) != 2:
-            raise Exception("jumptable_preparse: not enough data")
-        value = int.from_bytes(data, 'little')
+        value = words[index]
         value = value | ( g_PC & 0x00FF0000 )
 
         case = base + index
@@ -470,49 +534,68 @@ def jumptable_preparse(param1, param2_dict, lineno):
 
 # === Execute functions ===
 
-def infile_execute(params):
-    global g_handle_input, g_output_handles, g_PC, g_pointer, g_mapfile, g_outfiles
+def loadfile_execute(params):
+    global g_output_handles, g_PC, g_pointer, g_mapfile, g_outfiles, g_words_idx
 
-    input_file = params['filename']
+    #on first call only
+    if 'DIS' not in globals():
+        #first call to execute
+        for id,fname in g_outfiles.items():
+            handle = open( fname, "w", encoding="utf-8")
+            g_output_handles[id] = handle
 
-    for id,fname in g_outfiles.items():
-        handle = open( fname, "w", encoding="utf-8")
-        g_output_handles[id] = handle
+        for id,handle in g_output2handle.items():
+            if handle in g_output_handles:
+                #this creates uppercased symbol which in fact means handle
+                globals()[id.upper()] = g_output_handles[handle]
+            else:
+                raise Exception
 
-    for id,handle in g_output2handle.items():
-        if handle in g_output_handles:
-            #this creates uppercased symbol which in fact means handle
-            globals()[id.upper()] = g_output_handles[handle]
-        else:
-            raise Exception
+    #every call
+    input_file = params['filename'] 
 
+    if input_file not in g_input_files:
+        raise Exception
+
+    frec = g_input_files[input_file]
     print( f"processing {input_file}..." )
-    print( f"...to these files: {(', '.join(g_outfiles.values()))}" )
-    # MD5 hash
-    with open(input_file, 'rb') as f:
-        md5 = hashlib.md5(f.read()).hexdigest()
-    DIS.write(f"#processing input file '{input_file}' with md5 {md5}\n")
-    g_handle_input.seek(0)
+    DIS.write(f"#processing input file '{input_file}' with md5 {(frec['md5'])}\n")
 
-    # File modification date
-    stat = os.stat(g_mapfile)
-    dt = datetime.fromtimestamp(stat.st_mtime)
-    formatted = dt.strftime("%-d.%-m.%Y %H:%M:%S") if os.name != 'nt' else dt.strftime("%#d.%#m.%Y %H:%M:%S")
-    DIS.write(f"#using map file '{g_mapfile}', last modified: {formatted}\n")
+    #only last call
+    if 'last' in params and params['last']:
+        print( f"...to these files: {(', '.join(g_outfiles.values()))}" )
 
-    # --- MD5 and modified date of this script ---
-    this_path = os.path.abspath(__file__)
-    with open(this_path, 'rb') as f:
-        script_md5 = hashlib.md5(f.read()).hexdigest()
-    script_stat = os.stat(this_path)
-    dt_script = datetime.fromtimestamp(script_stat.st_mtime)
-    formatted_script = dt_script.strftime("%-d.%-m.%Y %H:%M:%S") if os.name != 'nt' else dt_script.strftime("%#d.%#m.%Y %H:%M:%S")
-    script_file = os.path.basename( this_path)
+        # File modification date
+        stat = os.stat(g_mapfile)
+        dt = datetime.fromtimestamp(stat.st_mtime)
+        formatted = dt.strftime("%-d.%-m.%Y %H:%M:%S") if os.name != 'nt' else dt.strftime("%#d.%#m.%Y %H:%M:%S")
+        DIS.write(f"#using map file '{g_mapfile}', last modified: {formatted}\n")
+
+        # --- MD5 and modified date of this script ---
+        this_path = os.path.abspath(__file__)
+        with open(this_path, 'rb') as f:
+            script_md5 = hashlib.md5(f.read()).hexdigest()
+        script_stat = os.stat(this_path)
+        dt_script = datetime.fromtimestamp(script_stat.st_mtime)
+        formatted_script = dt_script.strftime("%-d.%-m.%Y %H:%M:%S") if os.name != 'nt' else dt_script.strftime("%#d.%#m.%Y %H:%M:%S")
+        script_file = os.path.basename( this_path)
  
-    DIS.write(f"#generated by script '{script_file}', md5: {script_md5}, last modified: {formatted_script}\n")
+        DIS.write(f"#generated by script '{script_file}', md5: {script_md5}, last modified: {formatted_script}\n")
 
-    g_PC = 0
-    g_pointer = 0
+        g_words_idx = 0
+        g_PC = 0
+        g_pointer = 0
+
+def read_words_and_move_idx(word_cnt):
+    global g_words, g_words_idx
+
+    if g_words_idx + word_cnt <= g_words_cnt:
+        words = g_words[g_words_idx : g_words_idx + word_cnt]
+    else:
+        raise ValueError("Attempt to read past end of g_words")
+    g_words_idx += word_cnt
+    return words
+
 
 def outfile_execute(params):
     pass
@@ -546,17 +629,16 @@ def wstr_execute(params):
 
 def wbstr_execute(params):
     length = params['length']
-    data = g_handle_input.read(length)
-    if len(data) != length:
-        raise Exception(f"wbstr_execute: expected {length} bytes, got {len(data)}")
+
+    words = read_words_and_move_idx( length // 2 )
 
     # Check that every second byte is 0x00 (odd indices)
-    for i in range(1, len(data), 2):
-        if data[i] != 0x00:
-            raise ValueError(f"Invalid padding byte at index {i}: expected 0x00, found 0x{byte_data[i]:02X}")
+    for i in range(len(words)):
+        if words[i] > 0xFF:
+            raise ValueError(f"Invalid padding byte at index {i}: expected 0x00, found 0x{words[i]:02X}")
 
     # Extract every low byte (even indices)
-    raw_bytes = data[::2]
+    raw_bytes = bytearray(w & 0xFF for w in words)
 
     # Decode as GBK
     text = raw_bytes.decode('gbk')
@@ -573,9 +655,13 @@ def wbstr_execute(params):
 
 def str_execute(params):
     length = params['length']
-    data = g_handle_input.read(length)
-    if len(data) != length:
-        raise Exception(f"str_execute: expected {length} bytes, got {len(data)}")
+
+    words = read_words_and_move_idx( length // 2 )
+
+    data = bytearray(
+        b for w in words for b in (w & 0xFF, (w >> 8) & 0xFF)
+    )
+
     try:
         raw_text = data.decode('ascii')
     except UnicodeDecodeError:
@@ -595,13 +681,12 @@ def word_execute(params):
     empty_line( "word" )
     count = params['count']
 
+    words = read_words_and_move_idx( count )
+
     comment = None
 
     for _ in range(count):
-        data = g_handle_input.read(2)
-        if len(data) != 2:
-            raise Exception("word_execute: not enough data")
-        value = int.from_bytes(data, 'little')
+        value = words[_]
         print_line_header()
         DIS.write(f".word 0x{value:04x}")
 
@@ -621,11 +706,11 @@ def word_execute(params):
 def dword_execute(params):
     empty_line( "dword" )
     count = params['count']
-    for _ in range(count):
-        data = g_handle_input.read(4)
-        if len(data) != 4:
-            raise Exception("dword_execute: not enough data")
-        value = int.from_bytes(data, 'little')
+
+    words = read_words_and_move_idx( count * 2 )
+
+    for idx in range(0,len(words),2):
+        value = words[idx] | ( words[idx+1]<<16 )
         print_line_header()
         DIS.write(f".dword 0x{value:08x}")
         if 'comment' in params:
@@ -637,11 +722,11 @@ def dword_execute(params):
 def pointer_execute(params):
     empty_line( "pointer" )
     count = params['count']
-    for _ in range(count):
-        data = g_handle_input.read(4)
-        if len(data) != 4:
-            raise Exception("pointer_execute: not enough data")
-        value = int.from_bytes(data, 'little')
+
+    words = read_words_and_move_idx( count * 2 )
+
+    for idx in range(0,len(words),2):
+        value = words[idx] | ( words[idx+1]<<16 )
         print_line_header()
 
         if value in g_symbolsValue2Name:
@@ -659,9 +744,9 @@ def skip_execute(params):
     empty_line( "skip" )
     length = params['length']
     print_line_header()
-    skipped = g_handle_input.read(length)
-    if len(skipped) != length:
-        raise Exception("skip_execute: not enough data")
+
+    words = read_words_and_move_idx( length // 2 )
+    skipped = [w & 0xFF for w in words]
 
     if all(b in (0x00, 0xFF) for b in skipped):
         desc = f".skip {length} bytes (0x00 or 0xFF only)"
@@ -676,16 +761,9 @@ def asm_execute(params):
     length = params['length']
 
     if length % 2 != 0:
-        raise Exception("asm_execute: length must be even")
+        raise Exception("asm_preparse: length must be even")
 
-    data = g_handle_input.read(length)
-    if len(data) != length:
-        raise Exception("asm_execute: not enough data")
-
-    words = []
-    for i in range(0, length, 2):
-        word = int.from_bytes(data[i:i+2], 'little')
-        words.append(word)
+    words = read_words_and_move_idx( length // 2 )
 
     #clear previous block data
     reset_instructions()
@@ -702,19 +780,19 @@ def jumptable_execute(params):
     empty_line( "jumptable" )
     count = params['count']
 
+    words = read_words_and_move_idx( count )
+
     for _ in range(count):
-        data = g_handle_input.read(2)
-        if len(data) != 2:
-            raise Exception("jumptable_execute: not enough data")
         #to make sense of it
         #PCH (top 8 bits of 24bit address) is not changed
         #so it's extracted from current instruction pointer
         #that means that jumptable should not cross 'segment' boundary
-        value = int.from_bytes(data, 'little')
+
+        value = words[_]
         value = value | ( g_PC & 0x00FF0000 )
         print_line_header()
 
-        DIS.write( f"{(data[0]):02x} {(data[1]):02x}" + ( " " * 16 ) )
+        DIS.write( f"{(words[_]&0xFF):02x} {(words[_]>>8):02x}" + ( " " * 16 ) )
         if value in g_symbolsValue2Name:
             DIS.write( f".jumptable {(g_symbolsValue2Name[value])} ;(0x{value:06x})\n" )
         else:
@@ -967,13 +1045,13 @@ def mapfile_parse(filename):
         sys.exit(1)
 
     #EXECUTE pass
-    g_handle_input.seek(0)
+    g_words_idx = 0
     g_PC = 0
     g_pointer = 0
     for keyword, param_dict, lineno, original in parsed_lines:
         execute = globals().get(f"{keyword}_execute")
         if execute:
-            if keyword != 'asm':
+            if keyword not in ( 'asm', 'output', 'org', 'loadfile', 'outfile' ):
                 #todo first prints symbols then empty line, ugly, fixit
                 if g_PC in g_symbolsValue2Name:
                     DIS.write( f"{(g_symbolsValue2Name[g_PC])}:\n" )

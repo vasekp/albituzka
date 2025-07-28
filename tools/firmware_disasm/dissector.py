@@ -2153,7 +2153,7 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_2', 'param1': ( IMM8, 0x5a ), 'param2': None, 'comment': '0x427fbe not yet named/understood' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_2', 'param1': ( IMM8, 0x5a ), 'param2': None, 'comment': 'mp3_stop' }
      },
 
      {
@@ -2173,7 +2173,7 @@ table_instruction_mutations = [
 		{ 'mnemonic': '=', 'param1t': REG, 'param1v': 'Ix1', 'param2t': IMM8, 'param2v': 0x0 }, 
 		{ 'mnemonic': 'Retff' }
 	],
-	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_5', 'param1': ( IMM8, 0x5a ), 'param2': None, 'comment': '0x427fbe not yet named/understood' }
+	'to': { 'mnemonic': '@IndirectCall(book_ctx)_and_store_fnptr_to_local_5', 'param1': ( IMM8, 0x5a ), 'param2': None, 'comment': 'mp3_stop' }
      },
 	
      {

@@ -384,43 +384,43 @@ asm 0x1A70
 jumptable 75x	prefix:switch_on_penstate|b
 
 asm 0xCC2
-jumptable 13x
+jumptable 13x	base:2
 
 asm 0xDA
-jumptable 13x
+jumptable 13x	base:2
 
 asm 0x640
-jumptable 34x	base:0x30	prefix:switch_handler_fwcode|o
+jumptable 34x	base:0x30	prefix:switch_handler_button_fwcode.1
 
 asm 0x38
-jumptable 4x	base:0xc0	prefix:switch_handler_fwcode|o
+jumptable 4x	base:0xc0	prefix:switch_handler_button_fwcode.1
 
 asm 0x38
-jumptable 22x	base:0x70	prefix:switch_handler_fwcode|o
+jumptable 22x	base:0x70	prefix:switch_handler_button_fwcode.1
 
 asm 0x48
-jumptable 13x	base:0xe0	prefix:switch_handler_fwcode|o
+jumptable 13x	base:0xe0	prefix:switch_handler_button_fwcode.1
 
 asm 0x57C
-jumptable 48x	base:0xc0	prefix:switch_handler_fwcode|e
+jumptable 48x	base:0xc0	prefix:switch_handler_oid_fwcode.1
 
 asm 0x38
-jumptable 34x	base:0x30	prefix:switch_handler_fwcode|e
+jumptable 34x	base:0x30	prefix:switch_handler_oid_fwcode.1
 
 asm 0x70
-jumptable 22x	base:0x70	prefix:switch_handler_fwcode|e
+jumptable 22x	base:0x70	prefix:switch_handler_oid_fwcode.1
 
 asm 0x72
-jumptable 22x	base:0xf01	prefix:switch_handler_fwcode|e
+jumptable 22x	base:0xf01	prefix:switch_handler_oid_fwcode.1
 
 asm 0x3E
-jumptable 9x	base:0x400	prefix:switch_handler_fwcode|e
+jumptable 9x	base:0x400	prefix:switch_handler_oid_fwcode.1
 
 asm 0x3E
-jumptable 5x	base:0x108	prefix:switch_handler_fwcode|e
+jumptable 5x	base:0x108	prefix:switch_handler_oid_fwcode.1
 
 asm 0x3E
-jumptable 4x	base:0x501	prefix:switch_handler_fwcode|e
+jumptable 4x	base:0x501	prefix:switch_handler_oid_fwcode.1
 
 asm 0x10D6
 jumptable 75x
@@ -1290,8 +1290,8 @@ wbstr 10
 wbstr 4
 wbstr 18
 
-word 16x
-word 16x
+word 16x	symbol:all_bits_upto
+word 16x	symbol:all_bits_above
 
 word 58x	symbol:tbl_offsets_to_3bin_mp3tbl2
 word 47x	symbol:tbl_offsets_to_3bin_mp3tbl1
@@ -1404,8 +1404,7 @@ wbstr 4
 wbstr 30
 wbstr 36
 
-word 8x
-word 9x	comment:unpartitioned8
+word 17x	sym:mp3_playback_speeds
 
 wbstr 6
 wbstr 4
@@ -1533,6 +1532,7 @@ skip 0x2bf5e
 0x0002ea	probably_naked_OID_Init(void)
 0x000305	OID_Check_ReadData
 0x00031f	OID_TransmitCmd_stk(wCmd)
+0x0003e8	PowerDown_OID_By_DSP()
 0x00067d	naked_sleep_short
 0x000673	naked_sleep_micro
 0x000678	naked_sleep_mini
@@ -1608,14 +1608,14 @@ skip 0x2bf5e
 0x0009c4	naked_RAM[Ix1]=local(Y0)_lshift_X0
 0x0009c8	naked_R0=Y0_lshift_X0
 0x0009ca	naked_R1=R0_lshift_X0_to_be_confirmed
-0x0009cd	naked_R0=RAM[Ix0]_lshift_X0_to_be_confirmed
+0x0009cd	naked_R0=RAM[Ix0]_lshift_X0
 0x0009d7	naked_R0=local(Y0)_lshift_X0
 0x0009da	naked_R1=local(Y0)_lshift_X0_to_be_confirmed
 
 0x000a01	naked_RAM[Ix1]=RAM[Ix0]_rshift_X0_implied
 0x000a06	naked_RAM[Ix1]=R0_rshift_X0
-0x000a18	naked_R0=RAM[Ix0]_rshift_X0_to_be_confirmed
-0x000a1a	naked_R1=RAM[Ix0]_rshift_X0_to_be_confirmed
+0x000a18	naked_R0=RAM[Ix0]_rshift_X0
+0x000a1a	naked_R1=RAM[Ix0]_rshift_X0
 0x000a22	naked_R0=local(Y0)_rshift_X0
 
 # dword bit shift block. The last group to be confirmed, my guess is the difference between SLR / SAR.
@@ -1626,11 +1626,11 @@ skip 0x2bf5e
 0x000a99	naked_RAM[Ix1,Ix1+1]=RAM[Ix0,Ix0+1]_lshift_X0
 0x000a9e	naked_local(X1,X1+1)=R1R0_lshift_X0_implied
 0x000aa3	naked_local(X1,X1+1)=local(Y0,Y0+1)_lshift_X0
-0x000aaa	naked_R1R0=Y1Y0_lshift_X0_implied
+0x000aaa	naked_R1R0=Y1Y0_lshift_X0
 0x000aad	naked_R1R0=RAM[Ix0,Ix0+1]_lshift_X0
 0x000ab0	naked_R1R0=local(Y0,Y0+1)_lshift_X0
 
-0x000ab3	naked_R1R0=R1R0_rshift_X0_implied
+0x000ab3	naked_R1R0=R1R0_rshift_X0
 0x000ad7	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_rshift_X0_implied
 0x000ad9	naked_RAM[Ix1,Ix1+1]=RAM[Ix0,Ix0+1]_rshift_X0
 0x000ade	naked_local(X1,X1+1)=R1R0_rshift_X0_implied
@@ -1754,19 +1754,24 @@ skip 0x2bf5e
 
 #rom2
 0x28913e	FS_FileExists_maybe_stk(szPath,FLAG)_ret_errc_in_R0
+0x2897d0	MP3_ChangeSpeed(wDelta)
 0x289fa3	naked_R1R0=X1X0_mod_Y1Y0
 0x289fa5	naked_R1R0=X1X0_div_Y1Y0
 0x28a666	naked_R1R0=R1R0_mul_X1X0
-0x28a668	naked_R1R0=Y1Y0_mul_X1X0
+0x28a668	naked_R1R0=X1X0_mul_Y1Y0
+0x28aa63	FS_FReadSector(pData,pFile)
+0x28aa9c	FS_FWriteSector(pData,pFile)
 0x28b4ca	strlen_stk(szString)_ret_in_R0
+0x28b6bc	sleep_ms(milliseconds)
+0x28b873	MP3_Pause_OnOff(pauseOn)
+0x28bb17	IMAADPCM_Pause_OnOff(pauseOn)
 0x28bd00	naked_X0=Get_word_from_table_at_R1R0
 0x28bcfd	naked_X0=Get_word_from_table_at_RAM[Ix0,Ix0+1]
 0x28bc94	naked_X1X0=Get_dword_from_table_at_RAM[Ix0,Ix0+1]
 0x28bc97	naked_X1X0=Get_dword_from_table_at_R1R0
 0x28bcdb	SD_DAC_Volume_Control_stk(wVolume)
-0x28beb2	MP3_or_IMAADPCM_GetStatus()
-0x28beae	MP3_or_IMAADPCM_GetStatus2()
-0x28b873	MP3_or_IMAADPCM_TogglePause_stk(wPar)
+0x28beb2	MP3_GetStatus()
+0x28beae	IMAADPCM_GetStatus()
 0x28be76	naked_WDT_14_set(void)
 0x28a61c	void_SF_Set_Baud_Rate(wBRMode)
 0x28af3d	probably_SF_Read_Factory_ID(void)_ret_R1R0
@@ -1777,8 +1782,8 @@ skip 0x2bf5e
 0x28bfc0	string_fname_filters_maybe2
 
 #code0
-0x006fd7	naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
-0x006fe5	naked_MP3_GetStatus_is_PLAY()_return_bool_in_R0
+0x006fd7	naked_MP3_or_PCM_GetStatus_is_PAUSE()_return_bool_in_R0
+0x006fe5	naked_MP3_or_PCM_GetStatus_is_PLAY()_return_bool_in_R0
 0x00701f	MP3_PlayProcess_Ext_probably
 0x007018	MP3_PlayProcess_Ext_probably_2
 0x0056aa	Something_with_updateA_chp
@@ -1820,11 +1825,11 @@ skip 0x2bf5e
 0x4282f6	naked_get_book_ctx[0x3e](void)_ret_in_R0
 0x4280b5	void_set_book_ctx[0x12]_stk(iValue)
 0x420730	naked_void_Initialize_all_vars(void)
-0x4203b8	naked_void_Init_3dea_to_3de2(void)
+0x4203b8	naked_void_Init_button_tracking(void)
 0x427b11	Init_3ddd_to_3dd8
 0x4282ce	naked_void_Init_3e01_to_3e00(void)
-0x4282fe	naked_void_Init_3dad_to_3dac(void)
-0x4282be	naked_void_Init_3dfe_to_3dff(void)
+0x4282fe	naked_void_Init_inactivity_timers(void)
+0x4282be	naked_void_Init_main_mode(void)
 0x428053	Init_3d06_to_3d02
 0x4273d0	Init_3dae_to_3da4
 0x428014	Init_timers
@@ -1835,6 +1840,9 @@ skip 0x2bf5e
 0x4268f7	Initialize_OID_module_if_not_yet_initialized
 0x427b58	Initialize_OID_module_unconditionally
 0x426728	Read_OID_sensor
+	0x426747	valid OID3
+	0x426750	valid OID2
+	0x426772	valid position data
 0x426dc7	Copy_Ext_to_PRAM?
 0x426f36	Copy_WRAM_to_PRAM?
 0x4282b5	naked_void_nop_dbgprint(...)
@@ -1842,18 +1850,18 @@ skip 0x2bf5e
 0x428342	naked_void_Get_[3df5]_in_R0(void)
 0x428346	naked_void_Get_[3df3]_in_R0(void)
 0x42834a	naked_void_Get_volume_in_R0(void)
-0x428352	naked_void_Get_[3e01]_in_R0(void)
+0x428352	naked_void_Get_mp3_speed_in_R0(void)
 0x428356	naked_void_ClearPort0Bit7_2(void)
 0x428359	naked_if_p4bit8_then_set_p0bit7_2
 0x42758b	naked_void_huge_hw_init_and_3d9f_3d9b_3daf(void)
 0x42040b	naked_void_hw_adc_settings1(void)
 0x427e3d	naked_void_hw_adc_settings2(void)
-0x42041f	naked_void_kindof_set_timer0(void)
-0x42835c	Call_0002ea
+0x42041f	naked_void_SetTimer0_to_~400Hz_repeat
+0x42835c	call_0002ea()
 0x428290	naked_void_get_book_ctx[0x3f]_ret_in_R0
 0x42827c	naked_void_Init_3df4_3df5_3df3(void)
 0x428286	naked_get_book_ctx[0x0](void)_ret_in_R0
-0x428272	naked_void_just_a_nop_2(void)
+0x428272	naked_void_just_a_nop_2__return_0(void)
 0x42822d	naked_void_Init_3fe9=ffff_3ff6_3fa6(void)
 0x4218e4	File_Open_Lib_Call_Probably_stack(szFname,szAccess)_ret_errc_in_R0
 0x4277e9	File_Close_Lib_Probably_stk(wHandle)
@@ -1985,7 +1993,7 @@ skip 0x2bf5e
 	0x40e6be	sound 2/261, 已是最慢语速 [It’s the slowest speaking speed]
 	0x40e6c8	sound 2/258, 慢三 [Slow three]
 	0x40e6d2	sound 2/257, 慢二 [Slow two]
-	0x40e6dc	sound 2/255, [empty or very short]
+	0x40e6dc	sound 2/256, 慢一点 slow one
 	0x40e6e6	sound 2/260, 正常语速 Normal speaking speed
 	0x40e6f0	sound 2/262, 快一 [Quick one]
 	0x40e6fa	sound 2/263, 快二 [Quick two]
@@ -2083,9 +2091,11 @@ skip 0x2bf5e
 0x40a474	naked_void_Zero_stk(variable)_and_F0_words_after_it()
 0x428362	empty_fn_04
 0x427f4e	naked_void_Zero_3fb5_set_3fa1_to_3fb4_to_FFFF()
-0x428120	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x9]
-0x428131	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x5]
-0x428142	If_book_ctx[0]==0_ret_0_else_return_book_ctx[0x6]
+0x42810f	safely_get_oid_mode_sndt_index__fallback_0
+0x428120	safely_get_oid_mode_sndt_len__fallback_0
+0x428131	safely_get_book_mode__fallback_0
+0x428142	safely_get_temp_mode__fallback_0
+0x428153	safely_get_int_format__fallback_5
 0x427408	ensure_last_char(szDest,iCharacter)
 0x423b9d	void_large_object_3d0b_creation_3d08_to_3d0a_clear(void)
 0x427106	naked_void_setup_all_ports_and_something(void)
@@ -2102,8 +2112,8 @@ skip 0x2bf5e
 	0x424fec	in this place we have prepared fname with sd:\ prefix
 0x427fea	naked_set_adc_to_battery
 0x4203d7	naked_set_adc_to_ain1__wait_for_result__return_in_R0
-0x42660a	naked_looking_for_some_ADC_input_return_bool_in_R0?
-0x427e07	set_book_ctx[0xc]_to_stk(wNum)_safely_return_bool_in_R0
+0x42660a	naked_check_test_mode_condition
+0x427e07	safely_set_oid_mode_sndt_index(wSoundIndex)__return_success
 
 	0x41e932	Play_sound_from_2bin_table_stk(sound_num)
 	0x427740	tbl_dac_volume_values
@@ -2239,6 +2249,8 @@ skip 0x2bf5e
 #book_ctx[0xc] OID/tempmode sound table index
 #book_ctx[0xd] last sound table start
 #book_ctx[0xf] last sound table length
+#book_ctx[0x10] repeat counter
+#book_ctx[0x11] repeat max
 #book_ctx[0x12] = 00
 #book_ctx[0x13] = 00 -> bytekey1 for ptr_encrypt (0 for BNL)
 #book_ctx[0x14] = 00 -> bytekey2 for ptr_encrypt (0 for BNL)
@@ -2263,20 +2275,29 @@ skip 0x2bf5e
 #book_ctx[0x54] = 0x428365 (just retff) -> probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
 #book_ctx[0x56] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PLAY()_return_bool_in_R0
 #book_ctx[0x58] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
-#book_ctx[0x5a] = 0x428365 (just retff) -> 0x427fbe
+#book_ctx[0x5a] = 0x428365 (just retff) -> mp3_stop()
 #book_ctx[0x5c] -> 0x422324 Play_sound_from_2bin_table_stk(sound_num)
 #book_ctx[0x5e] = pointer to quiz structure (0x3c41)
 
 0x0045e1	determine_int_format_in_memory(ptr)
+0x004dff	SN95302_ParsingData(&flag,&data1,&data2)
 0x006553	ptr_encrypt(ptr,bytekey1,bytekey2,dwkey,loc)
 0x006859	bytewise_xor2keys(key1,key2,dword)
 0x006dc0	map_id2ptr_stk(map_id)_ptr_in_R0
+0x006f50	sleep_us(microseconds)
+0x40e610	mp3_temp_speed_up()
+0x40e68a	mp3_temp_speed_down()
+0x40e966	kill_repeat()
+0x400158	advance_soundtable_or_oid_or_soundqueue()
+0x40e704	da_fu_weng_find_unplayed_sound(wBitset,wLength)
+0x40e748	da_fu_weng_get_next_sound_index(wOID)
 0x410000	quiz_state_react(oid)
 0x417277	read_quiz(quiz_index)
 0x418f6e	load_question_types_4,5,6,8,9,a,10,11()
 0x419601	determine_int_format_from_handle(file)
 0x41b379	load_question_type_7_return_oid()
 0x41b82a	init_encrypt(file,&bytekey1,&bytekey2,&dwkey)
+0x41bc72	autoadvance_oid_play_first()
 0x41c05a	oid_to_fwcode(dw_oid)
 0x41d4f6	quiz_time_step_1Hz()
 0x41eb57	start_quiz()
@@ -2289,6 +2310,8 @@ skip 0x2bf5e
 0x41f74c	evaluate_answer_types_4,5,6,7,8,9,a,10,11_or_question(oid)
 0x41fcf9	locate_oid_mode_sound_table(file,off_tables_start,mode,&sndt_length,&sndt_start)
 0x4201dd	read_fw_configuration()
+0x4204cb	check_button_state()
+0x420c1c	autoadvance_oid_play_next()
 0x420da8	find_temp_bookmode_and_sound_table(sndts_start)
 0x420f2e	init_book(file)
 0x4210b0	play_system_sound(wId)
@@ -2334,9 +2357,10 @@ skip 0x2bf5e
 #Only called from play_system_sound(id), see documentation there.
 	0x423d6a	tbl_syssound_id_to_map_id
 0x42370d	time_step_10Hz()
-0x4239d7	play_oid(oid,sound_index)
-0x423e3a	play_oid_sound_0(oid)
+0x4239d7	play_oid_sndt_index(oid,sound_index)
+0x423e3a	play_oid_sndt_from_start(oid)
 0x42418a	find_wrong_answer_by_oid(oid)
+0x424cdb	initiate_poweroff()
 0x424e2e	load_question_types_0,1,3()
 0x4251d6	get_next_random_question()
 0x4256ae	button_to_fwcode(button,is_long,mode)
@@ -2362,11 +2386,15 @@ skip 0x2bf5e
 0x42666a	R0=arg1_div_arg2()
 0x4267e3	set_book_mode_by_fwcode
 0x426840	locate_question_in_bnl(q_index)
+0x42689c	volume_increase()__return_is_max
+0x426aa8	volume_decrease()__return_is_min
 0x426b4f	get_table_element(table,index)
 0x426ba1	init_quiz_ctx()
 0x426bf3	get_question_header_word+2(q_index)
 0x426d7b	get_question_header_word+0(q_index)
 0x426e12	find_question_by_oid(oid)
+0x426e5c	volume_cycle_up()
+0x426ea5	volume_cycle_down()
 0x427046	answers_bit_clear(ans_index)
 0x427086	wrong_answers_bit_clear(ans_index)
 0x4270c6	is_questions_bitset_defaulted()
@@ -2381,20 +2409,34 @@ skip 0x2bf5e
 0x42751d	clear_answers_bitset()
 0x4275c1	next_book_mode()
 0x427759	check_inactivity_timer()
+0x427789	is_any_volume_sound_playing()
+0x4277b9	play_volume_unchanged_sound()
+0x427819	play_volume_up_sound_fallback_volume_down()
+0x427848	play_volume_down_sound_fallback_volume_up()
 0x427903	check_poweroff_timer()
 0x4279e0	locate_type7_curr_subquiz_question(index)
+0x427a0a	play_volume_max_sound_fallback_volume_up()
+0x427a32	play_volume_min_sound_fallback_volume_down()
 0x427a5a	aux_timeout_reached()
-0x427bc1	set_quiz_ctx_pointer()
-0x427c8c	clear_inactivity_timers()
-0x427f65	hw_random(void)_ret_in_R0
+0x427a80	set_mp3_speed()
 0x427aa5	is_system_sound_playing(wId)
+0x427bc1	set_quiz_ctx_pointer()
+0x427c4a	set_mp3_temp_speed_higher()
+0x427c6b	set_mp3_temp_speed_lower()
+0x427c8c	clear_inactivity_timers()
 0x427cca	xor_one_byte_key(data,key)
 0x427ce9	set_last_sound(wType,dwValue)
+0x427d7d	try_shutdown_OID()
+0x427dec	mp3_or_pcm_resume()
+0x427ebd	mp3_or_pcm_pause()
 0x427f37	stop_and_skip_rest_of_soundtable()
+0x427f65	hw_random(void)_ret_in_R0
+0x427fa8	OID_close()
+0x427fbe	mp3_stop()
 0x4280a2	init_quiz_state_0()
 0x4280fe	get_num_quizzes()
-0x428153	safe_get_int_format_fallback_on_5()
 0x428213	play_sound_0x58()
+0x428268	OID_close_unconditionally()
 
 0x41026e	quiz_answer_type_3
 0x410404	quiz_answer_types_0,1
@@ -2490,28 +2532,44 @@ skip 0x2bf5e
 0x42762b	main_mode_leave.c
 0x42835f	main_mode_leave.d.noop
 
-0x40ed07	process_oid_fwcode.1
-0x40e97a	process_button_fwcode.1
-0x413022	process_oid_fwcode.2
-0x412bc7	process_button_fwcode.2
-0x4154eb	process_oid_fwcode.3
-0x4151aa	process_button_fwcode.3
-0x4161ca	process_oid_fwcode.4
-0x41694c	process_button_fwcode.4
-#no OID/button in main_mode 5
-0x40bb8e	process_oid_fwcode.6
-0x40b85b	process_button_fwcode.6
+0x40ed07	process_oid_fwcode.1(wOID)
+0x40e97a	process_button_fwcode.1(wOID)
+0x413022	process_oid_fwcode.2(wOID)
+0x412bc7	process_button_fwcode.2(wOID)
+0x4154eb	process_oid_fwcode.3(wOID)
+0x4151aa	process_button_fwcode.3(wOID)
+0x4161ca	process_oid_fwcode.4(wOID)
+0x41694c	process_button_fwcode.4(wOID)
+#no OID/button in main_mode 5(wOID)
+0x40bb8e	process_oid_fwcode.6(wOID)
+0x40b85b	process_button_fwcode.6(wOID)
 #main_mode 7 doesn't exist
-0x4129f9	process_oid_fwcode.8
-0x411725	process_button_fwcode.8
-0x4143de	process_oid_fwcode.9
-0x4140ab	process_button_fwcode.9
+0x4129f9	process_oid_fwcode.8(wOID)
+0x411725	process_button_fwcode.8(wOID)
+0x4143de	process_oid_fwcode.9(wOID)
+0x4140ab	process_button_fwcode.9(wOID)
 #no OID/button in main_mode a
-0x40d0d6	process_oid_fwcode.b
-0x40cbb9	process_button_fwcode.b
-0x417da3	process_oid_fwcode.c
-0x41cb3f	process_button_fwcode.c
+0x40d0d6	process_oid_fwcode.b(wOID)
+0x40cbb9	process_button_fwcode.b(wOID)
+0x417da3	process_oid_fwcode.c(wOID)
+0x41cb3f	process_button_fwcode.c(wOID)
 #mode d is no-op
+
+0x40f6ee	main_mode_action.1()
+0x4138af	main_mode_action.2()
+0x415c7d	main_mode_action.3()
+0x416ce2	main_mode_action.4()
+0x40c375	main_mode_action.6()
+0x412302	main_mode_action.8()
+0x414bdd	main_mode_action.9()
+#0x41de01	main_mode_action.a()
+0x40dd4f	main_mode_action.b()
+0x41878c	main_mode_action.c()
+
+#0x424cdb	main_mode_process_epilog.5() = initiate_poweroff()
+0x424d86	main_mode_process_epilog.2()
+0x424ed5	main_mode_process_epilog.default()
+0x4252f7	main_mode_process_epilog.a()
 
 0x40e644	speed_slow_two
 0x40e64e	speed_slow_one
@@ -2525,6 +2583,7 @@ skip 0x2bf5e
 0x40e6be	speed2_slowest
 0x40e6c6	speed2_slow_three
 0x40e6d0	speed2_slow_two
+0x40e6da	speed2_slow_one
 0x40e6e4	speed2_normal_speaking
 0x40e6ee	speed2_quick_one
 0x40e6f8	speed2_quick_two
@@ -3326,74 +3385,49 @@ skip 0x2bf5e
 #0x40e190	switch_on_penstate_48_unk|b
 #0x40e187	switch_on_penstate_4a_unk|b
 
-#0x40e97a	Switch_over_Fwcodes_stk(fwcode)|o
-0x40eb1e	handler_fwcode_60_unk|o
-0x40eb28	handler_fwcode_61_unk|o
-0x40eb2c	handler_fwcode_62_unk|o
-0x40ea99	handler_fwcode_10_bookid|o
-0x40ea8b	handler_fwcode_11_unk|o
-0x40ecd1	switch_on_fwcode_90_to_af|o
+0x40eb1e	handler_button_fwcode.1_60_unk
+0x40eb28	handler_button_fwcode.1_61_unk
+0x40eb2c	handler_button_fwcode.1_62_unk
+0x40ea99	handler_button_fwcode.1_10_bookid
+0x40ea8b	handler_button_fwcode.1_11_unk
+0x40ecd1	handler_button_fwcode.1_90_to_af
+0x40ea00	switch_on_button_fwcode.1_c0_to_c3
+0x40ea20	switch_on_button_fwcode.1_70_to_85
+0x40ea52	switch_on_button_fwcode.1_b0_to_ec
 
-#0x40eaa6	switch_handler_fwcode_30_unk|o
-#0x40eab4	switch_handler_fwcode_31_unk|o
-#0x40eac2	switch_handler_fwcode_32_unk|o
-#0x40eac8	switch_handler_fwcode_33_unk|o
-#0x40eace	switch_handler_fwcode_40_unk|o
-#0x40ead8	switch_handler_fwcode_41_unk|o
-#0x40eadc	switch_handler_fwcode_42_unk|o
-#0x40eae0	switch_handler_fwcode_43_unk|o
-#0x40eae4	switch_handler_fwcode_44_unk|o
-#0x40eae8	switch_handler_fwcode_45_unk|o
-#0x40eaec	switch_handler_fwcode_46_unk|o
-#0x40eaf0	switch_handler_fwcode_47_unk|o
-#0x40eafa	switch_handler_fwcode_48_unk|o
-#0x40eafe	switch_handler_fwcode_49_unk|o
-#0x40eb02	switch_handler_fwcode_4a_unk|o
-#0x40eb06	switch_handler_fwcode_4b_unk|o
-#0x40eb0a	switch_handler_fwcode_50_unk|o
-#0x40eb14	switch_handler_fwcode_51_unk|o
-
-0x40ea00	switch_on_fwcode_c0_to_c3|o
-#0x40ebc4	switch_handler_fwcode_c0_unk|o
-#0x40ebce	switch_handler_fwcode_c1_unk|o
-#0x40ebd8	switch_handler_fwcode_c2_unk|o
-#0x40ebdc	switch_handler_fwcode_c3_unk|o
-
-0x40ea20	switch_on_fwcode_70_to_85|o
-
-#0x40eb36	switch_handler_fwcode_70_unk|o
-#0x40eb3a	switch_handler_fwcode_71_unk|o
-#0x40eb3e	switch_handler_fwcode_72_unk|o
-#0x40eb45	switch_handler_fwcode_73_unk|o
-#0x40eb4c	switch_handler_fwcode_74_unk|o
-#0x40eb53	switch_handler_fwcode_75_unk|o
-#0x40eb5a	switch_handler_fwcode_76_unk|o
-#0x40eb61	switch_handler_fwcode_77_unk|o
-#0x40eb68	switch_handler_fwcode_78_unk|o
-#0x40eb6f	switch_handler_fwcode_80_unk|o
-#0x40eb8a	switch_handler_fwcode_81_unk|o
-#0x40eb92	switch_handler_fwcode_82_unk|o
-#0x40eb9c	switch_handler_fwcode_83_unk|o
-#0x40eba6	switch_handler_fwcode_84_unk|o
-#0x40ebb0	switch_handler_fwcode_85_unk|o
-
-0x40ea52	switch_on_fwcode_b0_to_ec|o
-
-#0x40ebe0	switch_handler_fwcode_e0_unk|o
-#0x40ebe4	switch_handler_fwcode_e1_unk|o
-#0x40ebe8	switch_handler_fwcode_e2_unk|o
-#0x40ec07	switch_handler_fwcode_e3_unk|o
-#0x40ec22	switch_handler_fwcode_e4_unk|o
-#0x40ec03	switch_handler_fwcode_e5_unk|o
-#0x40ec3d	switch_handler_fwcode_e6_unk|o
-#0x40ec8f	switch_handler_fwcode_e7_unk|o
-#0x40ec93	switch_handler_fwcode_e8_unk|o
-#0x40ecac	switch_handler_fwcode_e9_unk|o
-#0x40ecc5	switch_handler_fwcode_ea_unk|o
-#0x40ecc9	switch_handler_fwcode_eb_unk|o
-#0x40eccd	switch_handler_fwcode_ec_unk|o
-
-#0x40ed07	Switch_over_Fwcodes_stk(fwcode)|e
+0x40eef8	handler_oid_fwcode.1_0
+0x40ef07	handler_oid_fwcode.1_10
+0x40ef19	handler_oid_fwcode.1_11
+0x40ef23	handler_oid_fwcode.1_12
+0x40efb8	handler_oid_fwcode.1_60
+0x40efc2	handler_oid_fwcode.1_61
+0x40efc6	handler_oid_fwcode.1_62
+0x40f086	handler_oid_fwcode.1_b0
+0x40f415	handler_oid_fwcode.1_404_to_408
+0x40f266	handler_oid_fwcode.1_2000
+0x40f287	handler_oid_fwcode.1_2001
+0x40f28b	handler_oid_fwcode.1_2002
+0x40f28f	handler_oid_fwcode.1_201d
+0x40f293	handler_oid_fwcode.1_2020
+0x40f297	handler_oid_fwcode.1_7000
+0x40f29b	handler_oid_fwcode.1_7001
+0x40f43c	handler_oid_fwcode.1_ranges
+0x40f448	handler_oid_fwcode.1_20_to_2f
+0x40f48d	handler_oid_fwcode.1_90_to_af
+0x40f4c6	handler_oid_fwcode.1_d0_to_d9
+0x40f500	handler_oid_fwcode.1_f02_to_f0b
+0x40f51a	handler_oid_fwcode.1_f0_to_f9
+0x40f54c	handler_oid_fwcode.1_1000_to_1999
+0x40f57b	handler_oid_fwcode.1_2003_to_201c
+0x40f5b0	handler_oid_fwcode.1_3000_to_3fff
+0x40f5e5	handler_oid_fwcode.1_5000_to_5fff
+0x40f61b	handler_oid_fwcode.1_4000_to_4fff
+0x40f650	handler_oid_fwcode.1_6000_to_6fff
+0x40f686	handler_oid_fwcode.1_100_to_107
+0x40f69e	handler_oid_fwcode.1_200_to_2ff
+0x40f6c1	handler_oid_fwcode.1_300_to_3ff
+0x40f6d6	handler_oid_fwcode.1_default
+0x40f6d8	oid_fwcode.1_end
 
 #0x40f090	switch_handler_fwcode_c0_unk|e
 #0x40f09a	switch_handler_fwcode_c1_unk|e
@@ -3504,6 +3538,7 @@ skip 0x2bf5e
 #  3: OID, mode 0 sound table (book_mode set to 0 on replay).
 
 0x3da0	battery_warning_flag
+0x3da6	oid_repeat
 0x3dab	penstate
 0x3dac	inactivity_timer
 0x3dad	poweroff_timer
@@ -3530,15 +3565,25 @@ skip 0x2bf5e
 0x3dca	last_timer_value_bumped_every_second
 0x3dcc	timer_counter_10Hz
 
-0x3dd9	volume_probably
+0x3dd9	volume
 0x3dde	sys_sound_playing_bitset
 #for first 0x40 sounds (4 words)
+0x3de2	button_tracking_state
+0x3de3	button_tracking_time
+0x3de4	buttons_locked_till_main_released
+0x3de5	is_long_press_staged
+0x3de6	button_from_sensor
+0x3de7	button_staged
+0x3de8	last_seen_button_from_sensor
+0x3de9	is_long_press
+0x3dea	button
 0x3ded	is_oid_module_initialized
 0x3dee	oid_from_sensor
 0x3dfc	battery_last_value
 0x3dfd	battery_incidents_counter
 0x3dfe	main_mode_current
 0x3dff	main_mode_requested
+0x3e01	mp3_speed
 0x3e02	da_fu_weng_mode
 0x3e04	some_random_seeding
 

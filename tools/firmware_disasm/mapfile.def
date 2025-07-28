@@ -95,6 +95,7 @@ output calls	handle:f_calls
 output symbols	handle:f_sym
 #output callgraph	handle:f_callgraph
 
+##################################################################################
 #this is content of first rom part (mapped to 0, 0x4000 words)
 org 0x000000
 asm 0x0024
@@ -123,14 +124,28 @@ asm 4
 word 2x
 
 asm 2732
-jumptable 6x
+jumptable 6x	base:0x71
 
 asm 3602
 word 230x
 
-asm 14
+asm 16
 
-word 4217x
+word 480x	comment:rom unpar1
+word 17x	comment:rom unpar2
+word 17x	comment:rom unpar3
+word 40x	comment:rom unpar4
+word 1962x	comment:rom unpar5
+
+word 135x	comment:rom unpar6
+word 72x	comment:rom unpar7
+
+word 258x	comment:rom unpar8
+
+word 506x	comment:rom unpar9
+word 310x	comment:rom unpar10
+word 419x	comment:rom unpar11
+
 
 asm 10548
 jumptable 7x
@@ -140,6 +155,7 @@ jumptable 8x
 
 asm 0xa4c
 
+##################################################################################
 #this is content of second rom part (mapped to 0x280000, 0xc000 words)
 org 0x280000
 
@@ -161,8 +177,49 @@ jumptable 6x
 asm 29482
 jumptable 4x
 
-asm 17930
-word 200x
+asm 5382
+jumptable 4x
+
+asm 12540
+
+word 18x	comment:rom28 unpar1
+word 9x	comment:rom28 unpar2
+
+word 32x	comment:rom28 unpar3
+word 32x	comment:rom28 unpar4
+
+word 51x	comment:rom28 unpar5
+
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+pointer 1x
+word 1x
+
+pointer 1x
+pointer 1x
+pointer 1x
+
+dword 8x
 
 wbstr 8	sym:string_sd2
 wbstr 10	sym:string_xrom
@@ -189,6 +246,8 @@ wbstr 52
 word 13x
 str 8
 
+##################################################################################
+#content of firmware
 org 0x400000
 
 wbstr 0x18
@@ -208,13 +267,17 @@ asm 2
 dword 3x
 asm 0x24
 
+#this is used for bootloader
 str 8	comment:chip name, reversed
 
 word 1x	comment:number of modules
-word 1x	comment:project ID(?)
+
+#one module, 8 words
+word 1x	comment:project ID(?) checked with &0x7f00
 word 1x	comment:PRAM length in words
-dword 1x	comment:start of PRAM/interrupt table
-word 4x
+dword 1x	comment:PRAM src address in fw
+dword 1x	comment:PRAM dst address
+dword 1x	comment:sum of all PRAM words
 
 asm 1254
 
@@ -1392,7 +1455,32 @@ skip 0x2bf5e
 0x000000	reset
 0x000080	naked_reset_memory_prepare
 0x000732	main_reset_handler_cont(void)
+	0x00075f	if PRAM memory checksum failed, continue boot process from other devices, otherwise jump to SysMain
+0x00076a	reset_handler_boot_from_other_devices
+
 0x0001d8	firmware_module_loader_stk(wModule)
+	0x0001df	0x400080 -> signature of chip
+	0x000219	here is verified that firmware is for this chip
+	0x000222	number of modules read
+	0x000231	reading first word 
+	0x000238	checking with input
+	0x00023b	when found, call sub
+	0x000243	R0 is still passed out
+
+0x00014c	pram_memory_copier_stk(pModuleRecord)_ret_bool
+	0x000159	PRAM len in words
+	0x000163	low addr in firmware
+	0x00016d	high addr in firmware
+	0x000178	PRAM low addr
+	0x000182	PRAM high addr
+	0x000192	store PRAM len to DM[0x00c]
+	0x00019a	store PRAM addr to DM[0x00d,0x00e]
+	0x0001a5	here do DMA copy of block from firmware to PRAM
+	0x0001c9	first word of record stored in RAM[0x0020]_why
+	0x0001c7	we can fail if PRAM checksum does not match!
+
+0x000112	compute_and_verify_memory_sum_stk(pMemory,wLen,dwChecksum)_ret_bool
+
 
 #interrupts in ROM
 0x000014	rom_intvec_AD
@@ -1438,15 +1526,19 @@ skip 0x2bf5e
 
 
 
-
+0x000007	naked_memcpy_from_[X1:Ix1]_to_RAM[Ix0]_X0_words
 0x00002e	naked_RAM[Ix0]=local(X0)
 0x000051	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)
 0x0000d7	naked_X0=X1_div_Y1
+0x0002ea	probably_naked_OID_Init(void)
 0x000305	OID_Check_ReadData
 0x00031f	OID_TransmitCmd_stk(wCmd)
-0x00067d	naked_void_Wakeup_OID_By_DSP(void)
+0x00067d	naked_sleep_short
+0x000673	naked_sleep_micro
+0x000678	naked_sleep_mini
 
 # dword subtraction functions
+0x0007da	naked_Y0X0=X1X0_minus_Y1Y0
 0x0007ed	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_Y1Y0_dup?
 0x0007fa	naked_Y0X0=R1R0_minus_Y1Y0_dup?
 0x000808	naked_Y0X0=X1X0_minus_R1R0_dup?
@@ -1460,8 +1552,10 @@ skip 0x2bf5e
 0x000838	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_R1R0
 0x000840	naked_Y0X0=R1R0_minus_RAM[Ix1,Ix1+1]
 0x000842	naked_Y0X0=R1R0_minus_Y1Y0
-0x000850	naked_?Y0X0?=X1X0_minus_R1R0
-0x000864	naked_?Y0X0?=X1X0_minus_RAM[Ix1,Ix1+]
+0x000845	naked_Y0X0=R1R0_minus_local(X1,X1+1)
+0x00084b	naked_Y0X0=local(X0,X0+1)_minus_R1R0
+0x000850	naked_Y0X0=X1X0_minus_R1R0
+0x000864	naked_Y0X0=X1X0_minus_RAM[Ix1,Ix1+]
 0x000879	naked_RAM[X1,X1+1]=RAM[Ix1,Ix1+1]_minus_RAM[Ix0,Ix0+1]_implied
 0x000882	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_minus_RAM[Ix1,Ix1+1]
 0x00088a	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_minus_Y1Y0
@@ -1472,6 +1566,10 @@ skip 0x2bf5e
 0x0008ae	naked_local(X1,X1+1)=local(X0,X0+1)_minus_local(Y1,Y1+1)
 0x0008b1	naked_local(X1,X1+1)=local(X0,X0+1)_minus_Y1Y0
 0x0008b7	naked_local(X1,X1+1)=R1R0_minus_Y1Y0_implied
+0x0008ba	naked_RAM[Ix0+1,Ix0]=Y1Y0_minus_R1R0
+0x0008c9	naked_RAM[Ix0+1,Ix0]=local(X0,X0+1)_minus_R1R0
+
+0x000b7c	naked_prepare_Y1Y0=local(X0,X0+1)|Ix0=ptr2local_var(X1)
 
 # dword AND functions
 0x000905	naked_RAM[X1,X1+1]=RAM[Ix1,Ix1+1]_and_RAM[Ix0,Ix0+1]
@@ -1607,7 +1705,8 @@ skip 0x2bf5e
 0x00006e	naked_Ix0=ptr2local_var(X0)
 0x000072	naked_Ix0=ptr2local_var(X1)
 
-0x00005e	naked_Y1Y0=local(X0,X0+1)
+0x00005e	naked_Y1Y0=local(X0,X0+1)_(Ix0)
+0x00007a	naked_Y1Y0=local(X0,X0+1)_(Ix1)
 0x000c81	naked_X1X0=local(X0,X0+1)_v1
 0x000c8f	naked_X1X0=local(X0,X0+1)_v2
 0x000c94	naked_X1X0=local(X0,X0+1)_v3
@@ -1634,6 +1733,8 @@ skip 0x2bf5e
 0x000c14	naked_Y0=local(X0)
 0x000c18	naked_Y1=local(X0)
 
+0x0009f5	naked_R0=local(Y0)
+
 0x000c1c	naked_local(Y1,Y1+1)=R1R0
 0x000c21	naked_local(Y1,Y1+1)=X1X0
 0x000c24	naked_local(Y1,Y1+1)=RAM[Ix0,Ix0+1]
@@ -1659,10 +1760,21 @@ skip 0x2bf5e
 0x28a668	naked_R1R0=Y1Y0_mul_X1X0
 0x28b4ca	strlen_stk(szString)_ret_in_R0
 0x28bd00	naked_X0=Get_word_from_table_at_R1R0
-0x28bcfd	naked_X0=Get_word_from_table_at_Ix0,Ix0+1
+0x28bcfd	naked_X0=Get_word_from_table_at_RAM[Ix0,Ix0+1]
+0x28bc94	naked_X1X0=Get_dword_from_table_at_RAM[Ix0,Ix0+1]
+0x28bc97	naked_X1X0=Get_dword_from_table_at_R1R0
 0x28bcdb	SD_DAC_Volume_Control_stk(wVolume)
 0x28beb2	MP3_or_IMAADPCM_GetStatus()
 0x28beae	MP3_or_IMAADPCM_GetStatus2()
+0x28b873	MP3_or_IMAADPCM_TogglePause_stk(wPar)
+0x28be76	naked_WDT_14_set(void)
+0x28a61c	void_SF_Set_Baud_Rate(wBRMode)
+0x28af3d	probably_SF_Read_Factory_ID(void)_ret_R1R0
+0x28bc70	probably_SF_WakeUp(void)_void
+0x28be4b	probably_naked_SF_Enable(void)_void
+0x28be43	probably_naked_SF_Disable(void)_void
+0x28bfb6	string_fname_filters_maybe1
+0x28bfc0	string_fname_filters_maybe2
 
 #code0
 0x006fd7	naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
@@ -2651,7 +2763,6 @@ skip 0x2bf5e
 #0x41bfe9	some_indirectly_called_function_41bfe9
 #0x41c002	some_indirectly_called_function_41c002
 #0x41d7a4	some_indirectly_called_function_41d7a4
-0x28bfb6	some_indirectly_called_function_28bfb6
 #0x41f1aa	some_indirectly_called_function_41f1aa
 #0x41f1c5	some_indirectly_called_function_41f1c5
 #0x41f227	some_indirectly_called_function_41f227
@@ -3463,6 +3574,9 @@ skip 0x2bf5e
 0xf301	hw_int
 0xf302	hw_fra_l
 0xf303	hw_fra_h
+
+0xf800	Reg_SF_CTRL
+0xf801	Reg_SF_CMD
 
 0xFE27	Reg_DMA_EXTF_ADDR_H
 0xFE28	Reg_DMA_EXTF_ADDR_L

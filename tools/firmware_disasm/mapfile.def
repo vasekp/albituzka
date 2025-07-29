@@ -1239,8 +1239,7 @@ word 1x	comment:6f/02
 word 1x	comment:6f/03
 word 1x	comment:6f/04 ALB ----
 
-word 22x	comment:unpartitioned2
-word 234x	comment:unpartitioned3
+word 256x	sym:tbl_encrypt_permutation_other
 word 256x	sym:tbl_encrypt_permutation
 word 50x	sym:tbl_syssound_id_to_map_id
 word 128x	sym:tbl_MP3_byte_offsets
@@ -2312,6 +2311,7 @@ skip 0x2bf5e
 0x41c05a	oid_to_fwcode(dw_oid)
 0x41d4f6	quiz_time_step_1Hz()
 0x41eb57	start_quiz()
+0x41ef76	finalize_mp3_key(pKeyIn,pKeyOut,dwArg1,dwArg2)
 0x41f179	play_bnl_mp3(index)
 0x41f561	check_battery()
 #In FW v1 this function only checks battery voltage and sets runlevel to 1 if 
@@ -2477,12 +2477,33 @@ skip 0x2bf5e
 	0x41b8ff	tbl_encrypt_permutation
 	0x41b98a	tbl_encrypt_permutation
 	0x41b9a3	tbl_encrypt_permutation
+	0x41b9c2	tbl_encrypt_permutation_other
+	0x41b9dd	tbl_encrypt_permutation_other
 	0x421c2c	tbl_encrypt_permutation
 	0x421c43	tbl_encrypt_permutation
 	0x421eaf	tbl_encrypt_permutation
 	0x421ec6	tbl_encrypt_permutation
 	0x423878	tbl_encrypt_permutation
 	0x42388f	tbl_encrypt_permutation
+	0x0047ac	tbl_encrypt_permutation_other[2]
+	0x004983	tbl_encrypt_permutation_other[2]
+	0x0061f7	tbl_encrypt_permutation_other[2]
+	0x41989b	tbl_encrypt_permutation_other[2]
+	0x419aad	tbl_encrypt_permutation_other[2]
+	0x41b910	tbl_encrypt_permutation_other[2]
+	0x421c4f	tbl_encrypt_permutation_other[2]
+	0x421ed2	tbl_encrypt_permutation_other[2]
+	0x42389b	tbl_encrypt_permutation_other[2]
+	0x004662	tbl_encrypt_permutation_other[0x16]
+	0x004711	tbl_encrypt_permutation_other[0x16]
+	0x0061e0	tbl_encrypt_permutation_other[0x16]
+	0x4196bd	tbl_encrypt_permutation_other[0x16]
+	0x4197c7	tbl_encrypt_permutation_other[0x16]
+	0x41b8f2	tbl_encrypt_permutation_other[0x16]
+	0x421c38	tbl_encrypt_permutation_other[0x16]
+	0x421ebb	tbl_encrypt_permutation_other[0x16]
+	0x423884	tbl_encrypt_permutation_other[0x16]
+
 
 0x42591b	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
 	0x42591b	wHandle could be 0, it may mean playing from fw? wFlag seen 0, 1, 2

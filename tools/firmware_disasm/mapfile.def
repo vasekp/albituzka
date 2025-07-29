@@ -35,8 +35,6 @@
 #    const or similar modifier.
 
 # There is 'naming standard' for functions, not yet fully implemented:
-# functions with _dup? postfix look like clear duplicates
-# functions with _implied are guessed, but the guesses are not thoroughly verified
 # functions marked 'naked_' are using register passing for in-out. That's why it's important to note that, and to be clearly distinct
 #  from stack-passed/function prologue functions
 #
@@ -1528,7 +1526,6 @@ skip 0x2bf5e
 0x000007	naked_memcpy_from_[X1:Ix1]_to_RAM[Ix0]_X0_words
 0x00002e	naked_RAM[Ix0]=local(X0)
 0x000051	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)
-0x0000d7	naked_X0=X1_div_Y1
 0x0002ea	probably_naked_OID_Init(void)
 0x000305	OID_Check_ReadData
 0x00031f	OID_TransmitCmd_stk(wCmd)
@@ -1539,14 +1536,14 @@ skip 0x2bf5e
 
 # dword subtraction functions
 0x0007da	naked_Y0X0=X1X0_minus_Y1Y0
-0x0007ed	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_Y1Y0_dup?
-0x0007fa	naked_Y0X0=R1R0_minus_Y1Y0_dup?
-0x000808	naked_Y0X0=X1X0_minus_R1R0_dup?
-0x00081c	naked_?Y0X0?=X1X0_minus_RAM[Ix1,Ix1+1]
+0x0007ed	naked_Y0X0=RAM[Ix0,Ix0+1]_signed_minus_Y1Y0
+0x0007fa	naked_Y0X0=R1R0_signed_minus_Y1Y0
+0x000808	naked_Y0X0=X1X0_signed_minus_R1R0
+0x00081c	naked_Y0X0=X1X0_signed_minus_RAM[Ix1,Ix1+1]
 0x000825	naked_Y0X0=local(X0,X0+1)_minus_RAM[Ix1,Ix1+1]
 0x000828	naked_Y0X0=local(X0,X0+1)_minus_local(X1,X1+1)
 0x00082a	naked_Y0X0=local(X0,X0+1)_minus_Y1Y0
-0x00082d	naked_?Y0X0?=RAM[Ix0,Ix0+1]_minus_local(X1,X1+1)
+0x00082d	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_local(X1,X1+1)
 0x000830	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_RAM[Ix1,Ix1+1]
 0x000835	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_Y1Y0
 0x000838	naked_Y0X0=RAM[Ix0,Ix0+1]_minus_R1R0
@@ -1556,20 +1553,21 @@ skip 0x2bf5e
 0x00084b	naked_Y0X0=local(X0,X0+1)_minus_R1R0
 0x000850	naked_Y0X0=X1X0_minus_R1R0
 0x000864	naked_Y0X0=X1X0_minus_RAM[Ix1,Ix1+]
-0x000879	naked_RAM[X1,X1+1]=RAM[Ix1,Ix1+1]_minus_RAM[Ix0,Ix0+1]_implied
+0x000879	naked_RAM[X1,X1+1]=RAM[Ix1,Ix1+1]_minus_RAM[Ix0,Ix0+1]
 0x000882	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_minus_RAM[Ix1,Ix1+1]
 0x00088a	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_minus_Y1Y0
 0x00088d	naked_R1R0=RAM[Ix1,Ix1+1]_minus_RAM[Ix0,Ix0+1]
-0x000899	naked_R1R0=local(X0,X0+1)_minus_local(Y1,Y1+1)_implied
-0x00089c	naked_R1R0=local(X0,X0+1)_minus_Y1Y0_implied
+0x000899	naked_R1R0=local(X0,X0+1)_minus_local(Y1,Y1+1)
+0x00089c	naked_R1R0=local(X0,X0+1)_minus_Y1Y0
 0x00089f	naked_R1R0=RAM[Ix1,Ix1+1]_minus_Y1Y0
 0x0008ae	naked_local(X1,X1+1)=local(X0,X0+1)_minus_local(Y1,Y1+1)
 0x0008b1	naked_local(X1,X1+1)=local(X0,X0+1)_minus_Y1Y0
-0x0008b7	naked_local(X1,X1+1)=R1R0_minus_Y1Y0_implied
+0x0008b7	naked_local(X1,X1+1)=R1R0_minus_Y1Y0
 0x0008ba	naked_RAM[Ix0+1,Ix0]=Y1Y0_minus_R1R0
 0x0008c9	naked_RAM[Ix0+1,Ix0]=local(X0,X0+1)_minus_R1R0
-
-0x000b7c	naked_prepare_Y1Y0=local(X0,X0+1)|Ix0=ptr2local_var(X1)
+0x0008d7	naked_R1R0=local(X0,X0+1)_minus_R1R0
+0x0008e0	naked_R1R0=Y1Y0_minus_RAM[Ix1,Ix1+1]
+0x0008e6	naked_local(X1,X1+1)=local(X0,X0+1)_minus_R1R0
 
 # dword AND functions
 0x000905	naked_RAM[X1,X1+1]=RAM[Ix1,Ix1+1]_and_RAM[Ix0,Ix0+1]
@@ -1586,7 +1584,7 @@ skip 0x2bf5e
 # dword addition functions
 0x000952	naked_RAM[X1,X1+1]=RAM[Ix1,Ix1+1]_plus_RAM[Ix0,Ix0+1]
 0x000955	naked_RAM[Ix0,Ix0+1]=R1R0_plus_RAM[Ix1,Ix1+1]
-0x00095b	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_plus_RAM[Ix1,Ix1+1]_implied
+0x00095b	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_plus_RAM[Ix1,Ix1+1]
 0x00095d	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)_plus_Y1Y0
 0x000963	naked_RAM[Ix0,Ix0+1]=RAM[Ix1,Ix1+1]_plus_Y1Y0
 0x000966	naked_R1R0=RAM[Ix1,Ix1+1]_plus_RAM[Ix0,Ix0+1]
@@ -1601,48 +1599,48 @@ skip 0x2bf5e
 0x00098a	naked_local(X1,X1+1)=local(X0,X0+1)_plus_Y1Y0
 0x000990	naked_local(X1,X1+1)=R1R0_plus_Y1Y0
 
-# word bit shift functions. In older FW X0.h is sometimes nonzero, no idea what it does.
-0x0009b1	naked_RAM[Ix1]=Y0_lshift_X0_to_be_confirmed
+# word bit shift functions
+0x0009b1	naked_RAM[Ix1]=Y0_lshift_X0
 0x0009b6	naked_RAM[Ix1]=RAM[Ix0]_lshift_X0
-0x0009c2	naked_local(X1)=local(Y0)_lshift_X0_to_be_confirmed
+0x0009c2	naked_local(X1)=local(Y0)_lshift_X0
 0x0009c4	naked_RAM[Ix1]=local(Y0)_lshift_X0
 0x0009c8	naked_R0=Y0_lshift_X0
-0x0009ca	naked_R1=R0_lshift_X0_to_be_confirmed
+0x0009ca	naked_R1=R0_lshift_X0
 0x0009cd	naked_R0=RAM[Ix0]_lshift_X0
 0x0009d7	naked_R0=local(Y0)_lshift_X0
-0x0009da	naked_R1=local(Y0)_lshift_X0_to_be_confirmed
+0x0009da	naked_R1=local(Y0)_lshift_X0
 
-0x000a01	naked_RAM[Ix1]=RAM[Ix0]_rshift_X0_implied
+0x000a01	naked_RAM[Ix1]=RAM[Ix0]_rshift_X0
 0x000a06	naked_RAM[Ix1]=R0_rshift_X0
 0x000a18	naked_R0=RAM[Ix0]_rshift_X0
 0x000a1a	naked_R1=RAM[Ix0]_rshift_X0
 0x000a22	naked_R0=local(Y0)_rshift_X0
 
-# dword bit shift block. The last group to be confirmed, my guess is the difference between SLR / SAR.
+# dword bit shift functions
 0x000a73	naked_R1R0=R1R0_lshift_X0
-0x000a90	naked_local(X1,X1+1)=Y1Y0_lshift_X0_implied
+0x000a90	naked_local(X1,X1+1)=Y1Y0_lshift_X0
 0x000a92	naked_RAM[Ix1,Ix1+1]=Y1Y0_lshift_X0
-0x000a97	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_lshift_X0_implied
+0x000a97	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_lshift_X0
 0x000a99	naked_RAM[Ix1,Ix1+1]=RAM[Ix0,Ix0+1]_lshift_X0
-0x000a9e	naked_local(X1,X1+1)=R1R0_lshift_X0_implied
+0x000a9e	naked_local(X1,X1+1)=R1R0_lshift_X0
 0x000aa3	naked_local(X1,X1+1)=local(Y0,Y0+1)_lshift_X0
 0x000aaa	naked_R1R0=Y1Y0_lshift_X0
 0x000aad	naked_R1R0=RAM[Ix0,Ix0+1]_lshift_X0
 0x000ab0	naked_R1R0=local(Y0,Y0+1)_lshift_X0
 
 0x000ab3	naked_R1R0=R1R0_rshift_X0
-0x000ad7	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_rshift_X0_implied
+0x000ad7	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_rshift_X0
 0x000ad9	naked_RAM[Ix1,Ix1+1]=RAM[Ix0,Ix0+1]_rshift_X0
-0x000ade	naked_local(X1,X1+1)=R1R0_rshift_X0_implied
-0x000ae0	naked_RAM[Ix1,Ix1+1]=R1R0_rshift_X0_implied
+0x000ade	naked_local(X1,X1+1)=R1R0_rshift_X0
+0x000ae0	naked_RAM[Ix1,Ix1+1]=R1R0_rshift_X0
 0x000ae3	naked_local(X1,X1+1)=local(Y0,Y0+1)_rshift_X0
 0x000aed	naked_R1R0=RAM[Ix0,Ix0+1]_rshift_X0
 0x000af0	naked_R1R0=local(Y0,Y0+1)_rshift_X0
 
-0x000af3	naked_R1R0=R1R0_arshift_X0_implied
-0x000b15	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_arshift_X0_implied
-0x000b2b	naked_R1R0=RAM[Ix0,Ix0+1]_arshift_X0_implied
-0x000b2e	naked_R1R0=local(Y0,Y0+1)_arshift_X0_implied
+0x000af3	naked_R1R0=R1R0_arshift_X0
+0x000b15	naked_local(X1,X1+1)=RAM[Ix0,Ix0+1]_arshift_X0
+0x000b2b	naked_R1R0=RAM[Ix0,Ix0+1]_arshift_X0
+0x000b2e	naked_R1R0=local(Y0,Y0+1)_arshift_X0
 
 # Prepares stackframe:
 # - pushes DM(0x000) [akin to x86 push BP]
@@ -1676,6 +1674,8 @@ skip 0x2bf5e
 0x000b42	FunctionPrologue(X1,Y0)
 0x000b43	FunctionPrologue(X1,Y1,Y0)
 
+0x000b7c	naked_prepare_Y1Y0=local(X0,X0+1)|Ix0=ptr2local_var(X1)
+
 # Various functions facilitating implementation of dword operations in various combinations of parameters.
 # Not called from any other context.
 #0x000b6a:	(X, Y, Ix0) = (RAM(Ix1,+1), RAM(Ix0,+1), X1)
@@ -1707,12 +1707,15 @@ skip 0x2bf5e
 
 0x00005e	naked_Y1Y0=local(X0,X0+1)_(Ix0)
 0x00007a	naked_Y1Y0=local(X0,X0+1)_(Ix1)
-0x000c81	naked_X1X0=local(X0,X0+1)_v1
-0x000c8f	naked_X1X0=local(X0,X0+1)_v2
-0x000c94	naked_X1X0=local(X0,X0+1)_v3
+0x000c81	naked_X1X0=local(X0,X0+1)_(Ix0)_dup
+0x000c8f	naked_X1X0=local(X0,X0+1)_(Ix1)
+0x000c94	naked_X1X0=local(X0,X0+1)_(Ix0)
 0x000c8c	naked_X1X0=local(X1,X1+1)
 0x000c84	naked_Y1Y0=local(X1,X1+1)
 0x000c87	naked_Y1Y0=local(Y1,Y1+1)
+
+0x0000d7	naked_X0=X1_div_Y1
+0x000c33	naked_X0=X1_div_Y1_signed
 
 0x000c9d	naked_X1X0=ROM[X0:Ix0,X0:Ix0+1]
 0x000ca1	naked_Y1Y0=ROM[X1:Ix1,X1:Ix1+1]
@@ -2562,7 +2565,7 @@ skip 0x2bf5e
 0x40c375	main_mode_action.6()
 0x412302	main_mode_action.8()
 0x414bdd	main_mode_action.9()
-#0x41de01	main_mode_action.a()
+#0x41de01	main_mode_action.a() = entering_the_test_mode(void)
 0x40dd4f	main_mode_action.b()
 0x41878c	main_mode_action.c()
 

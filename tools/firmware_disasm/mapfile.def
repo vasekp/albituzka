@@ -1692,12 +1692,12 @@ skip 0x2bf5e
 #0x000072:      Ix0 = &local(X1)
 
 # Leaves the frame prepared by FunctionPrologue.
-# Does not need the local stack size so Y0 is not provided (0x000b9c mirrors 0x000b31)
+# Does not need the local stack size so Y0 is not provided (0x000b99 mirrors 0x000b31)
 # Meaning of values X1, Y1 is swapped.
-0x000b9c	FunctionEpilogue()
-0x000b9e	FunctionEpilogue(X1)
-0x000b9f	FunctionEpilogue(Y1)
-0x000b99	FunctionEpilogue(X1,Y1)
+0x000b99	FunctionEpilogue()
+0x000b9c	FunctionEpilogue(X1)
+0x000b9e	FunctionEpilogue(Y1)
+0x000b9f	FunctionEpilogue(X1,Y1)
 
 0x000042	naked_Ix1=ptr2local_var(X1)
 0x000046	naked_Ix1=ptr2local_var(Y1)

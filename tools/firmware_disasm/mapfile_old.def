@@ -8,17 +8,24 @@
 
 [MAPPING]
 
-infile update_old.chp
-outfile firmware_old.asm
+loadfile update_old.chp	last:1
+
+outfile f_main	filename:firmware_old.asm
+
+output dis	handle:f_main
+output cross	handle:f_main
+output calls	handle:f_main
+output symbols	handle:f_main
+
 
 org 0x400000
 
-wstr 0x18
-wstr 0x38
-wstr 0x38
+wbstr 0x18
+wbstr 0x38
+wbstr 0x38
 
 dword 12x
-wstr 0x16
+wbstr 0x16
 asm 2
 dword 3x
 asm 0x24
@@ -35,7 +42,7 @@ asm 1254
 
 
 #version
-wstr 0x34	comment:version	sym:ascii_version
+wbstr 0x34	comment:version	sym:ascii_version
 #pointer to next table
 dword 1x
 #string table and strings
@@ -66,8 +73,8 @@ asm 0x23FC
 
 skip 120
 
-wstr 0x6
-wstr 0x22
+wbstr 0x6
+wbstr 0x22
 #end of PRAM is here
 
 org 0x40b104
@@ -431,14 +438,14 @@ asm 0x99C
 
 #end of gen
 
-wstr 0x12
-wstr 4
-wstr 4
-wstr 6
-wstr 4
-wstr 30
-wstr 4
-wstr 0x2a
+wbstr 0x12
+wbstr 4
+wbstr 4
+wbstr 6
+wbstr 4
+wbstr 30
+wbstr 4
+wbstr 0x2a
 
 word 16x
 word 16x
@@ -451,36 +458,36 @@ word 9x
 dword 3x
 str 0x38
 
-wstr 4
-wstr 6
-wstr 0x2c
-wstr 4
-wstr 4
-wstr 6
-wstr 0x24
-wstr 4
-wstr 6
-wstr 0x18
-wstr 0x22
-wstr 0x18
-wstr 0x10
-wstr 0x12
-wstr 0x4
-wstr 0x22
-wstr 0xa
-wstr 0x4
-wstr 0x4
+wbstr 4
+wbstr 6
+wbstr 0x2c
+wbstr 4
+wbstr 4
+wbstr 6
+wbstr 0x24
+wbstr 4
+wbstr 6
+wbstr 0x18
+wbstr 0x22
+wbstr 0x18
+wbstr 0x10
+wbstr 0x12
+wbstr 0x4
+wbstr 0x22
+wbstr 0xa
+wbstr 0x4
+wbstr 0x4
 
 word 4225x
 
 str 16
-wstr 4
-wstr 6
-wstr 4
-wstr 0x14
-wstr 0x30
-wstr 4
-wstr 0x22
+wbstr 4
+wbstr 6
+wbstr 4
+wbstr 0x14
+wbstr 0x30
+wbstr 4
+wbstr 0x22
 
 
 word 256x	sym:TblUnk1

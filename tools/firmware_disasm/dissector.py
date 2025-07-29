@@ -26,9 +26,8 @@
 #				one for addresses (24bit), one for immediates (16bit)
 #
 # known bugs/todos:
-# - empty lines between blocks are not printed in the correct way
-# - still thinking about showing labels more visibly
-# - unify comments to use either ; or # and put it on the same column(?)
+# - empty lines between blocks are not printed they way I'd like it
+# - unify comments to use either ; or # and put them on the same column(?)
 #
 
 import os
@@ -47,15 +46,14 @@ KEYWORDS = {
     'outfile',		#defines output filename
     'output',		#defines binding between output facility and output handle
     'org',		#changes origin of code
-    'wstr',		#real unicode string (question is if such are used at all in the firmware)
     'wbstr',		#byte-in-word string, using GBK chinese encoding
     'str',		#byte ascii string
     'skip',		#skips N byte area
     'word',		#prints Nx words
     'dword',		#prints Nx dwords
     'asm',		#prints disassembly of N bytes
-    'jumptable',	#interprets Nx words as lo-words of 32bit address (hi-word is the hi-word of the address of the table)
-    'pointer',		#32bit pointer to code
+    'jumptable',	#interprets Nx words as lo-words of 24bit address (hi-word is the hi-word of the address of the table)
+    'pointer',		#24bit pointer to code
 }
 
 # === Globals ===
@@ -162,7 +160,7 @@ def parse_line(line, lineno):
 
     return (keyword, param1, param2_dict, lineno, line)
 
-# === Pointer logic ===
+# === Pointer logic / helper functions ===
 
 def pointer_move(length):
     global g_PC, g_pointer
@@ -171,18 +169,27 @@ def pointer_move(length):
     g_pointer += length
     g_PC += length // 2
 
+def read_words_and_move_idx(word_cnt):
+    global g_words, g_words_idx
+
+    if g_words_idx + word_cnt <= g_words_cnt:
+        words = g_words[g_words_idx : g_words_idx + word_cnt]
+    else:
+        raise ValueError("Attempt to read past end of g_words")
+    g_words_idx += word_cnt
+    return words
+
 def print_line_header(r_PC=None, pointer=None):
+    if r_PC is not None:
+        DIS.write(f"         0x{r_PC:06x} ")
+    else:
+        DIS.write(f"         0x{g_PC:06x} ")
+
+def print_line_headerX(r_PC=None, pointer=None):
     if r_PC is not None:
         DIS.write(f"[{pointer:06x}] 0x{r_PC:06x} ")
     else:
         DIS.write(f"[{g_pointer:06x}] 0x{g_PC:06x} ")
-
-def XXXprint_line_header( r_PC=None, pointer=None ):
-    global g_PC, g_pointer
-    if r_PC is None: r_PC = g_PC 
-    if pointer is None: pointer = g_pointer
-
-    DIS.write(f"[{pointer:06x}] 0x{r_PC:06x} ")
 
 def empty_line( type ):
     global g_previous_processed
@@ -190,7 +197,7 @@ def empty_line( type ):
         DIS.write(f'\n')
 
 def add_auto_symbol( prefix, value ):
-    global g_symbolsValue2Name, g_symbolsName2Value
+    global g_symbols24Value2Name, g_symbols24Name2Value
 
     if g_auto_symbols:
         symbol = f"auto_{prefix}_{value:06x}"
@@ -260,6 +267,7 @@ def escape_unicode_string(s):
             result.append(f"\\u{code:04X}")
     return ''.join(result)
 
+################################################################################################################################
 # === Pre-parse functions ===
 
 def loadfile_preparse(param1, param2_dict, lineno):
@@ -318,7 +326,7 @@ def output_preparse( param1, param2_dict, lineno ):
         g_output2handle[param1] = handle
         del param2_dict['handle']
     else:
-        raise Exception
+        raise Exception( f"output_preparse: expected 'handle' in secondary params" )
 
     return {'consumed_bytes': 0 }
 
@@ -327,22 +335,6 @@ def org_preparse(param1, param2_dict, lineno):
     global g_PC
     g_PC = num
     return {'address': num, 'consumed_bytes': 0 }
-
-def wstr_preparse(param1, param2_dict, lineno):
-    global g_words_idx
-
-    num = parse_int_or_hex(param1, lineno)
-    ldict = {'length': num, 'consumed_bytes': num }
-
-    if 'comment' in param2_dict:
-        ldict['comment'] = param2_dict['comment']
-        del param2_dict['comment']
-
-    if num % 2 != 0:
-        raise Exception("str_preparse: length must be even")
-
-    g_words_idx += num // 2
-    return ldict
 
 def wbstr_preparse(param1, param2_dict, lineno):
     global g_words_idx
@@ -432,8 +424,8 @@ def asm_preparse(param1, param2_dict, lineno):
 
     if length % 2 != 0:
         raise Exception("asm_preparse: length must be even")
-    #print( f"asm preparse PC:{g_PC:06x} wptr:{g_words_idx:06x} fwd:{(g_words[g_words_idx]):04x} / {length}" )
-    word_length = (length) // 2  # ceil division
+
+    word_length = (length) // 2
 
     if g_words_idx + word_length <= g_words_cnt:
         words = g_words[g_words_idx : g_words_idx + word_length]
@@ -550,7 +542,6 @@ def jumptable_preparse(param1, param2_dict, lineno):
         if not value in g_symbols24Value2Name:
             add_symbol24(symbol, value)
 
-    #g_handle_input.seek( num * 2, 1 )
     return {'count': num, 'consumed_bytes': 0 }
 
 # === Execute functions ===
@@ -607,17 +598,6 @@ def loadfile_execute(params):
         g_PC = 0
         g_pointer = 0
 
-def read_words_and_move_idx(word_cnt):
-    global g_words, g_words_idx
-
-    if g_words_idx + word_cnt <= g_words_cnt:
-        words = g_words[g_words_idx : g_words_idx + word_cnt]
-    else:
-        raise ValueError("Attempt to read past end of g_words")
-    g_words_idx += word_cnt
-    return words
-
-
 def outfile_execute(params):
     pass
 
@@ -627,26 +607,6 @@ def output_execute(params):
 def org_execute(params):
     global g_PC
     g_PC = params['address']
-
-def wstr_execute(params):
-    length = params['length']
-    data = g_handle_input.read(length)
-    if len(data) != length:
-        raise Exception(f"wstr_execute: expected {length} bytes, got {len(data)}")
-    try:
-        raw_text = data.decode('utf-16-le')
-    except UnicodeDecodeError:
-        raw_text = "<invalid UTF-16>"
-    empty_line( "wstr" )
-    print_line_header()
-    text = escape_unicode_string( raw_text )
-    DIS.write(f'.wstr "{text}"')
-    if 'comment' in params:
-        DIS.write( f"  #{(params['comment'])}" )
-        del params['comment']
-    DIS.write("\n")
-
-    pointer_move(length)
 
 def wbstr_execute(params):
     length = params['length']
@@ -658,7 +618,7 @@ def wbstr_execute(params):
         if words[i] > 0xFF:
             raise ValueError(f"Invalid padding byte at index {i}: expected 0x00, found 0x{words[i]:02X}")
 
-    # Extract every low byte (even indices)
+    # Extract every low byte
     raw_bytes = bytearray(w & 0xFF for w in words)
 
     # Decode as GBK
@@ -786,6 +746,7 @@ def asm_execute(params):
 
     words = read_words_and_move_idx( length // 2 )
 
+    #todo shouldn't this just pass inst storage instead of globals?
     #clear previous block data
     reset_instructions()
 
@@ -803,23 +764,25 @@ def jumptable_execute(params):
 
     words = read_words_and_move_idx( count )
 
-    for _ in range(count):
+    for idx in range(count):
         #to make sense of it
         #PCH (top 8 bits of 24bit address) is not changed
         #so it's extracted from current instruction pointer
         #that means that jumptable should not cross 'segment' boundary
 
-        value = words[_]
+        value = words[idx]
         value = value | ( g_PC & 0x00FF0000 )
         print_line_header()
 
-        DIS.write( f"{(words[_]&0xFF):02x} {(words[_]>>8):02x}" + ( " " * 16 ) )
+        DIS.write( f"{(words[idx]&0xFF):02x} {(words[idx]>>8):02x}" + ( " " * 16 ) )
         if value in g_symbols24Value2Name:
             DIS.write( f".jumptable {(g_symbols24Value2Name[value])} ;(0x{value:06x})\n" )
         else:
             DIS.write(f".jumptable 0x{value:06x}\n")
         g_crossref[value] += 1
         pointer_move(2)
+
+###############################################################
 
 
 def find_addr_in_routine(addr):
@@ -845,6 +808,9 @@ def find_addr_in_routine_simple(addr):
     return ( None, None )
 
 def dump_symbols_table():
+    if 'SYMBOLS' not in globals():
+        return
+
     SYMBOLS.write( "SYMBOL TABLE (24bit):\n" )
     for value, key in sorted((v, k) for k, v in g_symbols24Name2Value.items()):
         SYMBOLS.write(f"0x{value:06x}  {key}\n")
@@ -854,6 +820,9 @@ def dump_symbols_table():
         SYMBOLS.write(f"0x{value:04x}  {key}\n")
 
 def dump_cross_table():
+    if 'CROSS' not in globals():
+        return
+
     CROSS.write( "CROSSREF TABLE:\n" )
     for key, value in sorted((k,v) for k,v in g_crossref.items()):
         CROSS.write(f"0x{key:06x} {value:4d}" )
@@ -862,6 +831,9 @@ def dump_cross_table():
         CROSS.write("\n")
 
 def dump_calls_table():
+    if 'CALLS' not in globals():
+        return
+
     CALLS.write( "CALLS TABLE:\n" )
     for r_PC, d_onecall in sorted(g_calls.items()):
         CALLS.write( f"0x{r_PC:06x}" )
@@ -957,7 +929,8 @@ def dump_callgraph():
     ET.indent(tree, space="\t", level=0)
     tree.write( CALLGRAPH, encoding="unicode", xml_declaration=True)
 
-# === Main ===
+#################################################################################
+# main mapfile parsing
 
 BLOCK_NONE = 1
 BLOCK_MAPPING = 2
@@ -1110,6 +1083,7 @@ def mapfile_parse(filename):
 
     print( "done!" )
 
+#########################################################################################################
 # DISASM BEGIN
 # large parts of this code are from marian, mostly the instruction joining and symbols are additions
 
@@ -1325,18 +1299,6 @@ def store_instruction( word_array, mnemonic, parameters, comment ):
         'pointer': g_pointer,
     })
 
-def XXXstore_instruction( word_array, mnemonic, parameters, comment ):
-    global g_instruction_store
-
-    rec = dict()
-    rec['words'] = word_array
-    rec['mnemonic'] = mnemonic
-    rec['parameters'] = parameters
-    rec['comment'] = comment
-
-    rec['PC'] = g_PC
-    rec['pointer'] = g_pointer
-    g_instruction_store.append( rec )
 
 #parameter format types
 ADDR16 = 1
@@ -2825,7 +2787,7 @@ def instructions_printer():
         instr = g_instruction_store[idx]
 
         is_first_call_dest_instruction, is_last_instruction = print_stored_instruction(instr)
-        #print( f"in i_p: {is_first_call_dest_instruction} {is_last_instruction} {(instr['PC']):06x}" )
+
         if is_first_call_dest_instruction:
             g_last_function_start = instr['PC']
             extract_prologue_info( instr['PC'], idx )
@@ -2876,6 +2838,7 @@ def instructions_printer():
         idx += 1
     #endwhile
 
+#########################################################################################
 # === Entry point ===
 
 measure_start = time.perf_counter()

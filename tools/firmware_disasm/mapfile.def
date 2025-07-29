@@ -706,12 +706,12 @@ word 1x	comment:05/04 ALB 0x05 -> 0x04 -> 0x10 -> ptr soundtbl Start button seco
 word 1x	comment:06/00-01
 word 1x	comment:06/02
 word 1x	comment:06/03
-word 1x	comment:06/04 ALB 0x06 -> 0x05 -> 0x14 -> ptr soundtbl book close
+word 1x	comment:06/04 ALB 0x06 -> 0x05 -> 0x14 -> ptr soundtbl power down (FW disabled)
 
 word 1x	comment:07/00-01
 word 1x	comment:07/02
 word 1x	comment:07/03
-word 1x	comment:07/04 ALB 0x07 -> 0x06 -> 0x18 -> offset table base
+word 1x	comment:07/04 ALB 0x07 -> 0x06 -> 0x18 -> OID min & max
 
 word 1x	comment:08/00-01
 word 1x	comment:08/02
@@ -721,7 +721,7 @@ word 1x	comment:08/04 ALB 0x08 -> 0x07 -> 0x1c -> number of media files
 word 1x	comment:09/00-01
 word 1x	comment:09/02
 word 1x	comment:09/03
-word 1x	comment:09/04 ALB 0x09 -> 0x08 -> 0x20 -> ptr soundtbl unk
+word 1x	comment:09/04 ALB 0x09 -> 0x08 -> 0x20 -> ptr soundtbl volume up (FW disabled)
 
 word 1x	comment:0a/00-01
 word 1x	comment:0a/02
@@ -731,7 +731,7 @@ word 1x	comment:0a/04 ALB 0x0a -> 0x09 -> 0x24 -> ptr soundtbl mode change
 word 1x	comment:0b/00-01
 word 1x	comment:0b/02
 word 1x	comment:0b/03
-word 1x	comment:0b/04 ALB 0x0b -> 0x0a -> 0x28 -> ???
+word 1x	comment:0b/04 ALB 0x0b -> 0x0a -> 0x28 -> ptr soundtbl volume down (FW disabled)
 
 word 1x	comment:0c/00-01
 word 1x	comment:0c/02
@@ -746,12 +746,12 @@ word 1x	comment:0d/04 ALB ----
 word 1x	comment:0e/00-01
 word 1x	comment:0e/02
 word 1x	comment:0e/03
-word 1x	comment:0e/04 ALB 0x0e -> 0x19 -> 0x64 -> ptr soundtbl unk
+word 1x	comment:0e/04 ALB 0x0e -> 0x19 -> 0x64 -> ptr soundtbl inactivity (FW disabled)
 
 word 1x	comment:0f/00-01
 word 1x	comment:0f/02
 word 1x	comment:0f/03
-word 1x	comment:0f/04 ALB 0x0f -> 0x26 -> 0x98 -> ptr soundtbl unk
+word 1x	comment:0f/04 ALB 0x0f -> 0x26 -> 0x98 -> ptr soundtbl read error (FW disabled)
 
 
 
@@ -838,22 +838,22 @@ word 1x	comment:1f/04 ALB ----
 word 1x	comment:20/00-01
 word 1x	comment:20/02
 word 1x	comment:20/03
-word 1x	comment:20/04 ALB 0x20 -> 0x20 -> 0x80 -> ptr soundtbl unk
+word 1x	comment:20/04 ALB 0x20 -> 0x20 -> 0x80 -> ptr soundtbl get ready for comparison (FW disabled)
 
 word 1x	comment:21/00-01
 word 1x	comment:21/02
 word 1x	comment:21/03
-word 1x	comment:21/04 ALB 0x21 -> 0x21 -> 0x84 -> ptr soundtbl unk
+word 1x	comment:21/04 ALB 0x21 -> 0x21 -> 0x84 -> ptr soundtbl recording beep (FW disabled)
 
 word 1x	comment:22/00-01
 word 1x	comment:22/02
 word 1x	comment:22/03
-word 1x	comment:22/04 ALB 0x22 -> 0x1e -> 0x78 -> ptr soundtbl unk
+word 1x	comment:22/04 ALB 0x22 -> 0x1e -> 0x78 -> ptr soundtbl no MP3s (FW disabled)
 
 word 1x	comment:23/00-01
 word 1x	comment:23/02
 word 1x	comment:23/03
-word 1x	comment:23/04 ALB 0x23 -> 0x18 -> 0x60 -> ptr soundtbl unk
+word 1x	comment:23/04 ALB 0x23 -> 0x18 -> 0x60 -> ptr soundtbl battery low (FW disabled)
 
 word 1x	comment:24/00-01
 word 1x	comment:24/02
@@ -868,7 +868,7 @@ word 1x	comment:25/04 ALB ----
 word 1x	comment:26/00-01
 word 1x	comment:26/02
 word 1x	comment:26/03
-word 1x	comment:26/04 ALB 0x26 -> 0x25 -> 0x94 -> ptr soundtbl unk
+word 1x	comment:26/04 ALB 0x26 -> 0x25 -> 0x94 -> ptr soundtbl stop (FW disabled)
 
 word 1x	comment:27/00-01
 word 1x	comment:27/02
@@ -903,7 +903,7 @@ word 1x	comment:2c/04 ALB 0x2c -> 0x15 -> 0x54 -> ptr oidtbl bad reply2
 word 1x	comment:2d/00-01
 word 1x	comment:2d/02
 word 1x	comment:2d/03
-word 1x	comment:2d/04 ALB 0x2d -> 0x16 -> 0x58 -> ptr oidtbl unk
+word 1x	comment:2d/04 ALB 0x2d -> 0x16 -> 0x58 -> ptr oidtbl inactivity in quiz
 
 word 1x	comment:2e/00-01
 word 1x	comment:2e/02
@@ -1050,17 +1050,17 @@ word 1x	comment:49/04 ALB ----
 word 1x	comment:4a/00-01
 word 1x	comment:4a/02
 word 1x	comment:4a/03
-word 1x	comment:4a/04 ALB 0x4a -> 0x27 -> 0x9c -> ptr oidtbl unk
+word 1x	comment:4a/04 ALB 0x4a -> 0x27 -> 0x9c -> ptr oidtbl fail in last question
 
 word 1x	comment:4b/00-01
 word 1x	comment:4b/02
 word 1x	comment:4b/03
-word 1x	comment:4b/04 ALB 0x4b -> 0x28 -> 0xa0 -> ptr oidtbl unk
+word 1x	comment:4b/04 ALB 0x4b -> 0x28 -> 0xa0 -> ptr oidtbl sucess in multiple answer question
 
 word 1x	comment:4c/00-01
 word 1x	comment:4c/02
 word 1x	comment:4c/03
-word 1x	comment:4c/04 ALB 0x4c -> 0x29 -> 0xa4 -> ptr oidtbl unk
+word 1x	comment:4c/04 ALB 0x4c -> 0x29 -> 0xa4 -> ptr oidtbl repeated answer
 
 word 1x	comment:4d/00-01
 word 1x	comment:4d/02
@@ -1116,7 +1116,7 @@ word 1x	comment:56/04 ALB ----
 word 1x	comment:57/00-01
 word 1x	comment:57/02
 word 1x	comment:57/03
-word 1x	comment:57/04 ALB 0x57 -> 0x19 -> 0x64 -> ptr soundtbl unk
+word 1x	comment:57/04 ALB 0x57 -> 0x19 -> 0x64 -> ptr soundtbl inactivity (FW disabled)
 
 word 1x	comment:58/00-01
 word 1x	comment:58/02
@@ -1146,7 +1146,7 @@ word 1x	comment:5c/04 ALB ----
 word 1x	comment:5d/00-01
 word 1x	comment:5d/02
 word 1x	comment:5d/03
-word 1x	comment:5d/04 ALB 0x5d -> 0x19 -> 0x64 -> ptr soundtbl unk
+word 1x	comment:5d/04 ALB 0x5d -> 0x19 -> 0x64 -> ptr soundtbl inactivity (FW disabled)
 
 word 1x	comment:5e/00-01
 word 1x	comment:5e/02

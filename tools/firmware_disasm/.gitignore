@@ -1,4 +1,5 @@
 *.chp
+*.rom
 crossref.txt
 firmware.asm
 calls.txt

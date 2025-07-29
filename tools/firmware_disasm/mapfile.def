@@ -706,12 +706,12 @@ word 1x	comment:05/04 ALB 0x05 -> 0x04 -> 0x10 -> ptr soundtbl Start button seco
 word 1x	comment:06/00-01
 word 1x	comment:06/02
 word 1x	comment:06/03
-word 1x	comment:06/04 ALB 0x06 -> 0x05 -> 0x14 -> ptr soundtbl book close
+word 1x	comment:06/04 ALB 0x06 -> 0x05 -> 0x14 -> ptr soundtbl power down (FW disabled)
 
 word 1x	comment:07/00-01
 word 1x	comment:07/02
 word 1x	comment:07/03
-word 1x	comment:07/04 ALB 0x07 -> 0x06 -> 0x18 -> offset table base
+word 1x	comment:07/04 ALB 0x07 -> 0x06 -> 0x18 -> OID min & max
 
 word 1x	comment:08/00-01
 word 1x	comment:08/02
@@ -721,7 +721,7 @@ word 1x	comment:08/04 ALB 0x08 -> 0x07 -> 0x1c -> number of media files
 word 1x	comment:09/00-01
 word 1x	comment:09/02
 word 1x	comment:09/03
-word 1x	comment:09/04 ALB 0x09 -> 0x08 -> 0x20 -> ptr soundtbl unk
+word 1x	comment:09/04 ALB 0x09 -> 0x08 -> 0x20 -> ptr soundtbl volume up (FW disabled)
 
 word 1x	comment:0a/00-01
 word 1x	comment:0a/02
@@ -731,7 +731,7 @@ word 1x	comment:0a/04 ALB 0x0a -> 0x09 -> 0x24 -> ptr soundtbl mode change
 word 1x	comment:0b/00-01
 word 1x	comment:0b/02
 word 1x	comment:0b/03
-word 1x	comment:0b/04 ALB 0x0b -> 0x0a -> 0x28 -> ???
+word 1x	comment:0b/04 ALB 0x0b -> 0x0a -> 0x28 -> ptr soundtbl volume down (FW disabled)
 
 word 1x	comment:0c/00-01
 word 1x	comment:0c/02
@@ -746,12 +746,12 @@ word 1x	comment:0d/04 ALB ----
 word 1x	comment:0e/00-01
 word 1x	comment:0e/02
 word 1x	comment:0e/03
-word 1x	comment:0e/04 ALB 0x0e -> 0x19 -> 0x64 -> ptr soundtbl unk
+word 1x	comment:0e/04 ALB 0x0e -> 0x19 -> 0x64 -> ptr soundtbl inactivity (FW disabled)
 
 word 1x	comment:0f/00-01
 word 1x	comment:0f/02
 word 1x	comment:0f/03
-word 1x	comment:0f/04 ALB 0x0f -> 0x26 -> 0x98 -> ptr soundtbl unk
+word 1x	comment:0f/04 ALB 0x0f -> 0x26 -> 0x98 -> ptr soundtbl read error (FW disabled)
 
 
 
@@ -838,22 +838,22 @@ word 1x	comment:1f/04 ALB ----
 word 1x	comment:20/00-01
 word 1x	comment:20/02
 word 1x	comment:20/03
-word 1x	comment:20/04 ALB 0x20 -> 0x20 -> 0x80 -> ptr soundtbl unk
+word 1x	comment:20/04 ALB 0x20 -> 0x20 -> 0x80 -> ptr soundtbl get ready for comparison (FW disabled)
 
 word 1x	comment:21/00-01
 word 1x	comment:21/02
 word 1x	comment:21/03
-word 1x	comment:21/04 ALB 0x21 -> 0x21 -> 0x84 -> ptr soundtbl unk
+word 1x	comment:21/04 ALB 0x21 -> 0x21 -> 0x84 -> ptr soundtbl recording beep (FW disabled)
 
 word 1x	comment:22/00-01
 word 1x	comment:22/02
 word 1x	comment:22/03
-word 1x	comment:22/04 ALB 0x22 -> 0x1e -> 0x78 -> ptr soundtbl unk
+word 1x	comment:22/04 ALB 0x22 -> 0x1e -> 0x78 -> ptr soundtbl no MP3s (FW disabled)
 
 word 1x	comment:23/00-01
 word 1x	comment:23/02
 word 1x	comment:23/03
-word 1x	comment:23/04 ALB 0x23 -> 0x18 -> 0x60 -> ptr soundtbl unk
+word 1x	comment:23/04 ALB 0x23 -> 0x18 -> 0x60 -> ptr soundtbl battery low (FW disabled)
 
 word 1x	comment:24/00-01
 word 1x	comment:24/02
@@ -868,7 +868,7 @@ word 1x	comment:25/04 ALB ----
 word 1x	comment:26/00-01
 word 1x	comment:26/02
 word 1x	comment:26/03
-word 1x	comment:26/04 ALB 0x26 -> 0x25 -> 0x94 -> ptr soundtbl unk
+word 1x	comment:26/04 ALB 0x26 -> 0x25 -> 0x94 -> ptr soundtbl stop (FW disabled)
 
 word 1x	comment:27/00-01
 word 1x	comment:27/02
@@ -903,7 +903,7 @@ word 1x	comment:2c/04 ALB 0x2c -> 0x15 -> 0x54 -> ptr oidtbl bad reply2
 word 1x	comment:2d/00-01
 word 1x	comment:2d/02
 word 1x	comment:2d/03
-word 1x	comment:2d/04 ALB 0x2d -> 0x16 -> 0x58 -> ptr oidtbl unk
+word 1x	comment:2d/04 ALB 0x2d -> 0x16 -> 0x58 -> ptr oidtbl inactivity in quiz
 
 word 1x	comment:2e/00-01
 word 1x	comment:2e/02
@@ -1050,17 +1050,17 @@ word 1x	comment:49/04 ALB ----
 word 1x	comment:4a/00-01
 word 1x	comment:4a/02
 word 1x	comment:4a/03
-word 1x	comment:4a/04 ALB 0x4a -> 0x27 -> 0x9c -> ptr oidtbl unk
+word 1x	comment:4a/04 ALB 0x4a -> 0x27 -> 0x9c -> ptr oidtbl fail in last question
 
 word 1x	comment:4b/00-01
 word 1x	comment:4b/02
 word 1x	comment:4b/03
-word 1x	comment:4b/04 ALB 0x4b -> 0x28 -> 0xa0 -> ptr oidtbl unk
+word 1x	comment:4b/04 ALB 0x4b -> 0x28 -> 0xa0 -> ptr oidtbl sucess in multiple answer question
 
 word 1x	comment:4c/00-01
 word 1x	comment:4c/02
 word 1x	comment:4c/03
-word 1x	comment:4c/04 ALB 0x4c -> 0x29 -> 0xa4 -> ptr oidtbl unk
+word 1x	comment:4c/04 ALB 0x4c -> 0x29 -> 0xa4 -> ptr oidtbl repeated answer
 
 word 1x	comment:4d/00-01
 word 1x	comment:4d/02
@@ -1116,7 +1116,7 @@ word 1x	comment:56/04 ALB ----
 word 1x	comment:57/00-01
 word 1x	comment:57/02
 word 1x	comment:57/03
-word 1x	comment:57/04 ALB 0x57 -> 0x19 -> 0x64 -> ptr soundtbl unk
+word 1x	comment:57/04 ALB 0x57 -> 0x19 -> 0x64 -> ptr soundtbl inactivity (FW disabled)
 
 word 1x	comment:58/00-01
 word 1x	comment:58/02
@@ -1146,7 +1146,7 @@ word 1x	comment:5c/04 ALB ----
 word 1x	comment:5d/00-01
 word 1x	comment:5d/02
 word 1x	comment:5d/03
-word 1x	comment:5d/04 ALB 0x5d -> 0x19 -> 0x64 -> ptr soundtbl unk
+word 1x	comment:5d/04 ALB 0x5d -> 0x19 -> 0x64 -> ptr soundtbl inactivity (FW disabled)
 
 word 1x	comment:5e/00-01
 word 1x	comment:5e/02
@@ -1239,8 +1239,7 @@ word 1x	comment:6f/02
 word 1x	comment:6f/03
 word 1x	comment:6f/04 ALB ----
 
-word 22x	comment:unpartitioned2
-word 234x	comment:unpartitioned3
+word 256x	sym:tbl_encrypt_permutation_other
 word 256x	sym:tbl_encrypt_permutation
 word 50x	sym:tbl_syssound_id_to_map_id
 word 128x	sym:tbl_MP3_byte_offsets
@@ -1295,7 +1294,12 @@ word 58x	symbol:tbl_offsets_to_3bin_mp3tbl2
 word 47x	symbol:tbl_offsets_to_3bin_mp3tbl1
 word 78x	symbol:tbl_num_to_3bin_string
 word 17x	sym:tbl_dac_volume_values
-word 60x	comment:unpartitioned6
+word 10x	sym:tbl_equalizer_preset1
+word 10x	sym:tbl_equalizer_preset2
+word 10x	sym:tbl_equalizer_preset3
+word 10x	sym:tbl_equalizer_preset4
+word 10x	sym:tbl_equalizer_preset5
+word 10x	sym:tbl_equalizer_preset6
 
 wbstr 18	sym:string_sd:\Game_3
 wbstr 32
@@ -1692,12 +1696,12 @@ skip 0x2bf5e
 #0x000072:      Ix0 = &local(X1)
 
 # Leaves the frame prepared by FunctionPrologue.
-# Does not need the local stack size so Y0 is not provided (0x000b9c mirrors 0x000b31)
+# Does not need the local stack size so Y0 is not provided (0x000b99 mirrors 0x000b31)
 # Meaning of values X1, Y1 is swapped.
-0x000b9c	FunctionEpilogue()
-0x000b9e	FunctionEpilogue(X1)
-0x000b9f	FunctionEpilogue(Y1)
-0x000b99	FunctionEpilogue(X1,Y1)
+0x000b99	FunctionEpilogue()
+0x000b9c	FunctionEpilogue(X1)
+0x000b9e	FunctionEpilogue(Y1)
+0x000b9f	FunctionEpilogue(X1,Y1)
 
 0x000042	naked_Ix1=ptr2local_var(X1)
 0x000046	naked_Ix1=ptr2local_var(Y1)
@@ -1756,6 +1760,9 @@ skip 0x2bf5e
 
 
 #rom2
+0x282076	equalizer_set_active(bActive)
+0x28208b	equalizer_set_band_level(wBand,wLevel)
+0x2820b5	equalizer_reset_levels()
 0x28913e	FS_FileExists_maybe_stk(szPath,FLAG)_ret_errc_in_R0
 0x2897d0	MP3_ChangeSpeed(wDelta)
 0x289fa3	naked_R1R0=X1X0_mod_Y1Y0
@@ -2304,6 +2311,7 @@ skip 0x2bf5e
 0x41c05a	oid_to_fwcode(dw_oid)
 0x41d4f6	quiz_time_step_1Hz()
 0x41eb57	start_quiz()
+0x41ef76	finalize_mp3_key(pKeyIn,pKeyOut,dwArg1,dwArg2)
 0x41f179	play_bnl_mp3(index)
 0x41f561	check_battery()
 #In FW v1 this function only checks battery voltage and sets runlevel to 1 if 
@@ -2378,6 +2386,7 @@ skip 0x2bf5e
 0x425a89	prepare_questions_bitset(num_questions)
 0x425b76	replay_last_soundtable()
 0x425c5f	find_answer_by_oid(oid)
+0x425cd3	set_bedtime_timer_by_oid(wOID)
 0x425f06	read_3bin_tbl_unk(index)
 0x425fe3	evaluate_answer_sequential(ans_index)
 0x426051	set_mode_0_play_oid(oid)
@@ -2390,6 +2399,7 @@ skip 0x2bf5e
 0x4267e3	set_book_mode_by_fwcode
 0x426840	locate_question_in_bnl(q_index)
 0x42689c	volume_increase()__return_is_max
+0x4269a9	choose_equalizer_preset(wPreset)_probably
 0x426aa8	volume_decrease()__return_is_min
 0x426b4f	get_table_element(table,index)
 0x426ba1	init_quiz_ctx()
@@ -2408,6 +2418,7 @@ skip 0x2bf5e
 0x42735c	wrong_answers_bit_check_zero()
 0x427396	questions_bit_get(q_index)
 0x427440	quiz_state_react_if_not_playing()
+0x4274af	set_bedtime_timer(wMinutes)
 0x427554	are_all_answers_marked()
 0x42751d	clear_answers_bitset()
 0x4275c1	next_book_mode()
@@ -2420,8 +2431,8 @@ skip 0x2bf5e
 0x4279e0	locate_type7_curr_subquiz_question(index)
 0x427a0a	play_volume_max_sound_fallback_volume_up()
 0x427a32	play_volume_min_sound_fallback_volume_down()
-0x427a5a	aux_timeout_reached()
-0x427a80	set_mp3_speed()
+0x427a5a	bedtime_timeout_reached()
+0x427a80	set_mp3_speed(wSpeedIndex)
 0x427aa5	is_system_sound_playing(wId)
 0x427bc1	set_quiz_ctx_pointer()
 0x427c4a	set_mp3_temp_speed_higher()
@@ -2429,6 +2440,7 @@ skip 0x2bf5e
 0x427c8c	clear_inactivity_timers()
 0x427cca	xor_one_byte_key(data,key)
 0x427ce9	set_last_sound(wType,dwValue)
+0x427d26	set_mp3_speed_from_stored_value()
 0x427d7d	try_shutdown_OID()
 0x427dec	mp3_or_pcm_resume()
 0x427ebd	mp3_or_pcm_pause()
@@ -2439,6 +2451,7 @@ skip 0x2bf5e
 0x4280a2	init_quiz_state_0()
 0x4280fe	get_num_quizzes()
 0x428213	play_sound_0x58()
+0x42825d	set_mp3_speed_normal()
 0x428268	OID_close_unconditionally()
 
 0x41026e	quiz_answer_type_3
@@ -2464,12 +2477,33 @@ skip 0x2bf5e
 	0x41b8ff	tbl_encrypt_permutation
 	0x41b98a	tbl_encrypt_permutation
 	0x41b9a3	tbl_encrypt_permutation
+	0x41b9c2	tbl_encrypt_permutation_other
+	0x41b9dd	tbl_encrypt_permutation_other
 	0x421c2c	tbl_encrypt_permutation
 	0x421c43	tbl_encrypt_permutation
 	0x421eaf	tbl_encrypt_permutation
 	0x421ec6	tbl_encrypt_permutation
 	0x423878	tbl_encrypt_permutation
 	0x42388f	tbl_encrypt_permutation
+	0x0047ac	tbl_encrypt_permutation_other[2]
+	0x004983	tbl_encrypt_permutation_other[2]
+	0x0061f7	tbl_encrypt_permutation_other[2]
+	0x41989b	tbl_encrypt_permutation_other[2]
+	0x419aad	tbl_encrypt_permutation_other[2]
+	0x41b910	tbl_encrypt_permutation_other[2]
+	0x421c4f	tbl_encrypt_permutation_other[2]
+	0x421ed2	tbl_encrypt_permutation_other[2]
+	0x42389b	tbl_encrypt_permutation_other[2]
+	0x004662	tbl_encrypt_permutation_other[0x16]
+	0x004711	tbl_encrypt_permutation_other[0x16]
+	0x0061e0	tbl_encrypt_permutation_other[0x16]
+	0x4196bd	tbl_encrypt_permutation_other[0x16]
+	0x4197c7	tbl_encrypt_permutation_other[0x16]
+	0x41b8f2	tbl_encrypt_permutation_other[0x16]
+	0x421c38	tbl_encrypt_permutation_other[0x16]
+	0x421ebb	tbl_encrypt_permutation_other[0x16]
+	0x423884	tbl_encrypt_permutation_other[0x16]
+
 
 0x42591b	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
 	0x42591b	wHandle could be 0, it may mean playing from fw? wFlag seen 0, 1, 2
@@ -3562,8 +3596,8 @@ skip 0x2bf5e
 0x3dc0	fw_config_3021b__00000000
 0x3dc2	fw_config_302fc__000045f2
 
-0x3dc4	aux_timer_counter_10Hz
-0x3dc6	aux_timer_target
+0x3dc4	bedtime_timer_counter_10Hz
+0x3dc6	bedtime_timer_target
 0x3dc8	timer_counter_0.1Hz
 0x3dca	last_timer_value_bumped_every_second
 0x3dcc	timer_counter_10Hz

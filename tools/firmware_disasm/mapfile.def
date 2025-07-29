@@ -1295,7 +1295,12 @@ word 58x	symbol:tbl_offsets_to_3bin_mp3tbl2
 word 47x	symbol:tbl_offsets_to_3bin_mp3tbl1
 word 78x	symbol:tbl_num_to_3bin_string
 word 17x	sym:tbl_dac_volume_values
-word 60x	comment:unpartitioned6
+word 10x	sym:tbl_equalizer_preset1
+word 10x	sym:tbl_equalizer_preset2
+word 10x	sym:tbl_equalizer_preset3
+word 10x	sym:tbl_equalizer_preset4
+word 10x	sym:tbl_equalizer_preset5
+word 10x	sym:tbl_equalizer_preset6
 
 wbstr 18	sym:string_sd:\Game_3
 wbstr 32
@@ -1756,6 +1761,9 @@ skip 0x2bf5e
 
 
 #rom2
+0x282076	equalizer_set_active(bActive)
+0x28208b	equalizer_set_band_level(wBand,wLevel)
+0x2820b5	equalizer_reset_levels()
 0x28913e	FS_FileExists_maybe_stk(szPath,FLAG)_ret_errc_in_R0
 0x2897d0	MP3_ChangeSpeed(wDelta)
 0x289fa3	naked_R1R0=X1X0_mod_Y1Y0
@@ -2378,6 +2386,7 @@ skip 0x2bf5e
 0x425a89	prepare_questions_bitset(num_questions)
 0x425b76	replay_last_soundtable()
 0x425c5f	find_answer_by_oid(oid)
+0x425cd3	set_bedtime_timer_by_oid(wOID)
 0x425f06	read_3bin_tbl_unk(index)
 0x425fe3	evaluate_answer_sequential(ans_index)
 0x426051	set_mode_0_play_oid(oid)
@@ -2390,6 +2399,7 @@ skip 0x2bf5e
 0x4267e3	set_book_mode_by_fwcode
 0x426840	locate_question_in_bnl(q_index)
 0x42689c	volume_increase()__return_is_max
+0x4269a9	choose_equalizer_preset(wPreset)_probably
 0x426aa8	volume_decrease()__return_is_min
 0x426b4f	get_table_element(table,index)
 0x426ba1	init_quiz_ctx()
@@ -2408,6 +2418,7 @@ skip 0x2bf5e
 0x42735c	wrong_answers_bit_check_zero()
 0x427396	questions_bit_get(q_index)
 0x427440	quiz_state_react_if_not_playing()
+0x4274af	set_bedtime_timer(wMinutes)
 0x427554	are_all_answers_marked()
 0x42751d	clear_answers_bitset()
 0x4275c1	next_book_mode()
@@ -2420,8 +2431,8 @@ skip 0x2bf5e
 0x4279e0	locate_type7_curr_subquiz_question(index)
 0x427a0a	play_volume_max_sound_fallback_volume_up()
 0x427a32	play_volume_min_sound_fallback_volume_down()
-0x427a5a	aux_timeout_reached()
-0x427a80	set_mp3_speed()
+0x427a5a	bedtime_timeout_reached()
+0x427a80	set_mp3_speed(wSpeedIndex)
 0x427aa5	is_system_sound_playing(wId)
 0x427bc1	set_quiz_ctx_pointer()
 0x427c4a	set_mp3_temp_speed_higher()
@@ -2429,6 +2440,7 @@ skip 0x2bf5e
 0x427c8c	clear_inactivity_timers()
 0x427cca	xor_one_byte_key(data,key)
 0x427ce9	set_last_sound(wType,dwValue)
+0x427d26	set_mp3_speed_from_stored_value()
 0x427d7d	try_shutdown_OID()
 0x427dec	mp3_or_pcm_resume()
 0x427ebd	mp3_or_pcm_pause()
@@ -2439,6 +2451,7 @@ skip 0x2bf5e
 0x4280a2	init_quiz_state_0()
 0x4280fe	get_num_quizzes()
 0x428213	play_sound_0x58()
+0x42825d	set_mp3_speed_normal()
 0x428268	OID_close_unconditionally()
 
 0x41026e	quiz_answer_type_3
@@ -3562,8 +3575,8 @@ skip 0x2bf5e
 0x3dc0	fw_config_3021b__00000000
 0x3dc2	fw_config_302fc__000045f2
 
-0x3dc4	aux_timer_counter_10Hz
-0x3dc6	aux_timer_target
+0x3dc4	bedtime_timer_counter_10Hz
+0x3dc6	bedtime_timer_target
 0x3dc8	timer_counter_0.1Hz
 0x3dca	last_timer_value_bumped_every_second
 0x3dcc	timer_counter_10Hz

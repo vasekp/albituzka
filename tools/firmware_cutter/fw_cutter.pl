@@ -1,10 +1,11 @@
 ﻿# albi firmware file identifier/cutter
-# written by jindroush, published under MPL license
+# written by jindroush, published under MPL licence
 # part of https://github.com/jindroush/albituzka
 
 #cmdline:
 # fw_cutter.pl input_file [switches]
 # -save - save firmware internal files
+# -savebin - save firmware subparts
 #
 # input_file is update.chp/updateA.chp
 
@@ -17,8 +18,13 @@ my @oid_tbl_int2raw;
 &oid_converter_init();
 
 my $save_files = 0;
+my $save_bins = 0;
 
-my $in = "update.chp";
+#can't touch this!
+my $dbg_2bin = 0;
+my $dbg_3bin = 0;
+
+my $in = "updateA.chp";
 $in = shift @ARGV if( @ARGV );
 
 while( @ARGV )
@@ -28,11 +34,45 @@ while( @ARGV )
 	{
 		$save_files = 1;
 	}
+	elsif( $sw =~ /^\-(savebin|savebins|save_bin|save_bins)$/ )
+	{
+		$save_bins = 1;
+	}
 	else
 	{
 		die "Unknown switch $sw";
 	}
 }
+
+my %CODES = (
+	"0010" => "book_id",
+        "0020" => "set_volume_0",
+	"0040" => "mp3",
+	"0042" => "mp3 pause",
+	"0043" => "mp3 play",
+	"0044" => "mp3 stop",
+	"0045" => "mp3 prev",
+	"0046" => "mp3 next",
+	"0030" => "vol+",
+	"0031" => "vol-",
+	"0050" => "compare",
+	"0060" => "sound_rec",
+	"0062" => "sound_play",
+	"0080" => "stop",
+	"0090" => "mode_05",
+	"0091" => "mode_04",
+	"0092" => "mode_03",
+	"0093" => "mode_02",
+	"0094" => "mode_01",
+	"0095" => "mode_06",
+	"0096" => "mode_07",
+	"0097" => "mode_08",
+	"0098" => "mode_09",
+	"0099" => "mode_10",
+	"009A" => "mode_11",
+	"009B" => "mode_12",
+);
+
 
 #load whole file in memory
 open IN, $in or die "Can't open file '$in'";
@@ -69,32 +109,78 @@ printf( "1.bin [%06x-%06x/%06x-%06x] = %d\n", $b1b, $b1e, $f1b, $f1e, ( $b1e - $
 printf( "2.bin [%06x-%06x/%06x-%06x] = %d\n", $b2b, $b2e, $f2b, $f2e, ( $b2e - $b2b ) * 2 );
 printf( "3.bin [%06x-%06x/%06x-%06x] = %d\n", $b3b, $b3e, $f3b, $f3e, ( $b3e - $b3b ) * 2 );
 
-printf "Computed length: %s\n", ( ($b3e-$b1b)*2 == $length )? "Ok!" : "mismatch!";
-printf( "unk: %08X\n", shift @dw );
+my $expected_length = ($b3e-$b1b)*2;
+printf "Computed length: %08X / real: %08X = %s\n", $expected_length, $length, ( $expected_length == $length )? "Ok!" : "mismatch!";
+printf( "unknown (checksum?): %08X\n", shift @dw );
+#still don't know what that may be
+#my $chk = &checksum_pram( 0x400000, 0xb0 / 2 );
+#printf( "comp: %08X\n", $chk );
 my $verptr = shift @dw;
 printf( "pointer to version: %08X\n", $verptr );
 my $str = decode( "utf-16le", substr( $buf, ($verptr-$b1b)*2, 0x32 ) );
 printf( "ver: %s\n", $str );
 
-#read chip type from offset 0x100
-my $chip = pack( "C*", reverse unpack( "C*", substr( $buf, 0x100, 7 ) ) );
-printf "chip: %s\n", $chip;
-
-my( $w1, $w2, $w3, $int, $w4, $w5, $dw6 ) = unpack( "vvvVvvV", substr( $buf, 0x108, 18 ) );
-printf "modules count: %04X\n", $w1;
-printf "project id: %04X\n", $w2;
-printf "PRAM length: %04X\n", $w3;
-printf "PRAM start: %08X\n", $int;
-printf "PRAM addr: %04X\n", $w4;
-printf "unk5: %04X\n", $w5;
-printf "unk6: %08X\n", $dw6;
-
 &extract_1bin();
 &extract_2bin();
 &extract_3bin();
 
+sub checksum_pram()
+{
+	my $ptr = $_[0];
+	my $words = $_[1];
+
+	$ptr -= 0x400000;
+	$ptr *= 2;
+
+	my $sum = 0;
+	while( $words-- )
+	{
+		$sum += unpack( "v", substr( $buf, $ptr, 2 ) );
+		$ptr+= 2;
+	}
+	return $sum;
+}
+
 sub extract_1bin()
 {
+	if( $save_bins )
+	{
+		open OUT, ">1bin.bin" or die;
+		binmode OUT;
+		print OUT substr( $buf, $f1b, $f1e - $f1b );
+		close OUT;
+	}
+
+	#read chip type from offset 0x100
+	my $chip = pack( "C*", reverse unpack( "C*", substr( $buf, 0x100, 7 ) ) );
+	printf "chip: %s\n", $chip;
+
+	my $modcnt = unpack( "v", substr( $buf, 0x108, 2 ) );
+	printf "modules count: %d\n", $modcnt;
+
+	for( my $i = 0; $i < $modcnt; $i++ )
+	{
+		my ( $prjid, $pram_len, $pram_fw_addr, $pram_addr, $checksum ) = unpack( "vvVVV", substr( $buf, 0x10A + $i * 16, 16 ) );
+	
+		my $chk = &checksum_pram( $pram_fw_addr, $pram_len );
+
+		printf "%2d) PrjId:%04X  PRAM:%06x len:%04x from:%06x [%08X]  checksum:%s\n",
+			$i, $prjid, $pram_addr, $pram_len, $pram_fw_addr, ( $pram_fw_addr - 0x400000 ) * 2, ( $chk == $checksum ) ? "ok" : "mismatch";
+
+		if( $save_bins )
+		{
+			open OUT, sprintf( ">1bin_module%02d.bin", $i );
+			binmode OUT;
+			print OUT substr( $buf, ( $pram_fw_addr - 0x400000 ) * 2, $pram_len );
+			close OUT;
+		}
+	}
+
+	#we saw this in albi firmware only
+	my $dw634 = unpack( "V", substr( $buf, 0x634, 4 ) );
+	$dw634 = ( $dw634 - 0x400000 ) * 2;
+	return if( $dw634 != 0x638 );
+
 	if( $save_files )
 	{
 		open OUT, ">:encoding(utf8)", "1bin_extracted_texts.txt" or die;
@@ -126,18 +212,39 @@ sub extract_1bin()
 	print "1bin found $i texts\n";
 }
 
+#debugging only
+sub mark_rbuf()
+{
+	my $rbuf = $_[0];
+	my $ptr = $_[1];
+	my $len = $_[2];
+
+	substr( $$rbuf, $ptr, $len ) = '#' x $len
+}
+
 sub extract_2bin()
 {
+	if( $save_bins )
+	{
+		open OUT, ">2bin.bin" or die;
+		binmode OUT;
+		print OUT substr( $buf, $f2b, $f2e - $f2b );
+		close OUT;
+	}
+
 	my @d;
 	my $fptr = undef;
-	my $b2bm = ( $b2b - 0x400000 ) * 2;
-	my $b2em = ( $b2e - 0x400000 ) * 2;
-	my $ptr = $b2bm;
+	my $ptr = $f2b;
+
+	my $rbuf;
+	$rbuf = substr( $buf, $f2b, $f2e - $f2b ) if( $dbg_2bin );
 
 	REPT:
 	my ( $f, $l ) = unpack( "VV", substr( $buf, $ptr, 8 ) );
-	$f += $b2bm;
-	$l += $b2bm;
+	&mark_rbuf( \$rbuf, $ptr - $f2b, 8 ) if( $dbg_2bin );
+
+	$f += $f2b;
+	$l += $f2b;
 	$ptr += 4;
 	push @d, [$f,$l-$f];
 	$fptr = $f if( ! defined $fptr );
@@ -153,148 +260,205 @@ sub extract_2bin()
 
 		if( $save_files )
 		{
-			last if( $f >= $b2em );
+			last if( $f >= $f2e );
 	
-			printf( "2bin [%04X] %d) %08X (%08X) [%08X]\n", $cnt, $cnt, $f, $f-$b2bm, $f + $l );
+			my $fname = sprintf( "2bin-%03d.mp3", $cnt );
+			printf( "$fname [%04X] %d) %08X (%08X) [%08X]\n", $cnt, $cnt, $f, $f-$f2b, $f + $l );
 
-			open OUT, ">" . sprintf( "2bin-%03d.mp3", $cnt ) or die;
+			open OUT, ">$fname" or die;
 			binmode OUT;
 			print OUT substr( $buf, $f, $l );
+			&mark_rbuf( \$rbuf, $f - $f2b, $l ) if( $dbg_2bin );
 			close OUT;
 		}
 	}
-	print "2bin found ", scalar( @d ), " mp3s\n";
+	print "2bin: found ", scalar( @d ), " mp3s\n";
+
+	if( $dbg_2bin )
+	{
+		open OUT, ">2bin_rbuf.dat" or die;
+		binmode OUT;
+		$rbuf =~ s/#+//g;
+		print OUT $rbuf;
+		close OUT;
+	}
 }
 
 sub extract_3bin()
 {
-	printf( "one time pad [%06x-%06x]\n", ( $b3b - 0x400000 ) *2, ( $b3b - 0x400000 ) * 2 + 0x10000 );
-	printf( "oid2fw codes [%06x-%06x]\n", ( $b3b - 0x400000 ) *2 + 0x10000, ( $b3b - 0x400000 ) * 2 + 0x10000 + 0x20000 );
+	if( $save_bins )
+	{
+		open OUT, ">3bin.bin" or die;
+		binmode OUT;
+		print OUT substr( $buf, $f3b, $f3e - $f3b );
+		close OUT;
+	}
 
-	my $b3bm = ( $b3b - 0x400000 ) * 2; 
+	my @d;
+	my $fptr = undef;
+	my $ptr = $f3b;
 
-	printf( "dword tbl [%06x]\n", $b3bm + 0x30340 );
+	my $rbuf;
+	$rbuf = substr( $buf, $f3b, $f3e - $f3b ) if( $dbg_3bin );
 
-	my @dws = unpack( "V*", substr( $buf, $b3bm + 0x30340, 4*4 ) );
+	printf( "one time pad [%06x-%06x]\n", $f3b, $f3b * 2 + 0x10000 );
+	printf( "oid2fw codes [%06x-%06x]\n", $f3b + 0x10000, $f3b + 0x10000 + 0x20000 );
+
+	&mark_rbuf( \$rbuf, 0, 0x10000 ) if( $dbg_3bin );
+	&mark_rbuf( \$rbuf, 0x10000, 0x20000 ) if( $dbg_3bin );
+
+	my $but_tbl = $f3b + 0x30000;
+	printf( "button assignment table 3bin/30000: [%06X]\n", $but_tbl );
+        print( "  bt len    " );
+	for( my $j = 0; $j < 16; $j++ )
+	{
+		printf( "%02x ", $j );
+	}
+	print "\n";
+
+	my %bcodes;
+	for( my $i = 0; $i < 8; $i++ )
+	{
+		printf( "  %02x short: ", $i );
+		for( my $j = 0; $j < 16; $j++ )
+		{
+			my $bcode = unpack( "C", substr( $buf, $but_tbl + $i*32 + $j, 1 ) );
+			printf( "%02x ", $bcode );
+			$bcodes{ $bcode } = 1;
+		}
+		printf( "\n  %02x long : ", $i );
+		for( my $j = 0; $j < 16; $j++ )
+		{
+			my $bcode = unpack( "C", substr( $buf, $but_tbl + $i*32 + 16 + $j, 1 ) );
+			printf( "%02x ", $bcode );
+			$bcodes{ $bcode } = 1;
+		}
+		print( "\n" );
+	}
+	&mark_rbuf( \$rbuf, 0x30000, 8*32 ) if( $dbg_3bin );
+	printf( "  button codes: " );
+	foreach my $bcode ( sort { $a <=> $b } keys %bcodes )
+	{
+		next if( $bcode == 0xff );
+		my $bcodea = sprintf( "%04X", $bcode );
+		if( exists $CODES{ $bcodea } )
+		{
+			printf( "%02X:%s ", $bcode, $CODES{ $bcodea } );
+		}
+		else
+		{
+			printf( "[%02X:*UNK*] ", $bcode );
+		}
+	}
+	print "\n";
+
+
+	printf( "dword tbl 3bin/30340 [%06x]\n", $f3b + 0x30340 );
+
+	my @dws = unpack( "V*", substr( $buf, $f3b + 0x30340, 4*4 ) );
 
 	for( my $i = 0; $i < 4; $i++ )
 	{
-		printf( "  dw%d: [%06x/%06x]\n", $i, $dws[$i], $dws[$i]+$b3bm );
+		printf( "  dw%d: [%06x/%06x]\n", $i, $dws[$i], $dws[$i]+$f3b );
+                &mark_rbuf( \$rbuf, $i*4 + 0x30340, 4 ) if( $dbg_3bin );
 	}
 
-	$dws[0] += $b3bm;
-	$dws[1] += $b3bm;
-	$dws[2] += $b3bm;
-	$dws[3] += $b3bm;
-
-	printf "3bin/part 1 (1st mp3s) follows [%06x]\n", 0x30400+$b3bm;
+	#todo question is if this is hardcoded number, or read from the config words?
+	printf "3bin/part 1 (1st mp3s) follows [%06x]\n", 0x30400+$f3b;
 	my $cnt = -1;
-	for( my $ptr = 0x30400+$b3bm; $ptr < 0x30500 + $b3bm; $ptr += 8 )
+	for( my $ptr = 0x30400; $ptr < 0x30500; $ptr += 8 )
 	{
 		$cnt++;
-		my ( $f, $l ) = unpack( "VV", substr( $buf, $ptr, 8 ) );
+		my ( $f, $l ) = unpack( "VV", substr( $buf, $ptr + $f3b, 8 ) );
+		&mark_rbuf( \$rbuf, $ptr, 8 ) if( $dbg_3bin );
 		next if( $f == 0x0 || $f == 0xFFFFFFFF );
-
-		$f += $b3bm;
 
 		if( $l && $save_files )
 		{
-			printf( "[%04X] %d) %06x [%06x]\n", $cnt, $cnt, $f, $f + $l );
-        		open OUT, ">" . sprintf( "3bin_1-%03d.mp3", $cnt ) or die;
+			my $fname = sprintf( "3bin_1-%03d.mp3", $cnt );
+
+			printf( "$fname [%04X] %d) %06x [%06x]\n", $cnt, $cnt, $f + $f3b, $f + $f3b + $l );
+        		open OUT, ">$fname" or die;
 			binmode OUT;
-			print OUT substr( $buf, $f, $l );
+			print OUT substr( $buf, $f + $f3b, $l );
+			&mark_rbuf( \$rbuf, $f, $l ) if( $dbg_3bin );
 			close OUT;
 		}
 	}
 
-	printf "3bin/part 2 (unknown) follows [%08X]\n", $dws[0];
+	printf "3bin/part 2 (unknown) follows [%06x]\n", $dws[0] + $f3b;
 	$cnt = 0;
 	for( my $ptr = $dws[0]; $ptr < $dws[0]+0x200; $ptr += 4 )
 	{
-		my $f = unpack( "V", substr( $buf, $ptr, 4 ) );
-		if( $save_files )
+		my $f = unpack( "V", substr( $buf, $ptr+ $f3b, 4 ) );
+		&mark_rbuf( \$rbuf, $ptr, 4 ) if( $dbg_3bin );
+		if( 1 && $save_files )
 		{
 			printf( "[%04X] %d) %08X\n", $cnt, $cnt, $f );
 		}
 		$cnt++;
 	}
 
-	printf "3bin/part 3 (2nd mp3s) follows [%08X]\n", $dws[1];
+	printf "3bin/part 3 (2nd mp3s) follows [%06x]\n", $dws[1] + $f3b;
 	$cnt = -1;
 	for( my $ptr = $dws[1]; $ptr < $dws[1]+0x500; $ptr += 8 )
 	{
 		$cnt++;
-		my ( $f, $l ) = unpack( "VV", substr( $buf, $ptr, 8 ) );
+		my ( $f, $l ) = unpack( "VV", substr( $buf, $ptr + $f3b, 8 ) );
+		&mark_rbuf( \$rbuf, $ptr, 8 ) if( $dbg_3bin );
 		next if( $f == 0x0 || $f == 0xFFFFFFFF );
-
-		$f += $b3bm;
 
 		if( $l && $save_files )
 		{
-			printf( "[%04X] %d) %08X [%08X]\n", $cnt, $cnt, $f, $f + $l );
-			open OUT, ">" . sprintf( "3bin_3-%03d.mp3", $cnt ) or die;
+			my $fname = sprintf( "3bin_3-%03d.mp3", $cnt );
+
+			printf( "$fname [%04X] %d) %08X [%06x]\n", $cnt, $cnt, $f + $f3b, $f + $f3b + $l );
+			open OUT, ">$fname" or die;
 			binmode OUT;
-			print OUT substr( $buf, $f, $l );
+			print OUT substr( $buf, $f + $f3b, $l );
+			&mark_rbuf( \$rbuf, $f, $l ) if( $dbg_3bin );
 			close OUT;
 		}
 	}
 
-	printf "3bin/part 4 (string tbl) follows [%08X]\n", $dws[2];
+	printf "3bin/part 4 (string tbl) follows [%06x]\n", $dws[2] + $f3b;
 	$cnt = -1;
 	for( my $ptr = $dws[2]; $ptr < $dws[2]+0x100; $ptr += 8 )
 	{
 		$cnt++;
 
-		my ( $f, $l ) = unpack( "VV", substr( $buf, $ptr, 8 ) );
+		my ( $f, $l ) = unpack( "VV", substr( $buf, $ptr + $f3b, 8 ) );
+		&mark_rbuf( \$rbuf, $ptr, 8 ) if( $dbg_3bin );
 		next if( $f == 0x0 || $f == 0xFFFFFFFF );
-		#printf( "%08X\n", $f );
 
-		$f += $b3bm;
 		next if( $l == 0 );
 
-		my $str = substr( $buf, $f, $l * 2 );
-		$str = decode( "utf16le", $str );
-		if( $save_files )
+		my $str = substr( $buf, $f + $f3b, $l * 2 );
+		&mark_rbuf( \$rbuf, $f, $l * 2 ) if( $dbg_3bin );
+		$str = decode( "utf16-le", $str );
+		if( 1 || $save_files )
 		{
 			printf( "[%02X] %d) %08X [%08X] %s\n", $cnt, $cnt, $f, $f + $l, $str );
 		}
 	
 	}
 
-	my @ws32 = unpack( "v*", substr( $buf, $b3bm + 0x30200, 16*2 ) );
+	my @ws32 = unpack( "v*", substr( $buf, $f3b + 0x30200, 16*2 ) );
 	printf( "3bin/30200: %s\n", join( "-", (map sprintf( "%04X",$_ ), @ws32 ) ) );
+	&mark_rbuf( \$rbuf, 0x30200, 16 * 2 ) if( $dbg_3bin );
 
-	my @ws3f = unpack( "v*", substr( $buf, $b3bm + 0x302fc, 2*2 ) );
+	my @ws3f = unpack( "v*", substr( $buf, $f3b + 0x302fc, 2*2 ) );
 	printf( "3bin/302fc: %s\n", join( "-", (map sprintf( "%04X",$_ ), @ws3f ) ) );
+	&mark_rbuf( \$rbuf, 0x302fc, 2 * 2 ) if( $dbg_3bin );
 
-	my @ws33 = unpack( "v*", substr( $buf, $b3bm + 0x30300, 8*2 ) );
+	my @ws33 = unpack( "v*", substr( $buf, $f3b + 0x30300, 8*2 ) );
 	printf( "3bin/30300: %s\n", join( "-", (map sprintf( "%04X",$_ ), @ws33 ) ) );
+	&mark_rbuf( \$rbuf, 0x30300, 8 * 2 ) if( $dbg_3bin );
 
-	my %CODES = (
-	"0010" => "book_id",
-	"0040" => "mp3",
-	"0042" => "mp3 pause",
-	"0043" => "mp3 play",
-	"0044" => "mp3 stop",
-	"0045" => "mp3 prev",
-	"0046" => "mp3 next",
-	"0030" => "vol+",
-	"0031" => "vol-",
-	"0050" => "compare",
-	"0080" => "stop?",
-	"0090" => "mode_05",
-	"0091" => "mode_04",
-	"0092" => "mode_03",
-	"0093" => "mode_02",
-	"0094" => "mode_01",
-	"0095" => "mode_06",
-	"0096" => "mode_07",
-	"0097" => "mode_08",
-	"0098" => "mode_09",
-	"0099" => "mode_10",
-	"009A" => "mode_11",
-	"009B" => "mode_12",
-	);
+	my $chform = substr( $buf, $f3b + 0x30310, 0x30 );
+	printf( "3bin/30310: %s\n", $chform );
+	&mark_rbuf( \$rbuf, 0x30310, 0x30 ) if( $dbg_3bin );
+
 
 	if( $save_files )
 	{
@@ -304,8 +468,8 @@ sub extract_3bin()
 
 		for( my $i = 0; $i < 0x20000; $i++ )
 		{
-			my $c = unpack( "C", ( substr( $buf, $b3bm + 0x10000 + $i, 1 ) ) );
-			my $k = unpack( "C", ( substr( $buf, $b3bm + $kptr / 2, 1 ) ) );
+			my $c = unpack( "C", ( substr( $buf, $f3b + 0x10000 + $i, 1 ) ) );
+			my $k = unpack( "C", ( substr( $buf, $f3b + $kptr / 2, 1 ) ) );
 
 			if( $c != 0 && $c != 0xFF && $c != $k && ( $c^0xFF) != $k )
 			{
@@ -344,6 +508,17 @@ sub extract_3bin()
 			}
 			$cnt++;
 		}
+		close OUT;
+	}
+
+
+	if( $dbg_3bin )
+	{
+		open OUT, ">3bin_rbuf.dat" or die;
+		binmode OUT;
+		$rbuf =~ s/\0{5,}/#/g;
+		$rbuf =~ s/#+//g;
+		print OUT $rbuf;
 		close OUT;
 	}
 }

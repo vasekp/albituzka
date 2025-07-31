@@ -1531,12 +1531,19 @@ skip 0x2bf5e
 0x00002e	naked_RAM[Ix0]=local(X0)
 0x000051	naked_RAM[Ix0,Ix0+1]=local(X0,X0+1)
 0x0002ea	probably_naked_OID_Init(void)
-0x000305	OID_Check_ReadData
+0x000305	naked_OID_Check_ReadData(void)
 0x00031f	OID_TransmitCmd_stk(wCmd)
 0x0003e8	PowerDown_OID_By_DSP()
-0x00067d	naked_sleep_short
-0x000673	naked_sleep_micro
-0x000678	naked_sleep_mini
+0x000673	naked_delay_2us
+0x000678	naked_delay_4us
+0x00067d	naked_delay_64us
+0x000683	naked_set_P0.15_as_input
+0x000687	naked_set_P0.15_as_output
+0x00068b	naked_set_P0.15_on
+0x00068f	naked_set_P0.15_off
+0x000693	naked_set_P0.14_on_INTEN_global_interrupt_enable
+0x00069a	naked_set_P0.14_on_INTEN_global_interrupt_enable_and_wait_4us
+0x00069f	naked_set_P0.14_off_INTEN_global_interrupt_disable_and_wait_2us
 
 # dword subtraction functions
 0x0007da	naked_Y0X0=X1X0_minus_Y1Y0
@@ -1772,7 +1779,7 @@ skip 0x2bf5e
 0x28aa63	FS_FReadSector(pData,pFile)
 0x28aa9c	FS_FWriteSector(pData,pFile)
 0x28b4ca	strlen_stk(szString)_ret_in_R0
-0x28b6bc	sleep_ms(milliseconds)
+0x28b6bc	delay_ms(milliseconds)
 0x28b873	MP3_Pause_OnOff(pauseOn)
 0x28bb17	IMAADPCM_Pause_OnOff(pauseOn)
 0x28bd00	naked_X0=Get_word_from_table_at_R1R0
@@ -1790,6 +1797,7 @@ skip 0x2bf5e
 0x28be43	probably_naked_SF_Disable(void)_void
 0x28bfb6	string_fname_filters_maybe1
 0x28bfc0	string_fname_filters_maybe2
+0x28b740	nonabi_wait_multiples_of_1.4us(wCnt)_void
 
 #code0
 0x006fd7	naked_MP3_or_PCM_GetStatus_is_PAUSE()_return_bool_in_R0
@@ -2294,7 +2302,7 @@ skip 0x2bf5e
 0x006553	ptr_encrypt(ptr,bytekey1,bytekey2,dwkey,loc)
 0x006859	bytewise_xor2keys(key1,key2,dword)
 0x006dc0	map_id2ptr_stk(map_id)_ptr_in_R0
-0x006f50	sleep_us(microseconds)
+0x006f50	delay_us(microseconds)
 0x40e610	mp3_temp_speed_up()
 0x40e68a	mp3_temp_speed_down()
 0x40e966	kill_repeat()
@@ -3548,7 +3556,9 @@ skip 0x2bf5e
 
 
 
-#ram
+#ram for rom
+0x023f	last_oid_command?
+
 
 0x3680	file_dirhandle_unk1
 0x3681	file_dirhandle_unk2_dw

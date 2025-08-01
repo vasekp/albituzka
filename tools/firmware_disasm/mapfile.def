@@ -1725,8 +1725,10 @@ skip 0x2bf5e
 0x000c84	naked_Y1Y0=local(X1,X1+1)
 0x000c87	naked_Y1Y0=local(Y1,Y1+1)
 
-0x0000d7	naked_X0=X1_div_Y1
-0x000c33	naked_X0=X1_div_Y1_signed
+0x0000d7	naked_X0=X1_div_Y1_Y0=X1_mod_Y1
+0x000c99	naked_X0=X1_mod_Y1
+0x000c33	naked_X0=X1_div_Y1_signed_Y0=X1_mod_Y1
+0x000c5c	naked_X0=X1_mod_Y1_signed
 
 0x000c9d	naked_X1X0=ROM[X0:Ix0,X0:Ix0+1]
 0x000ca1	naked_Y1Y0=ROM[X1:Ix1,X1:Ix1+1]
@@ -1763,8 +1765,6 @@ skip 0x2bf5e
 0x000c53	naked_pop_3_words
 0x000c54	naked_pop_Y0_words
 
-0x000c99	naked_X0=X1_mod_Y1
-
 
 #rom2
 0x282076	equalizer_set_active(bActive)
@@ -1774,13 +1774,19 @@ skip 0x2bf5e
 0x2897d0	MP3_ChangeSpeed(wDelta)
 0x289fa3	naked_R1R0=X1X0_mod_Y1Y0
 0x289fa5	naked_R1R0=X1X0_div_Y1Y0
+0x28a0f1	strncmp(szLhs,szRhs,wCount)
 0x28a666	naked_R1R0=R1R0_mul_X1X0
 0x28a668	naked_R1R0=X1X0_mul_Y1Y0
 0x28aa63	FS_FReadSector(pData,pFile)
 0x28aa9c	FS_FWriteSector(pData,pFile)
+0x28aad5	read_first_sector(0,pDirEnt,0,pBuffer)
+0x28b1e5	strchr(szStr,wChr)
+0x28b2b0	FS_DirRewind(pDir)
 0x28b4ca	strlen_stk(szString)_ret_in_R0
 0x28b6bc	delay_ms(milliseconds)
 0x28b873	MP3_Pause_OnOff(pauseOn)
+0x28b93d	FS_DirClose(pDir)
+0x28ba0f	toupper(wChar)
 0x28bb17	IMAADPCM_Pause_OnOff(pauseOn)
 0x28bd00	naked_X0=Get_word_from_table_at_R1R0
 0x28bcfd	naked_X0=Get_word_from_table_at_RAM[Ix0,Ix0+1]
@@ -1807,9 +1813,9 @@ skip 0x2bf5e
 0x0056aa	Something_with_updateA_chp
 0x0058a9	dynamic_halt
 0x006c11	naked_void_Init_of_large_mem_blocks_3e3d_3e0d(void)
-0x006948	lib_seek_stk(wHandle,dwPtr,wWhence)_return?
-0x006073	lib_fgetw_stk(wHandle,wBuffer)_return?
-0x006eb7	lib_fgetdw_stk(wHandle,wBuffer)_return?
+0x006948	lib_seek_stk(pFile,dwPtr,wWhence)_return?
+0x006073	lib_fgetw_stk(pFile,wBuffer)_return?
+0x006eb7	lib_fgetdw_stk(pFile,wBuffer)_return?
 
 #code1
 0x40012f	naked_RAM[Ix1,Ix1+1]=neg_X0X1
@@ -1882,7 +1888,7 @@ skip 0x2bf5e
 0x428272	naked_void_just_a_nop_2__return_0(void)
 0x42822d	naked_void_Init_3fe9=ffff_3ff6_3fa6(void)
 0x4218e4	File_Open_Lib_Call_Probably_stack(szFname,szAccess)_ret_errc_in_R0
-0x4277e9	File_Close_Lib_Probably_stk(wHandle)
+0x4277e9	File_Close_Lib_Probably_stk(pFile)
 0x427727	Set_user_volume_to_DAC_volume_stk(volume)
 0x4278d5	Set_user_volume_to_DAC_volume
 0x422324	Play_sound_from_2bin_table_stk(wSoundNum)
@@ -1896,7 +1902,7 @@ skip 0x2bf5e
 	0x423b68	addr 400054 is pointer to 3bin
 	0x424564	addr 400054 is pointer to 3bin
 	0x424a7f	addr 400054 is pointer to 3bin
-	0x41e8f2	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
+	0x41e8f2	probably_mp3_player_stk(pFile,dwOffset,dwLen,wFlag)
 
 0x427005	ReadWordFrom3bin+dwPtr_stk(dwPtr)_return_in_R0
 	0x423acf	3bin ptr 0x030344 2BD0
@@ -2254,6 +2260,8 @@ skip 0x2bf5e
 
 #not sure why the indirection when it's singleton (even the singleton itself is overkill, when it could be bunch of globals)
 0x3d6a	ptr_to_book_ctx
+0x3d05	num_files_bnl
+0x3d06	file_handle_bnl
 0x3d0b	book_ctx
 #book_ctx[0x0] word file handle
 #book_ctx[0x1] dword current OID
@@ -2286,22 +2294,26 @@ skip 0x2bf5e
 #book_ctx[0x3b] oid_min
 #book_ctx[0x3c] oid_max
 #book_ctx[0x3d] quiz count
-#book_ctx[0x4c] = 0x428365 (just retff) -> lib_seek_stk(wHandle,dwPtr,wWhence)_return?
+#book_ctx[0x4c] = 0x428365 (just retff) -> lib_seek_stk(pFile,dwPtr,wWhence)_return?
 #book_ctx[0x4e] = 0x428365 (just retff)
-#book_ctx[0x50] = 0x428365 (just retff) -> lib_fgetw_stk(wHandle,wBuffer)_return?
-#book_ctx[0x52] = 0x428365 (just retff) -> lib_fgetdw_stk(wHandle,wBuffer)_return?
-#book_ctx[0x54] = 0x428365 (just retff) -> probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
+#book_ctx[0x50] = 0x428365 (just retff) -> lib_fgetw_stk(pFile,wBuffer)_return?
+#book_ctx[0x52] = 0x428365 (just retff) -> lib_fgetdw_stk(pFile,wBuffer)_return?
+#book_ctx[0x54] = 0x428365 (just retff) -> probably_mp3_player_stk(pFile,dwOffset,dwLen,wFlag)
 #book_ctx[0x56] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PLAY()_return_bool_in_R0
 #book_ctx[0x58] = 0x428365 (just retff) -> naked_MP3_GetStatus_is_PAUSE()_return_bool_in_R0
 #book_ctx[0x5a] = 0x428365 (just retff) -> mp3_stop()
 #book_ctx[0x5c] -> 0x422324 Play_sound_from_2bin_table_stk(sound_num)
 #book_ctx[0x5e] = pointer to quiz structure (0x3c41)
 
-0x0045e1	determine_int_format_in_memory(ptr)
+0x004035	FS_DirRead(pDir)
+0x0045e1	determine_int_format_from_header(pData)
 0x004dff	SN95302_ParsingData(&flag,&data1,&data2)
+0x005f6b	count_books__preload_50_book_ids(pDir,szFileExt)
+0x006162	get_book_id_from_header(pData)
 0x006553	ptr_encrypt(ptr,bytekey1,bytekey2,dwkey,loc)
 0x006859	bytewise_xor2keys(key1,key2,dword)
 0x006dc0	map_id2ptr_stk(map_id)_ptr_in_R0
+0x006e5f	FS_DirGetExtFile_wrapper(pDir,wIndex,szFileExt)
 0x006f50	delay_us(microseconds)
 0x40e610	mp3_temp_speed_up()
 0x40e68a	mp3_temp_speed_down()
@@ -2318,6 +2330,10 @@ skip 0x2bf5e
 0x41bc72	autoadvance_oid_play_first()
 0x41c05a	oid_to_fwcode(dw_oid)
 0x41d4f6	quiz_time_step_1Hz()
+0x41e0bd	find_book(wFlag,wBokId)
+# flag = 1: find book with given id
+# flag = 2: next BNL (ignore id)
+# flag = 3: previous BNL (ditto)
 0x41eb57	start_quiz()
 0x41ef76	finalize_mp3_key(pKeyIn,pKeyOut,dwArg1,dwArg2)
 0x41f179	play_bnl_mp3(index)
@@ -2332,7 +2348,7 @@ skip 0x2bf5e
 0x4204cb	check_button_state()
 0x420c1c	autoadvance_oid_play_next()
 0x420da8	find_temp_bookmode_and_sound_table(sndts_start)
-0x420f2e	init_book(file)
+0x420f2e	init_book(pFile)
 0x4210b0	play_system_sound(wId)
 #The id is a number between 0 and 399 (decimal) with the same meaning as in Play_sound_from_3bin_forked_stk. HOWEVER:
 #- A check is done on a yet unassigned bitfield, which skips some sounds (generally jingles - silent mode?)
@@ -2378,10 +2394,15 @@ skip 0x2bf5e
 0x42370d	time_step_10Hz()
 0x4239d7	play_oid_sndt_index(oid,sound_index)
 0x423e3a	play_oid_sndt_from_start(oid)
+0x423fe9	autoadvance_play_next_oid()
+0x4240bc	autoadvance_play_prev_oid()
 0x42418a	find_wrong_answer_by_oid(oid)
+0x4247bf	play_current_oid_mode_1()
+0x424ab4	open_dir(szDirName)
 0x424cdb	initiate_poweroff()
 0x424e2e	load_question_types_0,1,3()
 0x4251d6	get_next_random_question()
+0x425385	repeat_last_oid(wNumTimes)
 0x4256ae	button_to_fwcode(button,is_long,mode)
 0x4256eb	b2fw_is_long
 0x4256d4	b2fw_is_short_odd_mode
@@ -2389,6 +2410,7 @@ skip 0x2bf5e
 0x425729	b2fw_final_result
 0x425727	b2fw_invalid_result
 0x42572e	find_next_nonempty_mode_within(oidt_start,size)
+0x4258a1	poll_interrupts()
 0x425995	read_book_modes()
 0x425a0f	read_book_id()
 0x425a89	prepare_questions_bitset(num_questions)
@@ -2396,6 +2418,7 @@ skip 0x2bf5e
 0x425c5f	find_answer_by_oid(oid)
 0x425cd3	set_bedtime_timer_by_oid(wOID)
 0x425f06	read_3bin_tbl_unk(index)
+0x425f75	get_file_ext_uppercase(pDirEnt,pBuffer)
 0x425fe3	evaluate_answer_sequential(ans_index)
 0x426051	set_mode_0_play_oid(oid)
 0x4260bf	prepare_answers_bitset(num_answers)
@@ -2420,6 +2443,7 @@ skip 0x2bf5e
 0x427086	wrong_answers_bit_clear(ans_index)
 0x4270c6	is_questions_bitset_defaulted()
 0x427145	set_mode_0_forget_last_oid()
+0x427183	count_files_bnl__save_in_global()
 0x427237	questions_bit_set(q_index)
 0x427273	xor_two_byte_keys(key1,key2,value)
 0x427322	answers_bit_check_zero(ans_index)
@@ -2513,8 +2537,8 @@ skip 0x2bf5e
 	0x423884	tbl_encrypt_permutation_other[0x16]
 
 
-0x42591b	probably_mp3_player_stk(wHandle,dwOffset,dwLen,wFlag)
-	0x42591b	wHandle could be 0, it may mean playing from fw? wFlag seen 0, 1, 2
+0x42591b	probably_mp3_player_stk(pFile,dwOffset,dwLen,wFlag)
+	0x42591b	pFile could be 0, it may mean playing from fw? wFlag seen 0, 1, 2
 
 0x4264e2	main_mode_dispatch
 	0x4264fa	main_mode_process
@@ -3008,7 +3032,10 @@ skip 0x2bf5e
 #  3: OID, mode 0 sound table (book_mode set to 0 on replay).
 
 0x3da0	battery_warning_flag
+0x3da4	book_open_explain_switch
 0x3da6	oid_repeat
+0x3da7	action_data_2
+0x3da9	action_data_1
 0x3dab	penstate
 0x3dac	inactivity_timer
 0x3dad	poweroff_timer
@@ -3056,6 +3083,8 @@ skip 0x2bf5e
 0x3e01	mp3_speed
 0x3e02	da_fu_weng_mode
 0x3e04	some_random_seeding
+0x3e0d	preloaded_bnl_book_ids
+#size = 50 (0x32) words
 
 
 
